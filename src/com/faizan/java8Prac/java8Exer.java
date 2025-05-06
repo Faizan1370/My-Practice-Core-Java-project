@@ -43,6 +43,15 @@ public class java8Exer {
 		System.out.println(character);
 	}
 	
+	public static void firstNonRepeatingChar1() {
+		String str= "Faizan";
+		 Character character = str.chars().mapToObj(c->(char)c)
+		.filter(c->str.indexOf(c)==str.lastIndexOf(c))
+		.findFirst()
+		.get();
+		 System.out.println(character);
+	}
+	
 	public static void firstRepeatingChar() {
 		String str= "Faizan";
 		 Character character = str.chars().mapToObj(c->(char)c)
@@ -56,6 +65,16 @@ public class java8Exer {
 		System.out.println(character);
 	}
 	
+
+	public static void firstRepeatingChar1() {
+		String str= "Faizan";
+		 Character character = str.chars().mapToObj(c->(char)c)
+		.filter(c->str.indexOf(c)!=str.lastIndexOf(c))
+		.findFirst()
+		.get();
+		 System.out.println(character);
+	}
+	
 	public static void sortElement() {
 		List<Integer> list = Arrays.asList(5,7,3,89,23,54);
 		list.stream().sorted().forEach(num->System.out.println(num));
@@ -64,6 +83,11 @@ public class java8Exer {
 	public static void sortReveseElement() {
 		List<Integer> list = Arrays.asList(5,7,3,89,23,54);
 		list.stream().sorted(Collections.reverseOrder()).forEach(num->System.out.println(num));
+	}
+	
+	public static void sortReveseElement1() {
+		List<Integer> list = Arrays.asList(5,7,3,89,23,54);
+		list.stream().sorted(Comparator.reverseOrder()).forEach(num->System.out.println(num));
 	}
 	
 	 public static void mergerTwoStream() {
@@ -146,7 +170,7 @@ public class java8Exer {
 		   System.out.println(integer);
 		   
 	  }
-	  
+	
 	  public static void convertIntoMap() {
 		 // List<String> list =Arrays.asList("abc","abrt");
 		  List<String> list =List.of("abc","abrt");
@@ -187,7 +211,7 @@ public class java8Exer {
 			 .stream()
 			 .forEach(System.out::println);
 		 }
-		
+		 
 		 public static void findKthHiesetSal() {
 			 int k=2;
 			 Optional<Employee> first = list.stream().sorted(Comparator.comparingInt(Employee::getSalary).reversed())
@@ -303,6 +327,8 @@ public class java8Exer {
 	public static void main(String[] args) {
 		//evenNumber();
 		//firstNonRepeatingChar();
+		//firstRepeatingChar1();
+		//firstNonRepeatingChar1();
 		//firstRepeatingChar();
 		//sortElement();
 		//sortReveseElement();
@@ -325,7 +351,8 @@ public class java8Exer {
 		//combineTwoPredicate();
 		//combineTwoComsumer();
 		//combineTwoSupplier();
-		combineTwoFunctions();
+		//combineTwoFunctions();
+		sortReveseElement1();
 	}
 
 }

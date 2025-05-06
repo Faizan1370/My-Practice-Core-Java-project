@@ -204,12 +204,12 @@ public class StringExer {
 		//sortStringArray1();
 		//countDigitCharSpace();
 		//checkAnagramString();
-		//checkLogestPrefixInStringAarray();
+		checkLogestPrefixInStringAarray();
 		//checkStringPalin();
 		//checkFirstNonRepeatingChar1();
 		//checkFirstRepeatingChar();
 		//checkFirstRepeatingChar1();
-		stringCompreses();
+		//stringCompreses();
 	}
 
 }

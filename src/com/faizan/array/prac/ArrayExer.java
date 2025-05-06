@@ -100,15 +100,17 @@ public class ArrayExer {
 	 }
 	 
 	 public static void kthLargestElement() {
-		 int[] a= {5,7,3,6,9,2};
-		 int k=3;
+		 int[] a= {1,6,7,9};
+		 int k=2;
 		 PriorityQueue<Integer> integers = new PriorityQueue<Integer>();
 		 for(int i=0;i<a.length;i++) {
 			 integers.offer(a[i]);
 			 if(integers.size()>k) {
+				 System.out.println(a[i]);
 				 integers.poll();
 			 }
 		 }
+		 System.out.println(integers);
 		 System.out.println(integers.peek());
 	 }
 	 
