@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
+import java.util.stream.Stream;
 
 public class Pract {
 	
@@ -30,6 +31,12 @@ public class Pract {
 	public static void streamToIntstream() {
 		List<Integer> list =Arrays.asList(2,5,7,8);
 		IntStream mapToInt = list.stream().mapToInt(num->num.intValue());
+	}
+	
+	public static void intStreamToStream() {
+		IntStream intStream = IntStream.of(4,7,8,3);
+		Stream<Integer> boxed = intStream.boxed();
+		Stream<Integer> mapToObj = intStream.mapToObj(num->(Integer)num);
 	}
 	public static void main(String[] args) {
 		//duplicateStrinArrayElementWithCount();

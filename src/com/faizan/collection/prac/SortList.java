@@ -61,7 +61,10 @@ public class SortList {
 	public static void sortListEmmployeeOnSal4() {
 		 List<Employee> collect = getEmployees().stream().sorted(Comparator.comparing(emp->emp.getSalary())).collect(Collectors.toList());
 		 System.out.println(collect);
-		}
+		 //List<Employee> collect = getEmployees().stream().sorted(Comparator.comparing(emp->((Employee) emp).getSalary()).reversed()).collect(Collectors.toList());
+		
+		 //getEmployees().stream().sorted(Comparator.comparing(Employee::getSalary).reversed()).collect(Collectors.toList());
+	}
 	
 	public static void sortListEmmployeeOnSal5() {
 		 List<Employee> collect = getEmployees().stream().sorted(Comparator.

@@ -2,6 +2,7 @@ package com.faizan.string.prac;
 
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -197,6 +198,37 @@ public class StringExer {
 		builder.append(str.charAt(str.length() - 1)).append(count);
 		System.out.println(builder.toString());
 	}
+	
+	public static void stringComppress1() {
+		String str="aaaabbbbaafffcccddd";
+		StringBuilder builder = new StringBuilder();
+		
+		Map<Character, Long> collect = str.chars().mapToObj(c->(char)c)
+		.collect(Collectors.groupingBy(Function.identity(),Collectors.counting()))
+		;
+		for(Map.Entry<Character,Long> entry :collect.entrySet()) {
+			builder.append(entry.getKey()).append(entry.getValue());
+		}
+		System.out.println(builder.toString());
+	}
+	// length of the longest substring without repeating characters.
+     //problem using the Sliding Window + HashMap technique.
+	public static int lengthOfLongestSubstring(String s) {
+	    Map<Character, Integer> map = new HashMap<>();
+	    int maxLen = 0;
+	    int start = 0;
+
+	    for (int end = 0; end < s.length(); end++) {
+	        char ch = s.charAt(end);
+	        if (map.containsKey(ch)) {
+	            start = Math.max(start, map.get(ch) + 1);
+	        }
+	        map.put(ch, end);
+	        maxLen = Math.max(maxLen, end - start + 1);
+	    }
+	    return maxLen;
+	}
+
 	
 	public static void main(String[] args) {
 		//countCharWithCount();

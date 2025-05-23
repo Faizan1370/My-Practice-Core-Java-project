@@ -4,14 +4,14 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 public class AtomicIntegerPracRaceCond {
 	
-	//private static int count=0;
+	private static int count=0;
 	
-	private static AtomicInteger count = new AtomicInteger(0);
+	//private static AtomicInteger count = new AtomicInteger(0);
 	
 	public void print() {
 		for(int i=0;i<1000;i++) {
-			//count++;
-			count.incrementAndGet();
+			count++;
+			//count.incrementAndGet();
 		}
 		
 	}

@@ -5,6 +5,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.PriorityQueue;
+import java.util.Stack;
 
 
 public class ArrayExer {
@@ -111,13 +112,92 @@ public class ArrayExer {
 			 }
 		 }
 		 System.out.println(integers);
-		 System.out.println(integers.peek());
+		 System.out.println(integers.peek());  //use to get zero index value
 	 }
 	 
 	 public static void unmodifiableArray() {
 		 int[] a= {5,7,9,3,8};
 		 List<int[]> unmodifiableList = Collections.unmodifiableList(Arrays.asList(a));
 	 }
+	 
+	 public static void insertElement() {
+		 int[] array= {5,6,1,8,0,3};
+		 int element =10;
+		 int position=3;
+		 for(int i =array.length-1;i>position-1;i--) {
+			 array[i]=array[i-1];
+		 }
+		 array[position-1] = element;
+		 System.out.println(Arrays.toString(array));
+	 }
+	 
+	 public static void deleteElement() {
+		 int[] array= {5,6,1,8,0,3};
+		 int element =8;
+		 for(int i=0;i<array.length;i++) {
+			 if(array[i]==element) {
+				for(int j=i;j<array.length-1;j++) {
+					array[j]=array[j+1];
+				}
+				break;
+			 }
+			// break;
+		 }
+		 System.out.println(Arrays.toString(array));
+	 }
+	 
+	 
+	 // Kaden's algo if sum vaues pos and negative will work fine but if alkl values nega wil not work
+	 public static void findMasSumSubArray() {
+		 int[] array = {3,5,-4,9,-10,7};
+		 
+		 int currentMax=0;
+		 int sumMax=0;
+		 for(int i=0;i<array.length;i++) {
+			 currentMax=currentMax+array[i];
+			 if(currentMax>sumMax) {
+				 sumMax=currentMax;
+			 }
+			 if(currentMax<0) {
+				 currentMax=0;
+			 }
+		 }
+		 System.out.println("sum Max :"+sumMax);
+	 }
+	 
+	 
+	 //This is final code which will work for all pos or nega values
+	 public static void findMaxSumSubArray() {
+		    int[] array = {3, 5, -4, 9, -10, 7};
+
+		    int currentMax = array[0];
+		    int sumMax = array[0];
+
+		    for (int i = 1; i < array.length; i++) {
+		        currentMax = Math.max(array[i], currentMax + array[i]);
+		        sumMax = Math.max(sumMax, currentMax);
+		    }
+
+		    System.out.println("sum Max: " + sumMax);
+		}
+	 
+	 public static int[] nextGreaterElements() {
+		 	int[] nums= {1,5,3,9,7};
+		    Stack<Integer> stack = new Stack<>();
+		    int[] result = new int[nums.length];
+
+		    for (int i = nums.length - 1; i >= 0; i--) {
+		        while (!stack.isEmpty() && stack.peek() <= nums[i]) {
+		            stack.pop();
+		        }
+		        result[i] = stack.isEmpty() ? -1 : stack.peek();
+		        stack.push(nums[i]);
+		    }
+		    System.out.println(Arrays.toString(result));
+		    return result;
+		}
+
+
 			
 	public static void main(String[] args) {
 		//rearangePosNegValue();
@@ -126,7 +206,11 @@ public class ArrayExer {
 		//reverseArray();
 		//checkAmostronge();
 		//showIndecesOfNum();
-		kthLargestElement();
+		//kthLargestElement();
+		//insertElement();
+		//deleteElement();
+		//findMaxSumSubArray();
+		nextGreaterElements();
 		
 	}
 

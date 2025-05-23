@@ -14,7 +14,7 @@ public class ConcurrentInListProb {
 		 list.add("hello");
 		 list.add("buddy");
 		 
-		 for(int i=0;i<50;i++) {
+		 for(int i=0;i<2000;i++) {
 			 list.add("abc"+i);
 			 try {
 					Thread.sleep(50);
@@ -27,11 +27,11 @@ public class ConcurrentInListProb {
 	 
 	 public void show() {
 	        while (true) {  // need to check every time list has data to iterate and we can remove sleep
-	            synchronized (list) { // can remove to show concurrent issue here
+	            //synchronized (list) { // can remove to show concurrent issue here
 	                for (String str : list) {
 	                    System.out.println(str);
 	                }
-	            }
+	           // }
 
 	            try {
 	                Thread.sleep(500); // Wait before showing updated snapshot
