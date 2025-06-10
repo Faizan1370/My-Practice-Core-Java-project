@@ -2,6 +2,7 @@ package com.faizan.array.prac;
 
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.PriorityQueue;
@@ -26,6 +27,46 @@ public class ArrayExer {
 		}
 		System.out.println(Arrays.toString(a));
 	}
+	
+	 public static void findKthLargest1() {
+	    	int[] array= {3,5,7,9,2};
+	    	int k=2;
+	    	 Integer integer = Arrays.stream(array)
+	    	 .mapToObj(num->(Integer)num)
+	    	 .sorted(Comparator.comparingInt(num->((Integer) num).intValue()).reversed())
+	    	 .skip(k-1)
+	    	 .findFirst()
+	    	 .get();
+	    	 System.out.println(integer);
+	    }
+
+	
+	 public static void rotateArrayByK(int[] array, int k) {
+	        int n = array.length;
+	        if (array == null || n == 0 || k <= 0 || k >= n) {
+	            System.out.println("Invalid input.");
+	            return;
+	        }
+
+	        // Normalize k in case it's > n
+	        k = k % n;
+
+	        // Step 1: Reverse whole array
+	        reverse(array, 0, n - 1);
+	        // Step 2: Reverse first k elements
+	        reverse(array, 0, k - 1);
+	        // Step 3: Reverse remaining n-k elements
+	        reverse(array, k, n - 1);
+	        System.out.println(Arrays.toString(array));
+	    }
+
+	    private static void reverse(int[] array, int start, int end) {
+	        while (start < end) {
+	            int temp = array[start];
+	            array[start++] = array[end];
+	            array[end--] = temp;
+	        }
+	    }
 	
 	public static void rightRotateByOneIndex(int k) {
 		int[] array= {4,6,1,3,6,8,2};

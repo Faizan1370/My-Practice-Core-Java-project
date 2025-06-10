@@ -325,6 +325,7 @@ public class java8Exer {
 	  
 	
 	public static void main(String[] args) {
+		groupByDepWithHieghestSal();
 		//evenNumber();
 		//firstNonRepeatingChar();
 		//firstRepeatingChar1();
@@ -352,7 +353,7 @@ public class java8Exer {
 		//combineTwoComsumer();
 		//combineTwoSupplier();
 		//combineTwoFunctions();
-		sortReveseElement1();
+		//sortReveseElement1();
 	}
 
 }

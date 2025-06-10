@@ -1,31 +1,27 @@
-package com.faizan.multithread.prac.prac;
+package com.faizan.multithread.prac.prac4;
 
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.ReentrantLock;
 
-public class TrafficLightReentractLock {
-	
+public class TrafficLightReentrantLock {
 	private static String red="red";
 	private static String yellow="yellow";
 	private static String green="green";
 	
 	private static String currentColor=red;
 	
-	ReentrantLock lock = new ReentrantLock();
+	static ReentrantLock lock = new ReentrantLock();
 	
 	Condition redCondition = lock.newCondition();
-	Condition yellowCondition = lock.newCondition();
-	Condition greemCondition = lock.newCondition();
-	 static ExecutorService executorService = Executors.newFixedThreadPool(3);
+	Condition yellowCondition =lock.newCondition();
+	Condition greenCondition =lock.newCondition();
+	
 	
 	public void printRed() {
 		while(true) {
 			lock.lock();
-			while(!currentColor.equalsIgnoreCase("red")) {
+			
+			while(!currentColor.equalsIgnoreCase(red)) {
 				try {
 					redCondition.await();
 				} catch (InterruptedException e) {
@@ -33,7 +29,7 @@ public class TrafficLightReentractLock {
 					e.printStackTrace();
 				}
 			}
-			System.out.println("current color is :"+currentColor);
+			System.out.println("Curent Color :"+currentColor);
 			try {
 				Thread.sleep(1000);
 			} catch (InterruptedException e) {
@@ -49,7 +45,8 @@ public class TrafficLightReentractLock {
 	public void printYellow() {
 		while(true) {
 			lock.lock();
-			while(!currentColor.equalsIgnoreCase("yellow")) {
+			
+			while(!currentColor.equalsIgnoreCase(yellow)) {
 				try {
 					yellowCondition.await();
 				} catch (InterruptedException e) {
@@ -57,7 +54,7 @@ public class TrafficLightReentractLock {
 					e.printStackTrace();
 				}
 			}
-			System.out.println("current color is :"+currentColor);
+			System.out.println("Curent Color :"+currentColor);
 			try {
 				Thread.sleep(1000);
 			} catch (InterruptedException e) {
@@ -65,23 +62,25 @@ public class TrafficLightReentractLock {
 				e.printStackTrace();
 			}
 			currentColor=green;
-			greemCondition.signal();
+			greenCondition.signal();
 			lock.unlock();
 		}
 	}
+
 	
 	public void printGreen() {
 		while(true) {
 			lock.lock();
-			while(!currentColor.equalsIgnoreCase("green")) {
+			
+			while(!currentColor.equalsIgnoreCase(green)) {
 				try {
-					greemCondition.await();
+					redCondition.await();
 				} catch (InterruptedException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
 			}
-			System.out.println("current color is :"+currentColor);
+			System.out.println("Curent Color :"+currentColor);
 			try {
 				Thread.sleep(1000);
 			} catch (InterruptedException e) {
@@ -94,16 +93,17 @@ public class TrafficLightReentractLock {
 		}
 	}
 	
-	public static void main(String[] args) throws InterruptedException, ExecutionException {
-		TrafficLightReentractLock lightReentractLock = new TrafficLightReentractLock();
-		 executorService.execute(()->lightReentractLock.printRed());
-		executorService.execute(()->lightReentractLock.printYellow());
-		 executorService.execute(()->lightReentractLock.printGreen());
-		 
-		 executorService.shutdown();
+	public static void main(String[] args) {
+		TrafficLightReentrantLock light = new TrafficLightReentrantLock();
+		Thread t1 = new Thread(()->light.printRed());
+		Thread t2 = new Thread(()->light.printYellow());
+		Thread t3 = new Thread(()->light.printGreen());
 		
-		
-		
+		t1.start();
+		t2.start();
+		t3.start();
 	}
+
+
 
 }

@@ -195,8 +195,9 @@ public class SortingArrayAlgo {
   public static void main(String[] args) {
 	  int[] arr = {6, 3, 8, 5, 2, 7, 4, 1};
       //quickSort(arr, 0, arr.length - 1);
-	  timSort(arr);
-      System.out.println("Sorted array using Quick Sort:");
-      System.out.println(Arrays.toString(arr));
+	  //timSort(arr);
+      //System.out.println("Sorted array using Quick Sort:");
+      //System.out.println(Arrays.toString(arr));
+	  insertionSort();
 }
 }

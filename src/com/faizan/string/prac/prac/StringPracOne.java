@@ -1,6 +1,7 @@
 package com.faizan.string.prac.prac;
 
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -127,12 +128,35 @@ public class StringPracOne {
 		}
 		System.out.println(countChar +" "+countDigit +" "+countSpace + " "+other);
 	}
+	
+	public static void longestSubstring() {
+		String str="faizan";
+		Map<Character,Integer> map = new HashMap<Character, Integer>();
+		int maxLen=0;
+		int start=0;
+		int maxStart=0;
+		
+		for(int end =0;end<str.length();end++) {
+			char c= str.charAt(end);
+			if(map.containsKey(c)) {
+				start=Math.max(start, map.get(c)+1);
+			}
+			map.put(c, end);
+			if(end-start+1>maxLen) {
+				maxLen=end-start+1;
+				maxStart=start;
+			}
+		}
+		 String substring = str.substring(maxStart, maxStart+maxLen);
+		 System.out.println(substring);
+	}
 	public static void main(String[] args) {
 		//findLongestPrefix();
 		//stringComppress1();
 		//findAnagram();
 		//findPalin();
-		countCharDidgit();
+		//countCharDidgit();
+		longestSubstring();
 	}
 
 }
