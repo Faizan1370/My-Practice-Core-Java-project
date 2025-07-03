@@ -4,6 +4,7 @@ import java.util.Arrays;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.PriorityQueue;
+import java.util.Stack;
 
 
 
@@ -218,6 +219,38 @@ public class Ex7 {
 		}
 		
 	}
+	
+	 //This is final code which will work for all pos or nega values
+	 public static void findMaxSumSubArray() {
+		    int[] array = {3, 5, -4, 9, -10, 7};
+
+		    int currentMax = array[0];
+		    int sumMax = array[0];
+
+		    for (int i = 1; i < array.length; i++) {
+		        currentMax = Math.max(array[i], currentMax + array[i]);
+		        sumMax = Math.max(sumMax, currentMax);
+		    }
+
+		    System.out.println("sum Max: " + sumMax);
+		}
+	 
+	 public static int[] nextGreaterElements() {
+		 	int[] nums= {1,5,3,9,7};
+		    Stack<Integer> stack = new Stack<>();
+		    int[] result = new int[nums.length];
+
+		    for (int i = nums.length - 1; i >= 0; i--) {
+		        while (!stack.isEmpty() && stack.peek() <= nums[i]) {
+		            stack.pop();
+		        }
+		        result[i] = stack.isEmpty() ? -1 : stack.peek();
+		        stack.push(nums[i]);
+		    }
+		    System.out.println(Arrays.toString(result));
+		    return result;
+		}
+
 	
 	public static void main(String[] args) {
 		checkAmongst();
