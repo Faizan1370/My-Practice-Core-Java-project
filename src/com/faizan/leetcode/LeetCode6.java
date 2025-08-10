@@ -24,6 +24,7 @@ public class LeetCode6 {
 		}
 		if(count==1) {
 			return false;
+			
 		}
 		return true;
 	}

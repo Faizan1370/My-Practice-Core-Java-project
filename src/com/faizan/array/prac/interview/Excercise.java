@@ -155,20 +155,84 @@ public class Excercise {
 		}  
 		System.out.println("Computer's move is " + computerMove);
 	}
+	
+	public static void trimString() {
+		String str=" abc xy\t";
+		System.out.println(str.trim());
+		System.out.println(str.strip());
+	}
+	
+	public static void fact1() {
+		int fact=1;
+		int n=5;
+		for(int i=1;i<=5;i++) {
+			fact=fact*i;
+		}
+		System.out.println(fact);
+	}
+	
+	public static void textBlock1() {
+		String str="""
+				Hello
+				buddy
+				where are you
+				""";
+		System.out.println(str);
+	}
+	
+	public static void isPrime1() {
+		int num=22;
+		if(num==0 || num==1) {
+			System.out.println("Invlaid input");
+			return;
+		}
+		if(num==2) {
+			System.out.println("yes prime");
+			return;
+		}
+		boolean isPrime=true;
+	     for(int i=2;i<=num/2;i++) {
+	    	if(num%i==0) {
+	    		isPrime=false;
+	    		break;
+	    	}
+	     }
+	     if(isPrime) {
+	    	 System.out.println("yes");
+	     }else {
+	    	 System.out.println("no");
+	     }
+	}
+	public static void checkVowe2() {
+		String str="fly";
+		if(str.toLowerCase().matches(".*[aeiou].*")) {
+			System.out.println("yes");
+		}else {
+			System.out.println("no");
+		}
+	}
+	public static void multilableSwitch1() {
+		int choice =1;
+		
+		int x=switch (choice) {
+		case 1,2,3: {
+			
+			yield choice;
+		}
+		default:
+			throw new IllegalArgumentException("Unexpected value: " + choice);
+		};
+		System.out.println(x);
+		
+	}
+		
 
 	
 	
 	public static void main(String[] args) {
+		//multilableSwitch1();
+		test();
 		test4();
-		//removeSpaceLeadTrail();
-		//fact();
-		//textBlock();
-		//multilableSwitch();
-		//output();
-		//incremenAddDecrement();
-		//chekcString();
-		//isPrime();
-		//checkVowel();
 	}
 
 }

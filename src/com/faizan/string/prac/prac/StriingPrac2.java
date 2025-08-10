@@ -67,6 +67,7 @@ public class StriingPrac2 {
 				start=Math.max(start, map.get(ch)+1);
 			}
 			map.put(ch, i);
+			//System.out.println(ch+" "+start +" "+i+" "+maxLen);
 			if(i-start+1>maxLen) {
 				maxLen=i-start+1;
 				maxStart=start;

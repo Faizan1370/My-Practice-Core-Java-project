@@ -11,7 +11,7 @@ public class Leetcode3 {
 				@Override
 				public int compare(Integer o1, Integer o2) {
 					// TODO Auto-generated method stub
-					return 02-01;
+					return o2-o1;
 				}
 			});
 			
@@ -21,10 +21,10 @@ public class Leetcode3 {
 			integers.add(stones[i]);
 		}
 		
-		if(integers.size()>1) {
+		while(integers.size()>1) {
 			int stone1 = integers.poll();
 			int stone2 =integers.poll();
-			if(stone1>stone2) {
+			if(stone1!=stone2) {
 				integers.add(stone1-stone2);
 			}
 		}
@@ -101,6 +101,7 @@ public class Leetcode3 {
 			if(grid[row][col]<0) {
 				col--;
 				count +=totalRows-row;
+				//System.out.println(count +" "+row +" "+totalRows);
 			}else {
 				row++;
 			}

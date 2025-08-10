@@ -47,6 +47,7 @@ public class ArrayExer {
 	            System.out.println("Invalid input.");
 	            return;
 	        }
+	        
 
 	        // Normalize k in case it's > n
 	        k = k % n;
