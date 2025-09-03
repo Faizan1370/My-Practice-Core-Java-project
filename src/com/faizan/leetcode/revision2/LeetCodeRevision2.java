@@ -6,12 +6,15 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
+import java.util.Map;
 import java.util.OptionalInt;
 import java.util.PriorityQueue;
 import java.util.Set;
 import java.util.Stack;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class LeetCodeRevision2 {
 
@@ -539,10 +542,175 @@ public class LeetCodeRevision2 {
 		return set.size()==1;
 		
 	}
-
+	
+	public static String kthDistictElement(String[] arr,int k) {
+		 String string = Arrays.stream(arr).collect(Collectors.groupingBy(Function.identity(),LinkedHashMap::new, Collectors.counting()))
+		 .entrySet()
+		 .stream()
+		 .filter(entry->entry.getValue()==1L)
+		 .map(entry->entry.getKey())
+		 .skip(k-1)
+		 .findFirst()
+		 .get();
+		 return string;
+	}
+	public static int smallestIndex(int[] nums) {
+		for(int i=0;i<nums.length;i++) {
+			
+			if(i%10==nums[i]) {
+				return i;
+			}
+		}
+		return -1;
+	}
+	
+	public static boolean stringEquilent(String word1,String word2) {
+		int[] freq1=new int[26];
+		int[] freq2 = new int[26];
+		
+		for(int i=0;i<word1.length();i++) {
+			freq1[word1.charAt(i)-'a']++;
+		}
+		
+		for(int i=0;i<word2.length();i++) {
+			freq2[word2.charAt(i)-'a']++;
+		}
+		
+		int count=0;
+		for(int i=0;i<26;i++) {
+		  if(Math.abs(freq1[i]-freq2[i])>3)	{
+			  count++;
+			  break;
+		  }
+		}
+		if(count==1) {
+			return false;
+		}
+		return true;
+		}
+	
+	public static int commonOcuurent9String(String[] word1,String[] word2) {
+		Map<String, Long> map = Arrays.stream(word1).collect(Collectors.groupingBy(Function.identity(),Collectors.counting()));
+		
+		int count=0;
+		for(String word:word2) {
+			if(map.containsKey(word) && map.get(word)>=1) {
+				map.put(word, map.get(word)-1);
+			}
+		}
+		for(Map.Entry<String, Long> entry :map.entrySet()) {
+			if(entry.getValue()==0) {
+				count++;
+			}
+		}
+		return count;
+	}
+	
+	public static String firstPalindromic(String[] words) {
+		for(String word:words) {
+			if(chekcPlain(word)) {
+				return word;
+			}
+		}
+		return "";
+	}
+	private static boolean chekcPlain(String word) {
+		int start=0;
+		int end=word.length()-1;
+		while(start<end) {
+			if(word.charAt(end)!=word.charAt(start)) {
+				return false;
+			}
+			start++;
+			end--;
+		}
+		return true;
+	}
+	
+	public static String capatilizeTitle(String s) {
+		String[] words = s.split(" ");
+		StringBuilder builder = new StringBuilder();
+		for(String word:words) {
+			if(word.length()==2) {
+				builder.append(word.toLowerCase()).append(" ");
+			}else {
+				builder.append(Character.toUpperCase(word.charAt(0))).append(word.substring(1).toLowerCase()).append(" ");
+			}
+		}
+		return builder.toString().trim();
+	}
+	
+	public static int countInetger(int num) {
+		int count=0;
+		for(int i=1;i<=num;i++) {
+			if(sumOfDigits(i)%2==0) {
+				count++;
+			}
+		}
+		return count;
+	}
+	
+	public static int sumOfDigits(int num) {
+		int sum=0;
+		while(num>0) {
+			int r=num%10;
+			sum =sum+r;
+			num=num/10;
+		}
+		return sum;
+	}
+	
+	public static String[] sortPeople(String[] names,int[] heights) {
+		String[] result= new String[names.length];
+		HashMap<Integer, String> map = new HashMap<Integer, String>();
+		for(int i=0;i<heights.length;i++) {
+			map.put(heights[i], names[i]);
+		}
+		Arrays.stream(heights).mapToObj(num->(Integer)num).sorted(Comparator.reverseOrder());
+		for(int i=0;i<heights.length;i++) {
+			result[i]=map.get(heights[i]);
+		}
+		return result;
+	}
+	public static String[] sortPeople1(String[] names,int[] heights) {
+		Integer[] indices=new Integer[names.length];
+		for(int i=0;i<heights.length;i++) {
+			indices[i]=i;
+		}
+		System.out.println(Arrays.toString(indices));
+		Arrays.sort(indices,(a,b)->heights[b]-heights[a]);
+		System.out.println(Arrays.toString(indices));
+		String[] result= new String[names.length];
+		for(int i=0;i<heights.length;i++) {
+			result[i]=names[indices[i]];
+		}
+		return result;
+	}
+	public static int distinctAvg(int[] nums) {
+		int start=0;
+		int end=nums.length-1;
+		HashSet<Integer> set = new HashSet<Integer>();
+		while(start<end) {
+			int avg=(nums[start]+nums[end])/2;
+			set.add(avg);
+			start++;
+			end--;
+		}
+		return end;
+	}
+	
+	public static double[] tempratorConvert(double celuis) {
+		double[] res = new double[2];
+		res[0]=celuis+273.15;
+		res[1]= celuis*1.80+32.00;
+		
+		return res;
+	}
+	
+	
 	public static void main(String[] args) {
-		String s="aabba";
-		System.out.println(checkSameOccurecne(s));
+		double celcuis=36.50;
+		System.out.println(Arrays.toString(tempratorConvert(celcuis)));
 	   
 	}
 }

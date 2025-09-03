@@ -41,6 +41,25 @@ public class BinaryTreeImple {
 		
 	}
 	
+	public void insertRec(int data) {
+		insertUtil(root,data);
+	}
+	
+	public TreeNode insertUtil(TreeNode node,int data) {
+		if(node ==null) {
+			return new TreeNode(data);
+		}
+		if(node.left==null) {
+			node.left=insertUtil(node.left, data);
+		}
+		else if(node.right==null) {
+			node.right=insertUtil(node.right, data);
+		}else {
+			node.left=insertUtil(node.left, data);
+		}
+		return node;
+	}
+	
 	
 	public void preOrder() {
 		preOrder(root);
@@ -216,7 +235,7 @@ public class BinaryTreeImple {
 			//list.set(level, root);
 		//}
 		 // Only add the node if this level is being visited the first time
-	    if (list.size() <= level) { // list.size==level
+	    if (list.size() == level) { // list.size==level
 	        list.add(root);
 	    }
 	    printLeftViewUtil(root.left, list, level+1); //if we use fiusrt left will print left view if we use right will print right view

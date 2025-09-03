@@ -9,6 +9,7 @@ import java.util.Map;
 import java.util.Queue;
 import java.util.Set;
 import java.util.Stack;
+import java.util.TreeMap;
 import java.util.concurrent.ConcurrentLinkedDeque;
 
 public class BinarySearchTreeImpl {
@@ -386,7 +387,7 @@ public class BinarySearchTreeImpl {
 	 
 	 public ArrayList<Integer> verticalOrder(){
 		 Queue<QueueObj> queue=new ArrayDeque<QueueObj>();
-		 HashMap<Integer, ArrayList<Integer>> map = new HashMap<Integer, ArrayList<Integer>>();
+			Map<Integer, ArrayList<Integer>> map = new TreeMap<Integer, ArrayList<Integer>>();
 		 queue.add(new QueueObj(root, 0));
 		 while(!queue.isEmpty()) {
 			 QueueObj current = queue.poll();
