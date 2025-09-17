@@ -62,7 +62,7 @@ public class LeetCodeRevision2 {
 			t_sum+=t.charAt(i);
 		}
 		for(int i=0;i<s.length();i++){
-			s_sum+=t.charAt(i);
+			s_sum+=s.charAt(i);
 		}
 		
 		return (char) (t_sum-s_sum);

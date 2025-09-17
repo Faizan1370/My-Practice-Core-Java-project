@@ -42,7 +42,7 @@ public class BinaryTreeImple {
 	}
 	
 	public void insertRec(int data) {
-		insertUtil(root,data);
+		root=insertUtil(root,data);
 	}
 	
 	public TreeNode insertUtil(TreeNode node,int data) {

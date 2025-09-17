@@ -320,14 +320,80 @@ public class SingleLinkedList {
 		 }
 		return slowPtr.data;
 	 }
+	 
+	 public void removeDup() {
+		 if(head==null) {
+			 return;
+		 }
+		 ListNode current = head;
+		 while(current !=null && current.next!=null) {
+			 if(current.data==current.next.data) {
+				 current.next=current.next.next;
+			 }else {
+				 current=current.next;
+			 }
+		 }
+	 }
+	 
+	 public boolean linedListCycle() {
+		 if(head==null) {
+			 return false;
+		 }
+		 ListNode fast= head;
+		 ListNode slow=head;
+		 while(fast!=null && fast.next!=null) {
+			 slow=slow.next;
+			 fast=fast.next.next;
+		 }
+		 return slow==fast;
+	 }
+	 
+	 public  void reverse() {
+		 if(head==null) {
+			 return;
+		 }
+		 ListNode currentt= head;
+		 ListNode nextNode;
+		 ListNode prev=null;
+		 while(currentt!=null) {
+			 nextNode = currentt.next;
+			 currentt.next=prev;
+			 prev=currentt;
+			 currentt=nextNode;
+			 
+		 }
+		 head=prev;
+	 }
+	 
+	 public boolean palin() {
+		 if(head==null) {
+			 return false;
+		 }
+		 ArrayList<Integer> list = new ArrayList<Integer>();
+		 ListNode current = head;
+		 while(current!=null) {
+			 list.add(current.data);
+			 current=current.next;
+		 }
+		 for(int i=0;i<list.size();i++) {
+			 if(list.get(i)!=list.get(list.size()-(i+1))) {
+				 return false;
+			 }
+		 }
+			/*
+			 * int start=0, end=list.size()-1; while(start<end) {
+			 * if(list.get(start)!=list.get(end)) { return false; } start++; end--; }
+			 */
+		 return true;
+	 }
 	public static void main(String[] args) {
 		SingleLinkedList linkedList = new SingleLinkedList();
 		linkedList.add(1);
 		linkedList.add(2);
-		linkedList.add(4);
-		linkedList.add(6);
-		linkedList.add(7);
-		System.out.println(linkedList.middleElement());
+		linkedList.add(1);
+		linkedList.add(1);
+		linkedList.print();
+		System.out.println(linkedList.palin());
 		
 		//linkedList.insertAtLastNode(5);
 		//linkedList.insertNodeGivenPosition(50, 2);
