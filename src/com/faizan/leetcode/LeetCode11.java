@@ -1,4 +1,4 @@
-package com.faizan.leetcode;
+ package com.faizan.leetcode;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -538,11 +538,38 @@ public class LeetCode11 {
 		}
 		return maxAverage;
 	}
+	
+	public static boolean isPathCrossing(String path) {
+		HashSet<String> set = new HashSet<String>();
+		int x=0;
+		int y=0;
+		set.add(x+","+y);
+		for(char ch:path.toCharArray()) {
+			if(ch=='N') {
+				y++;
+			}
+			if(ch=='S') {
+				y--;
+			}
+			if(ch=='E') {
+				x++;
+			}
+			if(ch=='W') {
+				x--;
+			}
+			if(set.contains(x+","+y)) {
+				return true;
+			}
+			set.add(x+","+y);
+		}
+		return false;
+		
+	}
 
 	
 	public static void main(String[] args) {
-		int[] nums= {1,12,-5,-6,50,3};
-		System.out.println(findMaxAvergae(nums, 4));
+		String path ="NESE";
+		System.out.println(isPathCrossing(path));
 	}
 
 }
