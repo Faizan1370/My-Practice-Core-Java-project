@@ -111,7 +111,7 @@ public class LeetCode11 {
 				}
 				
 				for(int c=0;c<col;c++) {
-					if(c!=i && mat[i][c]==1) {
+					if(c!=j && mat[i][c]==1) {
 						flag=true;
 						break;
 					}
