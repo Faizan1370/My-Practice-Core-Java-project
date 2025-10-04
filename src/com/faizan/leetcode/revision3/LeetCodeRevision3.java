@@ -1,6 +1,10 @@
 package com.faizan.leetcode.revision3;
 
 import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 public class LeetCodeRevision3 {
 	
@@ -100,9 +104,162 @@ public class LeetCodeRevision3 {
 		}
 		return count;
 	}
-	public static void main(String[] args) {
-	int[][] mat= {{1,0,0},{0,0,1},{1,0,0}};
-	System.out.println(specailPosition(mat));
+	
+	public static boolean isSequence(String s,String t) {
+		int index=0;
+		for(int i=0;i<t.length();i++) {
+			if(s.charAt(index)==t.charAt(i)) {
+				index++;
+			}
+			if(s.length()==index) {
+				return true;
+			}
+		}
+		return false;
 	}
+	public static boolean isSubsequence1(String s, String t) {
+	    int i = 0, j = 0; 
+	    while (i < s.length() && j < t.length()) {
+	        if (s.charAt(i) == t.charAt(j)) {
+	            i++;
+	        }
+	        j++;
+	    }
+	    return i == s.length();
+	}
+	public static boolean canPlaceFlower(int[] flowerBer, int n) {
+		int count=0;
+		for(int i=0;i<flowerBer.length;i++) {
+			if(flowerBer[i]==0) {
+				if((i==0 || flowerBer[i-1]==0) && (i==flowerBer.length-1 ||  flowerBer[i+1]==0)) {
+					count++;
+					if(count==n) {
+						return true;
+					}
+				}
+			}
+		}
+		return false;
+	}
+	
+	public static int removeElement(int[] nums,int k) {
+		int len=nums.length;
+		int i=0;
+		while(i<len) {
+			if(nums[i]==k) {
+				nums[i]=nums[len-1];
+				len--;
+			}else {
+				i++;
+			}
+			
+		}
+		return len;
+	}
+	
+	public static String greatestCommonD(String str1,String str2) {
+		int len1=str1.length(),len2=str2.length();
+		String result = str1.substring(0,gcd(len1,len2));
+		return result;
+	}
+	private static int gcd(int len1, int len2) {
+		if(len2==0) {
+			return len1;
+		}
+		
+		return gcd(len2,len1%len2);
+	}
+	public static String destCity(String[][] paths) {
+		HashSet<String> set1= new HashSet<String>();
+		for(int i=0;i<paths.length;i++) {
+			set1.add(paths[i][0]);
+		}
+		for(int i=0;i<paths.length;i++) {
+			if(!set1.contains(paths[i][1])) {
+				return paths[i][1];
+			}
+			
+		}
+		return "";
+	}
+	
+	public static int pivotIndex(int[] nums) {
+	    int start = 0, end = nums.length - 1;
+	    int leftSum = 0, rightSum = 0;
+
+	    while (start <= end) {
+	        if (leftSum == rightSum && start == end) {
+	            return start; // pivot found
+	        }
+
+	        if (leftSum <= rightSum) {
+	            leftSum += nums[start];
+	            start++;
+	        } else {
+	            rightSum += nums[end];
+	            end--;
+	        }
+	    }
+	    return -1; // no pivot
+	}
+
+	public static int pivotIndex1(int[] nums) {
+		int sum=0,leftSum=0;
+		for(int i=0;i<nums.length;i++) {
+			sum +=nums[i];
+		}
+		for(int i=0;i<nums.length;i++) {
+			if(leftSum==sum-leftSum-nums[i]) {
+				return i;
+			}
+			leftSum +=nums[i];
+		}
+		return -1;
+	}
+	public static boolean uniqueOccurrences(int[] arr) {
+	    Map<Integer, Long> freq = Arrays.stream(arr).boxed()
+	            .collect(Collectors.groupingBy(Function.identity(), Collectors.counting()));
+
+	    return freq.size() == new HashSet<>(freq.values()).size();
+	}
+	public static String reverseVolwel(String s) {
+		char[] words= s.toCharArray();
+		String vowels="AEIOUaeiou";
+		int start =0,end =words.length-1;
+		while(start<end) {
+			while(start<end && vowels.indexOf(words[start])==-1) {
+				start++;
+			}
+			while(start<end && vowels.indexOf(words[end])==-1) {
+				end--;
+			}
+			char temp= words[start];
+			words[start]=words[end];
+			words[end]=temp;
+			start++;
+			end--;
+		}
+		return new String(words);
+	}
+	
+	public static int findValueOp(String[] operations) {
+		int result=0;
+		for(String op:operations) {
+			if(op.equals("X++") || op.equals("++X")) {
+				result +=1;
+			}else if(op.equals("--X") || op.equals("X--")) {
+				result -=1;
+		}
+	}
+		return result;
+	}
+
+
+	public static void main(String[] args) {
+	  String[] operations= {"--X","X++","++X"};
+	  System.out.println(findValueOp(operations));
+	}
+
+	
 
 }

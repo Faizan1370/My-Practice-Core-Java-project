@@ -2,8 +2,10 @@ package com.dsa.tree3;
 
 import java.util.ArrayList;
 import java.util.LinkedList;
+import java.util.Map;
 import java.util.Queue;
 import java.util.Stack;
+import java.util.TreeMap;
 
 public class BinaryTreeImpl {
 	TreeNod root;
@@ -271,6 +273,135 @@ public class BinaryTreeImpl {
 			
 		}
 	}
+	
+	public ArrayList<Integer> topView(){
+		if(root==null) {
+			return null;
+		}
+		Map<Integer,Integer> map = new TreeMap<Integer, Integer>();
+		Queue<HdNPair> queue = new LinkedList<HdNPair>();
+		queue.add(new HdNPair(0, root));
+		
+		while(!queue.isEmpty()) {
+			HdNPair pair = queue.poll();
+			int hd=pair.hd;
+			TreeNod current=pair.node;
+			if(!map.containsKey(hd)) {
+				map.put(hd, current.data);
+			}
+			if(current.left!=null) {
+				queue.add(new HdNPair(hd-1, current.left));
+			}
+			if(current.right!=null) {
+				queue.add(new HdNPair(hd+1, current.right));
+			}
+		}
+		ArrayList<Integer> list = new ArrayList<Integer>();
+		for(Map.Entry<Integer, Integer> entry:map.entrySet()) {
+			list.add(entry.getValue());
+		}
+		return list;
+	}
+	TreeNod head=null;
+	TreeNod prev;
+	public void convertDll() {
+		convertDll(root);
+		printDll();
+	}
+	public void convertDll(TreeNod node) {
+		if(node==null) {
+			return;
+		}
+		convertDll(node.left);
+		if(prev==null) {
+			head=node;
+		}else {
+			node.left=prev;
+			prev.right=node;
+		}
+		prev=node;
+		convertDll(node.right);
+	}
+	public void printDll() {
+		TreeNod current=head;
+		while(current!=null) {
+			System.out.print(current.data +" ");
+			current=current.right;
+		}
+	}
+	
+	int diameter=0;
+	public int diameter() {
+		diameterUtil(root);
+		return diameter;
+	}
+	
+	private int diameterUtil(TreeNod node) {
+		if(node==null) {
+			return 0;
+		}
+		int lh=diameterUtil(node.left);
+		int rh=diameterUtil(node.right);
+		diameter = Math.max(diameter, 1+lh+rh);
+		return 1+Math.max(lh, rh);
+	}
+	
+	public int findLCA(int n1,int n2) {
+		return lca(root, n1, n2).data;
+	}
+	
+	public TreeNod lca(TreeNod node,int n1,int n2) {
+		if(node==null) {
+			return null;
+		}
+		if(node.data==n1 || node.data==n2) {
+			return node;
+		}
+		TreeNod left=lca(node.left, n1, n2);
+		TreeNod right=lca(node.right, n1, n2);
+		if(left==null) {
+			return right;
+		}
+		if(right==null) {
+			return left;
+		}
+		return node;
+	}
+	
+	public int burnTime(int target) {
+		return minTime(root, target);
+	}
+	
+	public int minTime(TreeNod node,int target) {
+		DepthD depth= new DepthD(-1);
+		return burn(node,target,depth);
+	}
+
+	
+
+    int dep=0;
+	private int burn(TreeNod node, int target, DepthD depth) {
+		if(node==null) {
+			return 0;
+		}
+		if(node.data==target) {
+			depth.depth=0;
+			return 1;
+		}
+		DepthD ld = new DepthD(-1);
+		DepthD rd = new DepthD(-1);
+		int lh = burn(node.left, target, ld);
+		int rh = burn(node.right, target, rd);
+		if(ld.depth!=-1) {
+			dep = Math.max(dep, 1+rh+ld.depth);
+			depth.depth=ld.depth+1;
+		}else {
+			dep = Math.max(dep, 1+lh+rd.depth);
+			depth.depth=rd.depth+1;
+		}
+
+		return 1+Math.max(lh, rh);
+	}
 
 	public static void main(String[] args) {
 		BinaryTreeImpl binaryTreeImpl = new BinaryTreeImpl();
@@ -281,13 +412,11 @@ public class BinaryTreeImpl {
 		binaryTreeImpl.insert(45);
 		binaryTreeImpl.insert(70);
 		
-		System.out.println(binaryTreeImpl.printLeftView());
-		System.out.println();
-		binaryTreeImpl.leftViewItrative();
-		System.out.println();
-		System.out.println(binaryTreeImpl.printrightView());
-		System.out.println();
-		binaryTreeImpl.rightViewItrative();
+		System.out.println(binaryTreeImpl.topView());
+		System.out.println(binaryTreeImpl.diameter());
+		System.out.println(binaryTreeImpl.findLCA(30, 70));
+		System.out.println(binaryTreeImpl.burnTime(70));
+		
 	}
 
 }
