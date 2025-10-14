@@ -22,11 +22,11 @@ public class DSU {
 		int xRoot=find(x);
 		int yRoot=find(y);
 		if(rank[xRoot]<rank[yRoot]) {
-			rank[xRoot]=yRoot;
+			parent[xRoot]=yRoot;
 		}else if(rank[xRoot]>rank[yRoot]) {
-			rank[yRoot]=xRoot;
+			parent[yRoot]=xRoot;
 		}else {
-			rank[yRoot]=xRoot;
+			parent[yRoot]=xRoot;
 			rank[xRoot]++;
 			}
 	}

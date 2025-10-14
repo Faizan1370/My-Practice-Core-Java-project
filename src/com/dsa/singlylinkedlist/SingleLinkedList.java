@@ -386,6 +386,27 @@ public class SingleLinkedList {
 			 */
 		 return true;
 	 }
+	 
+	 public ListNode mergeTwoSortedList(ListNode list1,ListNode list2) {
+		 ListNode dummy = new ListNode(-1);
+		 ListNode current=dummy;
+		 while(list1!=null && list2!=null) {
+			 if(list1.data<=list2.data) {
+				 current.next=list1;
+				 list1=list1.next;
+			 }else {
+				 current.next=list2;
+				 list2=list2.next;
+			 }
+			 current=current.next;
+		 }
+		 if(list1!=null) {
+			current.next=list1; 
+		 }else {
+			 current.next=list2;
+		 }
+		 return dummy.next;
+	 }
 	public static void main(String[] args) {
 		SingleLinkedList linkedList = new SingleLinkedList();
 		linkedList.add(1);

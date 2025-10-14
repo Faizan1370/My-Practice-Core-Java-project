@@ -330,6 +330,18 @@ public class LeetCode11 {
 		
 	}
 	
+	public static List<Integer> containigChar(String[] words,char x){
+		ArrayList<Integer> list = new ArrayList<Integer>();
+		for(int i=0;i<words.length;i++) {
+			if(words[i].indexOf(x)!=-1) {
+				list.add(i);
+			}
+			
+		}
+		return list;
+	}
+
+	
 	public static int maxProductDiff(int[] nums) {
 		Arrays.sort(nums);
 		return (nums[nums.length-1]*nums[nums.length-2])-(nums[0]*nums[1]);

@@ -1,8 +1,11 @@
 package com.faizan.leetcode.revision3;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
+import java.util.PriorityQueue;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -253,11 +256,310 @@ public class LeetCodeRevision3 {
 	}
 		return result;
 	}
+	
+	public static List<Integer> containigChar(String[] words,char x){
+		ArrayList<Integer> list = new ArrayList<Integer>();
+		for(int i=0;i<words.length;i++) {
+			if(words[i].indexOf(x)!=-1) {
+				list.add(i);
+			}
+			
+		}
+		return list;
+	}
+	
+	public static int maxProductDiff(int[] nums) {
+		Arrays.sort(nums);
+		return (nums[nums.length-1]*nums[nums.length-2])-(nums[0]*nums[1]);
+	}
+	public static int[] findMissingAndRepeatedValue(int[][] grid) {
+		int n=grid.length;
+		int a = 0,b = 0;
+		HashSet<Integer> set = new HashSet<Integer>();
+		for(int i=0;i<grid.length;i++) {
+			for(int j=0;j<grid[0].length;j++) {
+				if(set.contains(grid[i][j])) {
+					a=grid[i][j];
+				}
+				set.add(grid[i][j]);
+			}
+		}
+		for(int i=1;i<=n*n;i++) {
+			if(!set.contains(i)) {
+				b=i;
+				break;
+			}
+		}
+		return new int[] {a,b};
+	}
+	
+	public static int maxNumberOfWords(String[] sentence) {
+		int maxCount=0;
+		for(String sen:sentence) {
+			String[] words = sen.split(" ");
+			maxCount=Math.max(maxCount, words.length);
+		}
+		return maxCount;
+	}
+	
+	public static String removeTrailingZero(String s) {
+		int start =0,end=s.length()-1;
+		while(start<end) {
+			if(s.charAt(end)=='0') {
+				end--;
+			}else {
+				break;
+			}
+		}
+		return s.substring(start, end+1);
+	}
+	public static int percentage(String s,char letter) {
+		 if (s == null || s.length() == 0) return 0; // avoid divide by zero
+		int count=0;
+		for(int i=0;i<s.length();i++) {
+			if(s.charAt(i)==letter) {
+				count++;
+			}
+		}
+		return (count*100)/s.length();
+	}
+	
+   public static int percentage1(String s,char letter) {
+		 if (s == null || s.length() == 0) return 0; // avoid divide by zero
+		 int[] freq = new int[26];
+		 for(char ch:s.toCharArray()) {
+			 freq[ch-'a']++;
+		 }
+		 int count = freq[letter-'a'];
+		 return (count*100)/s.length();
+   }
+   
+   public static int countWordPrefix(String[] words,String prefix) {
+	   int count=0;
+	   for(String word:words) {
+		 if(word.startsWith(prefix)) {
+			 count++;
+		 }
+	   }
+	return count;
+   }
+   public static int buyChoclates(int[] prices,int money) {
+	   Arrays.sort(prices);
+	 int result=  money -(prices[0]+prices[1]);
+	 if(result>=0) {
+		 return result;
+	 }else {
+		 return 0;
+	 }
+	    
+   }
+   
+   public static int buyChoclates1(int[] prices,int money) {
+	  int min=Integer.MAX_VALUE,secondMin=Integer.MAX_VALUE;
+	  for(int price:prices) {
+		  if(price<min) {
+			  secondMin=min;
+			  min=price;
+		  }else if(price<secondMin) {
+			  secondMin=price;
+		  }
+	  }
+	 int result=  money -(min+secondMin);
+	 if(result>=0) {
+		 return result;
+	 }else {
+		 return 0;
+	 }
+	    
+   }
+   
+   public static int maxScoreAfterSplit1(String s) {
+	   int totalOnes=0;
+	   for(int i=0;i<s.length();i++) {
+		   if(s.charAt(i)=='1') {
+			   totalOnes++;
+		   }
+	   }
+	   int maxScore=0;
+	   int leftZero=0,rightOne=totalOnes;
+	   for(int i=0;i<s.length()-1;i++) {
+		   if(s.charAt(i)=='0') {
+			   leftZero++;
+		   }else {
+			   rightOne--;
+		   }
+		   maxScore = Math.max(maxScore, leftZero+rightOne);
+	   }
+	   return maxScore;
+   }
+   
+   public static double maxAvgSubarray(int[] nums,int k) {
+	   int maxSum=0;
+	   for(int i=0;i<=nums.length-k;i++) {
+		   int sum=0;
+		   for(int j=i;j<k+i;j++) {
+			  sum +=nums[j]; 
+		   }
+		   maxSum=Math.max(maxSum, sum);
+	   }
+	return (double)maxSum/k;
+   }
+   
+   public static boolean pathCross(String path) {
+	   int x=0;
+	   int y=0;
+	   HashSet<String> set = new HashSet<String>();
+	   set.add(x+" "+y);
+	   for(int i=0;i<path.length();i++) {
+		   char ch= path.charAt(i);
+		   if(ch=='N') {
+			   y++;
+		   }
+		   if(ch=='S') {
+			   y--;
+		   }
+		   
+		   if(ch=='E') {
+			   x++;
+		   }
+		   if(ch=='w') {
+			   x--;
+		   }
+		   if(set.contains(x+" "+y)) {
+			   return true;
+		   }
+		   set.add(x+" "+y);
+		   
+	   }
+	return false;
+   }
+	public static int minOprationInAltenate(String s) {
+		int startWith1=0; //010
+		int startWith0=0;//101
+		
+		for(int i=0;i<s.length();i++) {
+			if(i%2==0) {
+				if(s.charAt(i)=='0') {
+					startWith1++;
+				}else {
+					startWith0++;
+				}
+			}else {
+				if(s.charAt(i)=='1') {
+					startWith1++;
+				}else {
+					startWith0++;
+				}
+			}
+		}
+		return Math.min(startWith1, startWith0);
+	}
+	public static boolean isMonolatic(int[] nums) {
+		boolean isIncreasing=true;
+		boolean isDecreasing=true;
+		
+		for(int i=1;i<nums.length;i++) {
+			if(nums[i-1]>nums[i]) {
+				isIncreasing=false;
+			}else if(nums[i-1]<nums[i]) {
+				isDecreasing=false;
+			}
+			
+		}
+		if(isDecreasing || isIncreasing) {
+			return true;
+		}
+		return isDecreasing;
+	}
+	
+	public static int[] minNumberOfGame(int[] nums) {
+		PriorityQueue<Integer> queue = new PriorityQueue<Integer>();
+		int[] result = new int[nums.length];
+		for(int num:nums) {
+			queue.add(num);
+		}
+		int i=0;
+		while(!queue.isEmpty()) {
+		 int alice=queue.poll();
+		 int bob= queue.poll();
+		 result[i++]=bob;
+		 result[i++]=alice;
+		}
+		return result;
+	}
+	
+	public static int incRemovableSubArray(int[] nums) {
+		int count=0;
+		for(int i=0;i<nums.length;i++) {
+			for(int j=i;j<nums.length;j++) {
+				if(isIncreasingSubArray(nums, i, j)) {
+					count++;
+				}
+			}
+		}
+		return count;
+	}
 
+
+	private static boolean isIncreasingSubArray(int[] nums, int start, int end) {
+		int prev=0;
+		for(int i=0;i<nums.length;i++) {
+			if(i<=end && i>=start) {
+				continue;
+			}
+			if(nums[i]<=prev) {
+				return false;
+			}
+			prev=nums[i];
+		}
+		return true;
+	}
+	 public static List<String> stringMatching(String[] words){
+		 List<String> list = new ArrayList<String>();
+		 for(int i=0;i<words.length;i++) {
+			 for(int j=0;j<words.length;j++) {
+				 String word1=words[i];
+				 String word2=words[j];
+				 if(word1.length()>=word2.length()) {
+					 continue;
+				 }
+				 if(isSubstring(words[i],words[j])) {
+					 list.add(words[i]);
+				 }
+			 }
+		 }
+		return list;
+	 }
+
+	private static boolean isSubstring(String word1, String word2) {
+		if(word2.contains(word1)) {
+			return true;
+		}
+		return false;
+	}
+	
+	public static boolean makeEqual(String[] words) {
+		int[] freq = new int[26];
+		if(words.length==1) {
+			return true;
+		}
+		for(String word:words) {
+			for(int i=0;i<word.length();i++) {
+				freq[word.charAt(i)-'a']++;
+			}
+		
+		}
+		for(int i:freq) {
+			if(i%(words.length)!=0) {
+				return false;
+			}
+		}
+		return true;
+	}
 
 	public static void main(String[] args) {
-	  String[] operations= {"--X","X++","++X"};
-	  System.out.println(findValueOp(operations));
+		String[] words = {"abc","aabc","bc"};
+		System.out.println(makeEqual(words));
 	}
 
 	

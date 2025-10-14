@@ -5,6 +5,7 @@ import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.OptionalInt;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
@@ -185,6 +186,30 @@ public class Pract26 {
 		 System.out.println(andThen.apply(6));
 		 
 	 }
+		public static void reduceSum() {
+		  List<Integer> list1 = Arrays.asList(3,5,7,8);
+		  Integer reduce = list1.stream().reduce(0,(a,b)->a+b);
+		  Integer integer = list1.stream().reduce(Integer::sum).get();
+		  int sum = list1.stream().mapToInt(num->num.intValue()).sum();
+		  Integer collect = list1.stream().collect(Collectors.summingInt(num->num.intValue()));
+		  System.out.println(reduce +" "+integer +" "+sum +" "+collect);
+		  double asDouble = list.stream().filter(emp->emp.getDesignation().contains("Soft")).map(emp->emp.getSalary()).mapToDouble(num->num.doubleValue()).average().getAsDouble();
+		 System.out.println(asDouble);
+		}
+		 public static void optional() {
+			 Optional<Object> optional= Optional.empty();
+			 System.out.println(optional);
+			 list.stream().forEach(emp->{
+				 System.out.println(Optional.ofNullable(emp.getName()).map(name->name.toUpperCase()).orElse("Faizn"));
+			 });
+		 }
+		 public static void mapFlatMap() {
+			 List<com.faizan.java8Prac.Customer> collect = Stream.of(
+					 new Customer(54, "abc@abc.com", "abc", Arrays.asList(916123456,896745230)),
+					 new Customer(87, "harsih@abc.com", "harish", Arrays.asList(916123690,89645230)),
+					 new Customer(77, "jameel@abc.com", "jameel", Arrays.asList(875123456,763745654))).collect(Collectors.toList());
+			 collect.stream().flatMap(cs->cs.getNumbers().stream()).forEach(num->System.out.println(num));
+		 }
 	
 	
 	

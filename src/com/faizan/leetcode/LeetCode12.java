@@ -2,8 +2,10 @@ package com.faizan.leetcode;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 import java.util.PriorityQueue;
+import java.util.Set;
 
 public class LeetCode12 {
 	
@@ -173,9 +175,101 @@ public class LeetCode12 {
 		}
 		return true;
 	}
+	public static int largestSubsrting(String s) {
+		HashMap<Character, Integer> map = new HashMap<Character, Integer>();
+		int max=-1;
+		for(int right=0;right<s.length();right++) {
+			char ch = s.charAt(right);
+			if(map.containsKey(ch)) {
+				int left = map.get(ch);
+				max=Math.max(max, right-left-1);
+			}else {
+				map.put(ch, right);
+			}
+		}
+		return max;
+	}
+	 public static boolean hasTrailingZeros(int[] nums) {
+		 int evenCount=0;
+		 for(int num:nums) {
+			 if(num%2==0) {
+				 evenCount++;
+			 }
+			 if(evenCount>=2) {
+				 return true;
+			 }
+		 }
+		return false;
+	 }
+	 public static boolean hasTrailingZeros1(int[] nums) {
+		 int evenCount=0;
+		 for(int num:nums) {
+			 if((num & 1)==0) {
+				 evenCount++;
+			 }
+			 if(evenCount>=2) {
+				 return true;
+			 }
+		 }
+		return false;
+	 }
+	 
+	 public static int findContentChildren(int[] g,int[] s) {
+		 Arrays.sort(g);
+		 Arrays.sort(s);
+		 int children=0;
+		 int cockie=0;
+		 while(cockie<s.length && children<g.length) {
+			 if(g[children]<=s[cockie]) {
+				 children++;
+			 }
+			 cockie++;
+		 }
+		return children;
+	 }
+	 
+	public static boolean towHalfAlike(String s) {
+		 s=s.toLowerCase();
+		 String a=s.substring(0,s.length()/2);
+		 String b= s.substring(s.length()/2);
+		 int aCount=countVowel(a);
+		 int bCount=countVowel(b);
+		 
+		 return aCount==bCount;
+	 }
+	private static int countVowel(String a) {
+		int count=0;
+		String vowles="aeiou";
+		for(int i=0;i<a.length();i++) {
+			if(vowles.indexOf(a.charAt(i))!=-1) {
+				count++;
+			}
+			/*
+			 * if (ch == 'a' || ch == 'e' || ch == 'i' || ch == 'o' || ch == 'u') { count++;
+			 * }
+			 */ // faster approach
+		}
+		
+		return count;
+	}
+	
+	
+
+	private static int countVowel1(String a) {
+		Set<Character> VOWELS = Set.of('a', 'e', 'i', 'o', 'u');
+	    int count = 0;
+	    for (char ch : a.toCharArray()) {
+	        if (VOWELS.contains(ch)) {
+	            count++;
+	        }
+	    }
+	    return count;
+	}
+
+
 	public static void main(String[] args) {
-		String[] words= {"abc","aabc","bc"};
-		System.out.println(makeEqual(words));
+		String s= "book";
+		System.out.println(towHalfAlike(s));
 		
 	}
 
