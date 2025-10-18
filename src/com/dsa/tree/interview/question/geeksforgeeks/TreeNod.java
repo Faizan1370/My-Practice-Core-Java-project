@@ -1,4 +1,4 @@
-package com.dsa.interview.question;
+package com.dsa.tree.interview.question.geeksforgeeks;
 
 public class TreeNod {
 	int data;
