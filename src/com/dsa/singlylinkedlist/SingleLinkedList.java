@@ -1,7 +1,10 @@
 package com.dsa.singlylinkedlist;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Currency;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 import com.dsa.tree.TreeNode;
 
@@ -407,6 +410,75 @@ public class SingleLinkedList {
 		 }
 		 return dummy.next;
 	 }
+	 
+	 public void removeDup1() {
+		 ListNode current=head;
+		 while(current!=null && current.next!=null) {
+			 if(current.data == current.next.data) {
+				 current.next=current.next.next;
+			 }else {
+				 current =current.next;
+			 }
+		 }
+	 }
+	 
+	 
+	 public boolean checkCycle() {
+		 if(head==null) {
+			 return false;
+		 }
+		 ListNode slowPtr=head;
+		 ListNode fastPointer=head;
+		 while(fastPointer !=null && fastPointer.next!=null) {
+			 slowPtr=slowPtr.next;
+			 fastPointer=fastPointer.next.next;
+			 if(slowPtr==fastPointer) {
+				 return true;
+			 }
+		 }
+		return false;
+	 }
+	 
+	 public void reverse1() {
+		 if(head==null) {
+			 return;
+		 }
+		 ListNode current =head;
+		 ListNode next;
+		 ListNode prev=null;
+		 while(current!=null) {
+			 next=current.next;
+			 current.next=prev;
+			 prev=current;
+			 current=next;
+		 }
+		 head=prev;
+	 }
+	 
+	 
+	 
+	 public boolean checkPalin() {
+		 if(head==null) {
+			 return true;
+		 }
+		 ArrayList<Integer> list = new ArrayList<Integer>();
+		 ListNode current=head;
+		 while(current!=null) {
+			 list.add(current.data);
+			 current =current.next;
+		 }
+		 int start=0,end=list.size()-1;
+		 while(start<end) {
+			 if(list.get(start)!=list.get(end)) {
+				 return false;
+			 }
+			 start++;
+			 end--;
+		 }
+		return true;
+	 }
+	 
+	
 	public static void main(String[] args) {
 		SingleLinkedList linkedList = new SingleLinkedList();
 		linkedList.add(1);
@@ -414,7 +486,9 @@ public class SingleLinkedList {
 		linkedList.add(1);
 		linkedList.add(1);
 		linkedList.print();
-		System.out.println(linkedList.palin());
+		linkedList.removeDup1();
+		System.out.println();
+		linkedList.print();
 		
 		//linkedList.insertAtLastNode(5);
 		//linkedList.insertNodeGivenPosition(50, 2);
