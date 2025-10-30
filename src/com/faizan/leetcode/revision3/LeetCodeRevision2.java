@@ -148,7 +148,7 @@ public class LeetCodeRevision2 {
 		}
 		
 		
-		return set.size()==set1.size();
+		return set.equals(set1);
 	}
 	
 	public static int posNegMax(int[] nums) {

@@ -478,6 +478,19 @@ public class SingleLinkedList {
 		return true;
 	 }
 	 
+	 public int middleElement2() {
+		if(head==null) {
+			return 0;
+		}
+		ListNode slowP=head;
+		ListNode fastP=head;
+		while(fastP !=null && fastP.next !=null) {
+			slowP=slowP.next;
+			fastP=fastP.next.next;
+		}
+		return slowP.data;
+	 }
+	 
 	
 	public static void main(String[] args) {
 		SingleLinkedList linkedList = new SingleLinkedList();
