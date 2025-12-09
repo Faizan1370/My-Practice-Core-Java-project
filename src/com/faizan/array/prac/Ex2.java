@@ -21,6 +21,43 @@ public class Ex2 {
 		System.out.println(Arrays.toString(array));
 	}
 	
+	public static int[] removeDup() {
+	    int[] nums = {1, 4, 4, 5};
+
+	    if (nums.length == 0) return nums;
+
+	    int idx = 1; // keep the first element
+
+	    for (int i = 1; i < nums.length; i++) {
+	        if (nums[i] != nums[idx - 1]) {
+	            nums[idx] = nums[i];
+	            idx++;
+	        }
+	    }
+
+	    return Arrays.copyOf(nums, idx);  // return only unique part
+	}
+	public static int[] removeDup1() {
+	    int[] nums = {1, 4, 4, 5};
+
+	    if (nums.length == 0) return new int[0];
+
+	    int idx = 0;
+
+	    for (int i = 0; i < nums.length - 1; i++) {
+	        if (nums[i] != nums[i + 1]) {
+	            nums[idx] = nums[i];
+	            idx++;
+	        }
+	    }
+
+	    // Always add the last element (it's unique end boundary)
+	    nums[idx] = nums[nums.length - 1];
+	    idx++;
+
+	    return Arrays.copyOf(nums, idx);
+	}
+
 	public static void deleteValue() {
 		int[] array = {32,4,6,12,89};
 		int value=6;
@@ -150,6 +187,7 @@ public class Ex2 {
 		//removeDuplicate2();
 		//findIndicesForSum();
 		//KthLargestValue();
-		arrangePosNegtiveValue();
+		//arrangePosNegtiveValue();
+	System.out.println(Arrays.toString(removeDup1()));	
 	}
 }

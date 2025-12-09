@@ -108,18 +108,20 @@ public class LeetCodeRevision3 {
 		return count;
 	}
 	
-	public static boolean isSequence(String s,String t) {
-		int index=0;
-		for(int i=0;i<t.length();i++) {
-			if(s.charAt(index)==t.charAt(i)) {
-				index++;
-			}
-			if(s.length()==index) {
-				return true;
-			}
-		}
-		return false;
+	public static boolean isSequence(String s, String t) {
+	    int index = 0;
+
+	    for (int i = 0; i < t.length(); i++) {
+	        if (s.charAt(index) == t.charAt(i)) {
+	            index++;
+	        }
+	        if (s.length() == index) {
+	            return true;
+	        }
+	    }
+	    return false;
 	}
+
 	public static boolean isSubsequence1(String s, String t) {
 	    int i = 0, j = 0; 
 	    while (i < s.length() && j < t.length()) {

@@ -182,6 +182,27 @@ public class BinaryBSTPrac {
 			}
 		}
 	}
+	 public List<List<Integer>> levelOrder(TreeNod root) {
+	        List<List<Integer>> result = new ArrayList<>();
+	        dfs(root, 0, result);
+	        return result;
+	    }
+
+	    private void dfs(TreeNod node, int level, List<List<Integer>> result) {
+	        if (node == null) return;
+
+	        // If this is the first time we reach this level, add a new list
+	        if (result.size() == level) {
+	            result.add(new ArrayList<>());
+	        }
+
+	        // Add current node value to its level list
+	        result.get(level).add(node.data);
+
+	        // Recurse left and right with next level
+	        dfs(node.left, level + 1, result);
+	        dfs(node.right, level + 1, result);
+	    }
 
 	public boolean isMirror(TreeNod leftSub, TreeNod rightSub) {
 		if (leftSub == null && rightSub == null) {
@@ -522,6 +543,51 @@ public class BinaryBSTPrac {
 		}
 		return -1;
 	}
+	 public int kthLargest1(TreeNod root, int k) {
+	        Stack<TreeNod> stack = new Stack<>();
+	        TreeNod curr = root;
+
+	        while (curr != null || !stack.isEmpty()) {
+	            // Go to rightmost node first
+	            while (curr != null) {
+	                stack.push(curr);
+	                curr = curr.right;
+	            }
+
+	            // Visit node
+	            curr = stack.pop();
+	            k--;
+	            if (k == 0) return curr.data;
+
+	            // Move to left subtree
+	            curr = curr.left;
+	        }
+
+	        return -1; // should never happen
+	    }
+	 
+	 public int kthSmallest(TreeNod root, int k) {
+	        if(root==null){
+	            return -1;
+	        }
+	        int[] count=new int[1];
+	         int[] result = new int[1];
+	        dfsSmallest(root,k,count,result);
+	        return result[0];
+	    }
+
+	    public void dfsSmallest(TreeNod node,int k, int[] count,int[] result){
+	        if(node==null){
+	            return;
+	        }
+	        dfsSmallest(node.left,k,count,result);
+	        count[0]++;
+	        if(count[0]==k){
+	            result[0]=node.data;
+	            return;
+	        }
+	         dfsSmallest(node.right,k,count,result);
+	    }
 	
 	public TreeNod balanceBST() {
 		ArrayList<TreeNod> nodes = new ArrayList<TreeNod>();

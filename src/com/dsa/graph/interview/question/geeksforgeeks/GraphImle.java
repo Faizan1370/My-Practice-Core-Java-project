@@ -201,6 +201,9 @@ public class GraphImle {
 				int next = v + dice;
 				if (!visited[next]) {
 					int dest = (moves[next] != -1) ? moves[next] : next;
+
+	                visited[next] = true;  // FIX #1
+	                visited[dest] = true;  // FIX #2 (important)
 					queue.add(new SnakeCell(dest, cell.dist + 1));
 				}
 			}

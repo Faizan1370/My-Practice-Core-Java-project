@@ -45,13 +45,6 @@ public class LeetCode13 {
 				sum=0;
 			}
 			maxSum=Math.max(maxSum, sum);
-			
-			if(maxSum==nums[0]) {
-				while(set.contains(maxSum)) {
-					maxSum++;
-				}
-				return maxSum;
-			}
 			while(set.contains(maxSum)) {
 				maxSum++;
 			}
@@ -90,6 +83,10 @@ public class LeetCode13 {
 	}
 	
 	public  static int minCost(int[] nums) {
+		 if (nums.length < 3) {
+		        return Arrays.stream(nums).sum(); // or define your behavior
+		    }
+
 		int first=nums[0];
 		int firstMin=Integer.MAX_VALUE;
 		int secondMin=Integer.MAX_VALUE;

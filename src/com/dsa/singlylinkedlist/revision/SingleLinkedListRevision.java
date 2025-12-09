@@ -1,5 +1,9 @@
 package com.dsa.singlylinkedlist.revision;
 
+import java.util.ArrayList;
+import java.util.HashSet;
+
+import com.dsa.doublyLinkedList.revision.ListNodeRev;
 import com.dsa.singlylinkedlist.ListNode;
 
 public class SingleLinkedListRevision {
@@ -188,14 +192,131 @@ public class SingleLinkedListRevision {
 		}
 		return slowPtr;
 	}
+	public void removeDup() {
+		if(head==null) {
+			return;
+		}
+		LisNodeRe current =head;
+		while(current !=null && current.next!=null) {
+			if(current.data == current.next.data) {
+				current.next = current.next.next;
+			}else {
+				current=current.next;
+			}
+		}
+ 	}
+	public void removeDupUnsorted() {
+	    if (head == null) return;
+
+	    HashSet<Integer> seen = new HashSet<>();
+	    LisNodeRe current = head;
+	    LisNodeRe prev = null;
+
+	    while (current != null) {
+	        if (seen.contains(current.data)) {
+	            prev.next = current.next; // skip duplicate
+	        } else {
+	            seen.add(current.data);
+	            prev = current;
+	        }
+	        current = current.next;
+	    }
+	}
+
+	public  boolean checkCycle() {
+		if(head==null) {
+			return false;
+		}
+		LisNodeRe sloPtr=head;
+		LisNodeRe fastPtr=head;
+		while(fastPtr!=null && fastPtr.next!=null) {
+			sloPtr=sloPtr.next;
+			fastPtr = fastPtr.next.next;
+			 // If they meet, cycle exists
+	        if (sloPtr == fastPtr) {
+	            return true;
+	        }
+		}
+		return false;
+	}
+	
+	public  boolean checkPalin() {
+		if(head==null) {
+			return false;
+		}
+		if (head.next == null) return true;
+		ArrayList<Integer> list = new ArrayList<Integer>();
+		LisNodeRe current = head;
+		while(current !=null) {
+			list.add(current.data);
+			current = current.next;
+		}
+		int start=0,end=list.size()-1;
+		while(start<end) {
+			if(list.get(start)!=list.get(end)) {
+				return false;
+			}
+			start++;
+			end--;
+		}
+		return true;
+	}
+	
+	public LisNodeRe mergerTwoSortedList(LisNodeRe list1,LisNodeRe list2) {
+		if (list1 == null) return list2;
+	    if (list2 == null) return list1;
+		LisNodeRe dummy = new LisNodeRe(-1);
+		LisNodeRe current =dummy;
+		while(list1!=null && list2 !=null) {
+			if(list1.data<=list2.data) {
+				current.next=list1;
+				list1=list1.next;
+			}else {
+				current.next=list2;
+				list2=list2.next;
+			}
+			current = current.next; 
+		}
+		if(list1!=null) {
+			current.next=list1;
+		}else {
+			current.next=list2;
+		}
+		
+		return dummy.next;
+	}
+	
+	public LisNodeRe mergerTwoSortedList1(LisNodeRe list1,LisNodeRe list2) {
+		LisNodeRe dummy=new LisNodeRe(-1);
+		LisNodeRe current =dummy;
+		while(list1!=null && list2!=null) {
+			if(list1.data<=list2.data) {
+				current.next=list1;
+				list1=list1.next;
+			}else {
+				current.next=list2;
+				list2=list2.next;
+			}
+			current = current.next; 
+		}
+		if(list1!=null) {
+			current.next=list1;
+		}else {
+			current.next=list2;
+		}
+		
+		return dummy.next;
+				
+	}
+	
+	
 	public static void main(String[] args) {
 		SingleLinkedListRevision linkedListRevision = new SingleLinkedListRevision();
-		linkedListRevision.insertNodeAtStart(5);
+		linkedListRevision.insertNodeAtStart(1);
+		linkedListRevision.insertNodeAtStart(2);
+		linkedListRevision.insertNodeAtStart(1);
 		linkedListRevision.insertNodeAtStart(9);
-		linkedListRevision.insertNodeAtStart(7);
-		linkedListRevision.insertNodeAtStart(10);
-		linkedListRevision.insertNodeAtEnd(17);
 		linkedListRevision.print();
-	 System.out.println(linkedListRevision.findMiddleNode().data);	
+	 System.out.println(linkedListRevision.checkPalin());
 	}
 }

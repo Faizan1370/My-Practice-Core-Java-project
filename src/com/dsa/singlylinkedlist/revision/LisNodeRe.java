@@ -1,8 +1,8 @@
 package com.dsa.singlylinkedlist.revision;
 
 public class LisNodeRe {
-	int data;
-	LisNodeRe next;
+	public int data;
+	public LisNodeRe next;
 	
 	public LisNodeRe(int data) {
 		this.data=data;

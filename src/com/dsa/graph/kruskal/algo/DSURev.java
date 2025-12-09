@@ -24,11 +24,11 @@ public class DSURev {
 	public void union(int x,int y) {
 		int xRoot=find(x),yRoot=find(y);
 		if(rank[xRoot]>rank[yRoot]) {
-			rank[yRoot]=xRoot;
+			parent[yRoot]=xRoot;
 		}else if(rank[xRoot]<rank[yRoot]) {
-			rank[xRoot]=yRoot;
+			parent[xRoot]=yRoot;
 		}else {
-			rank[yRoot]=xRoot;
+			parent[yRoot]=xRoot;
 			rank[xRoot]++;
 		}
 	}

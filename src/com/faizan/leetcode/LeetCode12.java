@@ -183,9 +183,8 @@ public class LeetCode12 {
 			if(map.containsKey(ch)) {
 				int left = map.get(ch);
 				max=Math.max(max, right-left-1);
-			}else {
-				map.put(ch, right);
 			}
+				map.put(ch, right);
 		}
 		return max;
 	}

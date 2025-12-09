@@ -30,7 +30,7 @@ public class MinDistance {
 			if(visted[ver]) {
 				continue;
 			}
-			visted[src]=true;
+			visted[ver]=true;
 			/*
 			 * if(dis>dist[ver]) { continue; } // first
 			 */

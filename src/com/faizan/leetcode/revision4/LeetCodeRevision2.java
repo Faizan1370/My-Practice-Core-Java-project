@@ -411,10 +411,266 @@ public class LeetCodeRevision2 {
 		  }
 		return list;
 	   }
+	   
+	   public static int purchseAmount(int purchaseAmount) {
+		   int rem=purchaseAmount %10;
+		   int balance=10-rem;
+		   if (purchaseAmount < 0) return 100;
+		    if (purchaseAmount > 100) return 0;
+		   if(rem<5) {
+			   purchaseAmount = purchaseAmount-rem; 
+		   }else {
+			   purchaseAmount =purchaseAmount+balance;
+		   }
+		return 100-purchaseAmount;
+	   }
+	   
+	   public static int maxSum(int[] nums) {
+		   int maxSum=-1;
+		   for(int i=0;i<nums.length;i++) {
+			   for(int j=i+1;j<nums.length;j++) {
+				   if(findMax(nums[i])==findMax(nums[j])) {
+					   maxSum=Math.max(maxSum, (nums[i]+nums[j]));
+				   }
+			   }
+		   }
+		return maxSum;
+	   }
 
-	public static void main(String[] args) {
-		List<String> words= Arrays.asList("one.two.three","four.five");
-		
-		System.out.println(splitWordsbySeprator(words, "."));
+	private static int findMax(int num) {
+		int max=0;
+		while(num !=0) {
+			if((num %10)>max) {
+				max=num%10;
+			}
+			num =num/10;
 		}
+		return max;
+	}
+	public static boolean acronym(String[] words,String s) {
+		StringBuilder builder = new StringBuilder();
+		for(String word:words) {
+			builder.append(word.charAt(0));
+		}
+		
+		return builder.toString().equals(s);
+	}
+	
+	public static int minOprations(int[] nums,int k) {
+		HashSet<Integer> set = new HashSet<Integer>();
+		for(int i=1;i<=k;i++) {
+			set.add(i);
+		}
+		int count=0;
+		for(int i=0;i<nums.length;i++) {
+			if(set.contains(nums[i])) {
+				set.remove(nums[i]);
+				if(set.isEmpty()) {
+					break;
+				}
+			}
+			count++;
+		}
+		return count;
+	}
+	
+	public static int divNonDiv(int n,int m) {
+		int num1=0,num2=0;
+		for(int i=1;i<=n;i++) {
+			if(i % m !=0) {
+				num1 +=i;
+			}else {
+				num2 +=i;
+			}
+		}
+		return num1-num2;
+	}
+	public static int highestAltitude(int[] gain) {
+		int currentGain=0,maxGain=0;
+		for(int i=0;i<gain.length;i++) {
+			currentGain=currentGain+gain[i];
+			maxGain = Math.max(maxGain, currentGain);
+		}
+		return maxGain;
+	}
+	
+	public static int[] valueDiff(int[] nums,int indexDiff,int valueDiff) {
+		for(int i=0;i<nums.length;i++) {
+			for(int j=i+1;j<nums.length;j++) {
+				if(Math.abs(i-j)>=indexDiff && Math.abs(nums[i]-nums[j])>=valueDiff) {
+					return new int[] {i,j};
+				}
+			}
+		}
+		return new int[] {-1,-1};
+	}
+	
+	public static boolean wordPattern(String pattern,String s) {
+		String[] words = s.split(" ");
+		if(pattern.length()!=words.length) {
+			return false;
+		}
+		HashMap<Character, String> char_map= new  HashMap<Character, String>();
+		HashMap<String, Character> word_map = new HashMap<String, Character>();
+		
+		for(int i=0;i<words.length;i++) {
+			char ch=pattern.charAt(i);
+			String word=words[i];
+			if(!char_map.containsKey(ch)) {
+				if(word_map.containsKey(word)) {
+					return false;
+				}else {
+					char_map.put(ch, word);
+					word_map.putIfAbsent(word, ch);
+				}
+			}else {
+				if(!char_map.get(ch).equals(word)) {
+					return false;
+				}
+			}
+		}
+		return true;
+	}
+	
+	public static boolean wordPattern1(String pattern, String s) {
+	    String[] words = s.split(" ");
+	    if (pattern.length() != words.length) return false;
+
+	    Map<Character, String> charToWord = new HashMap<>();
+	    Map<String, Character> wordToChar = new HashMap<>();
+
+	    for (int i = 0; i < words.length; i++) {
+	        char ch = pattern.charAt(i);
+	        String word = words[i];
+
+	        if (charToWord.containsKey(ch)) {
+	            if (!charToWord.get(ch).equals(word)) return false;
+	        } else {
+	            if (wordToChar.containsKey(word)) return false;
+	            charToWord.put(ch, word);
+	            wordToChar.put(word, ch);
+	        }
+	    }
+	    return true;
+	}
+	
+	public static int[] leftSumRightSumDiff(int[] nums) {
+		int sum=0;
+		int[] leftSum= new int[nums.length];
+		int[] rightSum=new int[nums.length];
+		
+		for(int i=0;i<nums.length;i++) {
+			leftSum[i]=sum;
+			sum +=nums[i];
+		}
+		sum=0;
+		for(int i=nums.length-1;i>=0;i--) {
+			rightSum[i]=sum;
+			sum +=nums[i];
+		}
+		System.out.println(Arrays.toString(leftSum));
+		System.out.println(Arrays.toString(rightSum));
+		int[] ans=new int[nums.length];
+		for(int i=0;i<nums.length;i++) {
+			ans[i]=Math.abs(leftSum[i]-rightSum[i]);
+		}
+		return ans;
+		
+	}
+	public static int[] leftSumRightSumDiff1(int[] nums) {
+		int sum=0;
+		for(int num:nums) {
+			sum +=num;
+		}
+		int leftSum=0;
+		int[] ans=new int[nums.length];
+		for(int i=0;i<nums.length;i++) {
+			int rightSum=sum-leftSum-nums[i];
+			ans[i]=Math.abs(leftSum-rightSum);
+			leftSum=leftSum+nums[i];
+		}
+		return ans;
+	}
+	public static List<ArrayList<Integer>> twoArrayDiff(int[] nums1,int[] nums2) {
+		
+		return Arrays.asList(findDiff(nums1,nums2),findDiff(nums2,nums1));
+			
+	}
+
+	private static ArrayList<Integer> findDiff(int[] nums1, int[] nums2) {
+		HashSet<Integer> set = new HashSet<Integer>();
+		for(int num:nums2) {
+			set.add(num);
+		}
+		ArrayList<Integer> ans = new ArrayList<Integer>();
+		for(int num:nums1) {
+			if(!set.contains(num)) {
+				ans.add(num);
+			}
+		}
+		return ans;
+	}
+	
+	public static int employeesMetTheTarget(int[] hours,int target) {
+		int count=0;
+		for(int hr:hours) {
+			if(hr>=target) {
+				count++;
+			}
+		}
+		return count;
+	}
+	public static boolean contigous1S0S(String s) {
+		int currentOne=0,currentZero=0;
+		int maxOne=0,maxZero=0;
+		for(int i=0;i<s.length();i++) {
+			if(s.charAt(i)=='1') {
+				currentOne++;
+				currentZero=0;
+			}else {
+				currentOne=0;
+				currentZero++;
+			}
+			maxOne=Math.max(maxOne, currentOne);
+			maxZero = Math.max(maxZero, currentZero);
+		}
+		return maxOne>maxZero;
+	}
+	
+	public static int contigousChar(String s) {
+		int current=1,max=1;
+		for(int i=1;i<s.length();i++) {
+			if(s.charAt(i-1)==s.charAt(i)) {
+				current++;
+			}else {
+				current=1;
+			}
+			max=Math.max(current, max);
+		}
+		return max;
+	}
+	
+	public static int maxBallons(String text) {
+		HashMap<Character, Integer> map = new HashMap<Character, Integer>();
+		map.put('b', 0);
+        map.put('a', 0);
+        map.put('l', 0);
+        map.put('o', 0);
+        map.put('n', 0);
+        for(int i=0;i<text.length();i++) {
+        	if(map.containsKey(text.charAt(i))) {
+        		map.put(text.charAt(i), map.get(text.charAt(i))+1);
+        	}
+        }
+        int min=map.get('b');
+        min=Math.min(min, map.get('a'));
+        min=Math.min(min, map.get('l')/2);
+        min=Math.min(min, map.get('o')/2);
+        min=Math.min(min, map.get('n'));
+        return min;
+	}
+	public static void main(String[] args) {
+		String s="alaebolkon";
+		System.out.println(maxBallons(s));
+	}
 }
