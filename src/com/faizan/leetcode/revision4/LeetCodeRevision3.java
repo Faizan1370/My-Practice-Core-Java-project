@@ -464,7 +464,7 @@ public class LeetCodeRevision3 {
 
 	public static double maxSubarray(int[] nums, int k) {
 		int maxSum = 0;
-		for (int i = 0; i < nums.length - k; i++) {
+		for (int i = 0; i <= nums.length - k; i++) {
 			int currentSum = 0;
 			for (int j = i; j < k + i; j++) {
 				currentSum += nums[j];
