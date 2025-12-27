@@ -8,6 +8,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Queue;
 import java.util.Set;
+import java.util.Stack;
 
 import com.dsa.tree.interview.question.geeksforgeeks.TreeNod;
 
@@ -806,17 +807,140 @@ public class BinBsPrac {
 	  findDiff(node.right, evenSum, oddSum, level+1);
 		
 	}
+	public boolean printAncestors(TreeNod node, int key) {
+		if(node==null) {
+			return false;
+		}
+		if(node.data==key) {
+			return true;
+		}
+		if(printAncestors(node.left, key) || printAncestors(node.right, key)) {
+			System.out.print(node.data +" ");
+			return true;
+		}
+		return false;
+	}
+	
+	public static void printAnsItrative(TreeNod root,int key) {
+		if(root==null) {
+			return;
+		}
+		HashMap<TreeNod, TreeNod> map = new HashMap<TreeNod, TreeNod>();
+		
+		Stack<TreeNod> stack = new Stack<TreeNod>();
+		stack.push(root);
+		map.put(root, null);
+		
+		TreeNod keyNode = null;
+		
+		while(!stack.isEmpty()) {
+			TreeNod current = stack.pop();
+			if(current.data == key) {
+				keyNode = current;
+				break;
+			}
+			if(current.right !=null) {
+				stack.push(current.right);
+				map.put(current.right, current);
+			}
+			if(current.left !=null) {
+				stack.push(current.left);
+				map.put(current.left, current);
+			}
+		}
+		if(keyNode !=null) {
+			TreeNod parentNode = map.get(keyNode);
+			while(parentNode!=null) {
+				System.out.print(parentNode.data +" ");
+				parentNode=map.get(parentNode);
+			}
+		}
+	}
+	public static TreeNod removeKeys(TreeNod node, int l, int r) {
+		if(node==null) {
+			return null;
+		}
+		TreeNod left = removeKeys(node.left, l, r);
+		TreeNod right = removeKeys(node.right, l, r);
+		if(node.data >=l && node.data <=r) {
+			node.left=left;
+			node.right =right;
+			return node;
+		}else if(node.data< l) {
+			return right;
+		}else {
+			return left;
+		}
+	}
+   
+	static void collectInOrder(TreeNod node, int l, int r, List<Integer> list) {
+	    if (node == null) return;
+
+	    collectInOrder(node.left, l, r, list);
+
+	    if (node.data >= l && node.data <= r) {
+	        list.add(node.data);
+	    }
+
+	    collectInOrder(node.right, l, r, list);
+	}
+  
+	static TreeNod buildBST(List<Integer> list, int start, int end) {
+	    if (start > end) return null;
+
+	    int mid = (start + end) / 2;
+	    TreeNod root = new TreeNod(list.get(mid));
+
+	    root.left = buildBST(list, start, mid - 1);
+	    root.right = buildBST(list, mid + 1, end);
+
+	    return root;
+	}
+	static TreeNod removeKeysInOrder(TreeNod root, int l, int r) {
+	    List<Integer> list = new ArrayList<>();
+
+	    // collect nodes in inorder
+	    collectInOrder(root, l, r, list);
+
+	    if (list.isEmpty()) return null;
+
+	    // build BST from inorder list (already sorted)
+	    return buildBST(list, 0, list.size() - 1);
+	}
+	
+	public static void findGreaterSum(TreeNod root) {
+		int[] sum = {0};
+		greaterSum(root,sum);
+	}
+
+	private static void greaterSum(TreeNod node, int[] sum) {
+		if(node==null) {
+			return;
+		}
+		greaterSum(node.right, sum);
+		int temp = node.data;
+		node.data=sum[0];
+		sum[0] +=temp;
+		greaterSum(node.left, sum);
+		
+		
+	}
 
 	public static void main(String[] args) {
-		TreeNod root = new TreeNod(10);
-        root.left = new TreeNod(20);
-        root.right = new TreeNod(30);
-        root.left.left = new TreeNod(40);
-        root.left.right = new TreeNod(60);
 
-        System.out.println(getLevelEvenOddDiff(root));
+	    TreeNod root = new TreeNod(1);
+	    root.left = new TreeNod(2);
+	    root.right = new TreeNod(3);
+	    root.left.left = new TreeNod(4);
+	    root.left.right = new TreeNod(5);
+	    root.left.left.left = new TreeNod(7);
 
-	        
+	    int l = 3, r = 7;
+
+	    findGreaterSum(root);
+
+	    inorderStoreTraverse(root);  // custom method to print inorder
 	}
+
 
 }

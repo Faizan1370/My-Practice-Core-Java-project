@@ -6,7 +6,11 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
+import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.PriorityQueue;
 import java.util.Set;
 import java.util.Stack;
@@ -523,43 +527,432 @@ public class LeetCodeRevision1 {
 			return -1;
 		}
 	}
+
 	public static boolean checkPanagram(String s) {
 		HashSet<Character> set = new HashSet<Character>();
-		s=s.toLowerCase();
-		for(int i=0;i<s.length();i++) {
-			if(Character.isLetter(s.charAt(i))) {
-				set.add(s.charAt(i));	
+		s = s.toLowerCase();
+		for (int i = 0; i < s.length(); i++) {
+			if (Character.isLetter(s.charAt(i))) {
+				set.add(s.charAt(i));
 			}
 		}
 		System.out.println(set.size());
-		return set.size()==26;
+		return set.size() == 26;
 	}
-	
+
 	public static String sortSentence(String s) {
 		String[] words = s.split(" ");
 		String[] result = new String[words.length];
-		
-		for(int i=0;i<words.length;i++) {
-			int pos= Character.getNumericValue(words[i].charAt(words[i].length()-1))-1;
-			result[pos]=words[i].substring(0,words[i].length()-1);
+
+		for (int i = 0; i < words.length; i++) {
+			int pos = Character.getNumericValue(words[i].charAt(words[i].length() - 1)) - 1;
+			result[pos] = words[i].substring(0, words[i].length() - 1);
 		}
 		return String.join(" ", result);
 	}
-	
+
 	public static boolean equalFreq(String s) {
-		Set<Long> collect = s.chars().mapToObj(c->(char)c)
-		.collect(Collectors.groupingBy(Function.identity(),Collectors.counting()))
-		.entrySet()
-		.stream()
-		.map(entry->entry.getValue())
-		.collect(Collectors.toSet());
-		
-		return collect.size()==1;
+		Set<Long> collect = s.chars().mapToObj(c -> (char) c)
+				.collect(Collectors.groupingBy(Function.identity(), Collectors.counting())).entrySet().stream()
+				.map(entry -> entry.getValue()).collect(Collectors.toSet());
+
+		return collect.size() == 1;
 	}
 
+	public static int[] arrayConcat(int[] nums) {
+		int n = nums.length;
+		int[] result = new int[2 * n];
+
+		for (int i = 0; i < nums.length; i++) {
+			result[i] = nums[i];
+			result[i + n] = nums[i];
+		}
+		return result;
+	}
+
+	public static String kthDistinct(String[] arr, int k) {
+		// Handle null or empty array
+		if (arr == null || arr.length == 0) {
+			return null;
+		}
+
+		// Handle invalid k
+		if (k <= 0) {
+			return null;
+		}
+		Optional<String> first = Arrays.stream(arr)
+				.collect(Collectors.groupingBy(Function.identity(), LinkedHashMap::new, Collectors.counting()))
+				.entrySet().stream().filter(entry -> entry.getValue() == 1L).map(entry -> entry.getKey()).skip(k - 1)
+				.findFirst();
+		return first.orElse(null);
+	}
+
+	public static int smallestIndex(int[] nums) {
+		for (int i = 0; i < nums.length; i++) {
+			if (i % 10 == nums[i]) {
+				return i;
+			}
+		}
+		return -1;
+	}
+
+	public static boolean stringEquilent(String word1, String word2) {
+		if (word1.length() != word1.length()) {
+			return false;
+		}
+		int[] freq = new int[100];
+		int[] freq2 = new int[100];
+		for (int i = 0; i < word1.length(); i++) {
+			freq[word1.charAt(i) - 'a']++;
+		}
+		for (int i = 0; i < word2.length(); i++) {
+			freq2[word2.charAt(i) - 'a']++;
+		}
+		for (int i = 0; i < freq.length; i++) {
+			if (freq[1] - freq2[2] > 3) {
+				return false;
+			}
+		}
+		return true;
+	}
+
+	public static int countWords(String[] word1, String[] word2) {
+		Map<String, Long> map = Arrays.stream(word1)
+				.collect(Collectors.groupingBy(Function.identity(), Collectors.counting()));
+		for (String word : word2) {
+			if (map.containsKey(word)) {
+				map.put(word, map.get(word) - 1);
+			}
+		}
+		int count = 0;
+		for (String word : word2) {
+			if (map.containsKey(word) && map.get(word) == 0) {
+				count++;
+			}
+		}
+		return count;
+	}
+
+	public static String firstPalindrom(String[] words) {
+		for (String word : words) {
+			if (isPlalindrom(word)) {
+				return word;
+			}
+		}
+		return "";
+	}
+
+	private static boolean isPlalindrom(String word) {
+		int start = 0, end = word.length() - 1;
+		while (start < end) {
+			if (word.charAt(end) != word.charAt(start)) {
+				return false;
+			}
+			start++;
+			end--;
+		}
+		return true;
+	}
+
+	public static String[] sortPeople(String[] names, int[] heights) {
+		if (names.length != heights.length) {
+			return new String[] { " ", " " };
+		}
+		Integer[] indice = new Integer[heights.length];
+		for (int i = 0; i < heights.length; i++) {
+			indice[i] = i;
+		}
+		Arrays.sort(indice, new Comparator<Integer>() {
+
+			@Override
+			public int compare(Integer o1, Integer o2) {
+				// TODO Auto-generated method stub
+				return heights[o2] - heights[o1];
+			}
+		});
+		String[] result = new String[names.length];
+		for (int i = 0; i < indice.length; i++) {
+			result[i] = names[indice[i]];
+		}
+		return result;
+	}
+
+	public static int disticntAvg(int[] nums) {
+		Arrays.sort(nums);
+		int start = 0, end = nums.length - 1;
+		HashSet<Integer> set = new HashSet<Integer>();
+		while (start < end) {
+			int min = nums[start];
+			int max = nums[end];
+			set.add(min + max);
+			start++;
+			end--;
+		}
+		return set.size();
+	}
+
+	public static boolean circularSentence(String sentence) {
+		if (sentence.charAt(0) != sentence.charAt(sentence.length() - 1)) {
+			return false;
+		}
+		for (int i = 0; i < sentence.length(); i++) {
+			if (Character.isWhitespace(sentence.charAt(i))) {
+				if (i == 0 || i == sentence.length() - 1) {
+					return false;
+				}
+				if (sentence.charAt(i - 1) != sentence.charAt(i + 1)) {
+					return false;
+				}
+			}
+
+		}
+		return true;
+	}
+
+	public static int maxValueOfString(String[] strs) {
+		int max = 0;
+		for (String str : strs) {
+			if (isDigit(str)) {
+				if (max < Integer.parseInt(str)) {
+					max = Integer.parseInt(str);
+				} else {
+					max = Math.max(max, str.length());
+				}
+			}
+		}
+		return max;
+	}
+
+	private static boolean isDigit(String str) {
+		int count = 0;
+		for (int i = 0; i < str.length(); i++) {
+			if (Character.isDigit(str.charAt(i))) {
+				count++;
+			}
+		}
+		return count == str.length();
+	}
+
+	public static int countSimiliarPair(String[] words) {
+		int count = 0;
+		for (int i = 0; i < words.length; i++) {
+			for (int j = i + 1; j < words.length; j++) {
+				if (checkEqui(words[i], words[j])) {
+					count++;
+				}
+			}
+		}
+		return count;
+	}
+
+	private static boolean checkEqui(String string, String string2) {
+		HashSet<Character> set = new HashSet<Character>();
+		HashSet<Character> set1 = new HashSet<Character>();
+
+		for (int i = 0; i < string.length(); i++) {
+			set.add(string.charAt(i));
+		}
+		for (int i = 0; i < string2.length(); i++) {
+			set1.add(string2.charAt(i));
+		}
+
+		return set.equals(set1);
+	}
+
+	public static int smallestCommon(int[] nums1, int[] nums2) {
+		HashSet<Integer> set = new HashSet<Integer>();
+		for (int num : nums1) {
+			set.add(num);
+		}
+		for (int num : nums2) {
+			if (set.contains(num)) {
+				return num;
+			}
+		}
+		return -1;
+	}
+
+	public static int alternatDigitSum(int num) {
+		int sum = 0;
+		String strNum = num + "";
+		sum = Character.getNumericValue(strNum.charAt(0));
+		for (int i = 1; i < strNum.length(); i++) {
+			if (i % 2 == 0) {
+				sum += Character.getNumericValue(strNum.charAt(i));
+			} else {
+				sum -= Character.getNumericValue(strNum.charAt(i));
+			}
+		}
+		return sum;
+	}
+
+	public static int arrayConcat1(int[] nums) {
+		if (nums.length == 1) {
+			return nums[0];
+		}
+		int sum = 0;
+		int start = 0, end = nums.length - 1;
+		while (start < end) {
+			String numStr = nums[start] + "" + nums[end];
+			sum += Integer.parseInt(numStr);
+			start++;
+			end--;
+		}
+		return sum;
+	}
+
+	public static int countVowel(String[] words) {
+		int count = 0;
+		String vowleString = "AEIOUaeiou";
+		for (String word : words) {
+			if (vowleString.indexOf(word.charAt(0)) != -1
+					&& vowleString.indexOf(word.charAt(word.length() - 1)) != -1) {
+				count++;
+			}
+		}
+		return count;
+	}
+
+	public static int delyedTime(int arrivalTime, int delayTime) {
+		int arrival = 0;
+		arrival = arrivalTime + delayTime;
+		if (arrival >= 24) {
+			arrival -= 24;
+		}
+		return arrival;
+	}
+
+	public static int sumOfMultiples(int n) {
+		int sum = 0;
+		for (int i = 1; i <= n; i++) {
+			if (i % 3 == 0 || i % 5 == 0 || i % 7 == 0)
+				sum += i;
+		}
+		return sum;
+	}
+
+	public static int arrayConcat2(int[] nums) {
+		int sum = 0;
+		int i = 0, j = nums.length - 1;
+
+		while (i < j) {
+			sum += nums[i] * 10 + nums[j];
+			i++;
+			j--;
+		}
+		return sum;
+	}
+
+	public static int alternateDigitSum1(int num) {
+		String s = String.valueOf(num);
+		int sum = 0;
+
+		for (int i = 0; i < s.length(); i++) {
+			int digit = s.charAt(i) - '0';
+			sum += (i % 2 == 0) ? digit : -digit;
+		}
+		return sum;
+	}
+
+	public static int isWinner(int[] player1, int[] player2) {
+		if (countScore(player1) > countScore(player2)) {
+			return 1;
+		} else if (countScore(player1) < countScore(player2)) {
+			return 2;
+		} else {
+			return 0;
+		}
+	}
+
+	private static int countScore(int[] player) {
+		int score = 0;
+		for (int i = 0; i < player.length; i++) {
+			if (i == 0) {
+				score += player[i];
+			} else if (i == 1) {
+				if (player[i - 1] == 10) {
+					score += 2 * player[i];
+				} else {
+					score += player[i];
+				}
+			} else if (i > 1) {
+				if (player[i - 1] == 10 || player[i - 2] == 10) {
+					score += 2 * player[i];
+				} else {
+					score += player[i];
+				}
+			}
+		}
+		return score;
+	}
+	 public static int[] distinctDiffrenceArray(int[] nums) {
+		 int[] diff = new int[nums.length];
+		 for(int i=0;i<nums.length;i++) {
+			 HashSet<Integer> set = new HashSet<Integer>();
+			 for(int j=0;j<=i;j++) {
+				 set.add(nums[j]);
+			 }
+			 HashSet<Integer> set1 = new HashSet<Integer>();
+			 for(int j=i+1;j<nums.length;j++) {
+				 set1.add(nums[j]);
+			 }
+			 diff[i]=set.size()-set1.size();
+		 }
+		
+		return diff;
+	 }
+	 public static boolean isGood(int[] nums) {
+		 Arrays.sort(nums);
+		 int max=nums[nums.length-1];
+		 HashMap<Integer, Integer> map = new HashMap<Integer, Integer>();
+		 for(int i=0;i<nums.length;i++) {
+			 if(map.containsKey(nums[i])) {
+				 map.put(nums[i], map.get(nums[i])+1);
+			 }else {
+				 map.put(nums[i],1);
+			 }
+			
+		 }
+		 ArrayList<Integer> list = new ArrayList<Integer>(map.values());
+		 int count=0;
+		 for(int num:list) {
+			 if(num >=2) {
+				 count++;
+			 }
+		 }
+		 if(map.get(max)==2 && count==1) {
+			 return true;
+		 }
+		return false;
+	 }
+	 
+	 public static int totalDisTrav(int mainTank,int addtank) {
+		 int dis=0;
+		 while(mainTank >= 5 && addtank>1) {
+			mainTank =(mainTank-5)+1;
+			 dis +=50;
+			 addtank--;
+		 }
+		  dis += mainTank *10; 
+		  return dis;
+	 }
+	 public static List<String> splitWordsbySeprator(List<String> words,String seprator){
+		   List<String> list = new ArrayList<String>();
+		   for(int i=0;i<words.size();i++) {
+			   String[] wordArr = words.get(i).split("["+seprator+"]");
+			   for(String word:wordArr) {
+				   list.add(word);
+			   }
+		   }
+		return list;
+		   
+	 }
+
+
 	public static void main(String[] args) {
-		String s="aaabbb";
-		System.out.println(equalFreq(s));
+		int mainTank=9,addtank=10;
+		System.out.println(totalDisTrav(mainTank, addtank));
+	
 	}
 
 }
