@@ -5,6 +5,7 @@ import java.util.HashSet;
 
 import com.dsa.doublyLinkedList.revision.ListNodeRev;
 import com.dsa.singlylinkedlist.ListNode;
+import com.dsa.tree.interview.question.geeksforgeeks.TreeNod;
 
 public class SingleLinkedListRevision {
 	
@@ -94,26 +95,32 @@ public class SingleLinkedListRevision {
 		}
 		head=pre;
 	}
-	public void insertNodeGivenPosition(int value ,int position) {
-		LisNodeRe newNode = new LisNodeRe(value);
-		if(position<1 || position>length()+1) {
-			return;
-		}
-		if(position==1) {
-			head.next=newNode;
-			head = newNode;
-			return;
-		}else {
-			int count=0;
-			LisNodeRe pre=head;
-			while(count<position-1) {
-				pre = pre.next;
-				count++;
-			}
-			LisNodeRe current = pre.next;
-			pre.next=newNode;
-			newNode.next=current;
-		}
+	public void insertNodeGivenPosition(int value, int position) {
+
+	    LisNodeRe newNode = new LisNodeRe(value);
+
+	    if (position < 1 || position > length() + 1) {
+	        return;
+	    }
+
+	    // Insert at beginning
+	    if (position == 1) {
+	        newNode.next = head;
+	        head = newNode;
+	        return;
+	    }
+
+	    int count = 1; //positon based not index based if it says put at index would start from 0
+	    LisNodeRe pre = head;
+
+	    while (count < position - 1) {
+	        pre = pre.next;
+	        count++;
+	    }
+
+	    LisNodeRe  current = pre.next;
+	    pre.next = newNode;
+	    newNode.next = current;
 	}
 	public void deleteNodeGivenPosition(int position) {
 		if(position==1) {
@@ -130,6 +137,31 @@ public class SingleLinkedListRevision {
 			}
 			pre.next=current.next;
 		}
+	}
+	public void deleteNodeGivenPosition2(int position) {
+	    if(head == null) return;
+	    
+	    if(position == 1) {
+	        head = head.next;
+	        return;
+	    }
+	    
+	    int count = 1;
+	    LisNodeRe current = head;
+	    
+	    // Traverse to node BEFORE target
+	    while(current != null && count < position - 1) {
+	        current = current.next;
+	        count++;
+	    }
+	    
+	    // Check if position is valid
+	    if(current == null || current.next == null) {
+	        System.out.println("Position out of bounds");
+	        return;
+	    }
+	    
+	    current.next = current.next.next;  // Skip target node
 	}
 	
 	public void deleteNodeGivenPosition1(int position) {

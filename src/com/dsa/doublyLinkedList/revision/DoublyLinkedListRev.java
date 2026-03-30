@@ -221,6 +221,40 @@ public class DoublyLinkedListRev {
 		current.next.previous=pre;
 		current=null;
 	}
+	public void deleteByValue1(int key) {
+	    if (head == null) return;
+
+	    // Case 1: delete head
+	    if (head.data == key) {
+	        head = head.next;
+	        if (head != null) {
+	            head.previous = null;
+	        } else {
+	            tail = null;
+	        }
+	        return;
+	    }
+
+	    ListNodeRev current = head;
+
+	    while (current != null && current.data != key) {
+	        current = current.next;
+	    }
+
+	    if (current == null) return;
+
+	    // Case 2: delete tail
+	    if (current == tail) {
+	        tail = tail.previous;
+	        tail.next = null;
+	        return;
+	    }
+
+	    // Case 3: delete middle
+	    current.previous.next = current.next;
+	    current.next.previous = current.previous;
+
+	}
 	public int findNodePositionByValue(int data) {
 		if(head==null) {
 			return 0;

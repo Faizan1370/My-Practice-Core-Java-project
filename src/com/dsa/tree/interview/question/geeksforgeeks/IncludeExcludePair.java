@@ -1,10 +1,10 @@
 package com.dsa.tree.interview.question.geeksforgeeks;
 
 public class IncludeExcludePair {
-    int include;
-    int exclude;
+    public int include;
+   public int exclude;
     
-    IncludeExcludePair(int include, int exclude) {
+    public IncludeExcludePair(int include, int exclude) {
         this.include = include;
         this.exclude = exclude;
     }

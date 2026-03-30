@@ -1,6 +1,7 @@
 package com.dsa.graph.prims.algo;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.PriorityQueue;
 
 public class MinimumSpanningTree {
@@ -44,6 +45,31 @@ public class MinimumSpanningTree {
 			}
 		}
 		return mstWeight;
+	}
+	public static int spanningTree(int V, ArrayList<ArrayList<int[]>> adj) {
+		
+		PriorityQueue<int[]> queue = new PriorityQueue<int[]>((a,b)->a[0]-b[0]);
+		boolean[] visited = new boolean[V];
+		queue.add(new int[] {0,0});
+		int res=0;
+		while(!queue.isEmpty()) {
+			int[] pair= queue.poll();
+			int w=pair[0];
+			int v=pair[1];
+			
+			if(visited[v]) {
+				continue;
+			}
+			visited[v]=true;
+			res +=w;
+			for(int[] ed:adj.get(v)) {
+				if(!visited[ed[0]]) {
+					queue.add(new int[] {ed[1],ed[0]});
+				}
+			}
+			
+		}
+		return res;
 	}
 
 	public static void main(String[] args) {

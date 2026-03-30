@@ -101,6 +101,7 @@ public class Ex20 {
 		}
 		return queue.peek();
 	}
+	
 	public static void removeDeuplicate() {
 		int[] array = { 7, 8, 3, 7, 4 };
 		int[] result = new int[array.length];

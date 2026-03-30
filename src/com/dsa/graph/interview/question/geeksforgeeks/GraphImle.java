@@ -102,6 +102,48 @@ public class GraphImle {
 
 		return (r >= 0) && (r < row) && (c >= 0) && (c < col) && grid[r][c] == 'L' && !visited[r][c];
 	}
+	
+	static int countIslands1(char[][] grid) {
+        int m=grid.length;
+        int n=grid[0].length;
+        boolean[][] visited = new boolean[m][n];
+        int countIsland=0;
+        for(int i=0;i<m;i++) {
+       	 for(int j=0;j<n;j++) {
+       		 if(!visited[i][j] && grid[i][j]=='L') {
+       			 bfsIsland(i,j,grid,visited);
+       			 countIsland++;
+       		 }
+       	 }
+        }
+		return countIsland;
+	}
+	private static void bfsIsland(int r, int c, char[][] grid, boolean[][] visited) {
+		int m=grid.length;
+		int n=grid[0].length;
+		Queue<int[]> queue =new LinkedList<int[]>();
+		queue.add(new int[] {r,c});
+		visited[r][c] = true;
+		int[] dr= {-1,-1,-1,0,1,1,1,0};
+		int[] dc= {-1,0,1,1,1,0,-1,-1};
+		
+		
+		while(!queue.isEmpty()) {
+			int[] pair = queue.poll();
+			int row=pair[0];
+			int col=pair[1];
+			
+			for(int i=0;i<8;i++) {
+				int nr = row+dr[i];
+				int nc= col+dc[i];
+				if(nr>=0 && nr<m && nc>=0 && nc<n && !visited[nr][nc] && grid[nr][nc]=='L') {
+					visited[nr][nc]=true;
+					queue.add(new int[] {nr,nc});
+				}
+			}
+		}
+		
+	}
 
 	public boolean detectCycle(int V, int[][] edges) {
 		ArrayList<ArrayList<Integer>> adj = new ArrayList<ArrayList<Integer>>();
@@ -573,6 +615,27 @@ public class GraphImle {
 			}
 		}
 	}
+	private static boolean isConnected1(String[] words, boolean[] present) {
+	    ArrayList<ArrayList<Integer>> adj = new ArrayList<>();
+	    for (int i = 0; i < 26; i++) adj.add(new ArrayList<>());
+
+	    int start = -1;
+	    for (String word : words) {
+	        int u = word.charAt(0) - 'a';
+	        int v = word.charAt(word.length() - 1) - 'a';
+	        adj.get(u).add(v);
+	        if (start == -1) start = u;
+	    }
+
+	    boolean[] visited = new boolean[26];
+	    dfs(start, adj, visited);
+
+	    for (int i = 0; i < 26; i++) {
+	        if (present[i] && !visited[i]) return false;
+	    }
+	    return true;
+	}
+
 	
 	public static boolean canBeChained1(String[] words) {
         int[] in = new int[26];

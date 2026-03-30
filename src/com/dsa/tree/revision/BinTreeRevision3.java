@@ -58,6 +58,23 @@ public class BinTreeRevision3 {
 	private static boolean isLeaf(TreeNodeRev node) {
 		return node.left==null && node.right==null;
 	}
+	public static boolean leafSimilar1(TreeNodeRev node1,TreeNodeRev node2) {
+		ArrayList<Integer> list1 = new ArrayList<Integer>();
+		ArrayList<Integer> list2= new ArrayList<Integer>();
+		collectLeaves1(node1,list1);
+		collectLeaves1(node2,list2);
+		return list1.equals(list2);
+	}
+	private static void collectLeaves1(TreeNodeRev node,ArrayList<Integer> list){
+		if(node==null) {
+			return;
+		}
+		if(isLeaf(node)) {
+			list.add(node.data);
+		}
+		collectLeaves1(node.left, list);
+		collectLeaves1(node.right, list);
+	}
 	
 	public static int findMaxSumLeafRoot(TreeNodeRev node) {
 	    int[] maxSum = new int[1];

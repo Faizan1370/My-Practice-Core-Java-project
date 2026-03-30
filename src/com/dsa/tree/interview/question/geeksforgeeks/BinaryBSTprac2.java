@@ -83,6 +83,56 @@ public class BinaryBSTprac2 {
 			return left;
 		}
 	}
+	public TreeNod removeKeysOptimz(TreeNod node, int l, int r) {
+		if(node==null) {
+			return null;
+		}
+		TreeNod left = removeKeys(node.left, l, r);
+		TreeNod right = removeKeys(node.right, l, r);
+		if(node.data>=l && node.data <=r) {
+			node.left=left;
+			node.right=right;
+			return node;
+		}else if(node.data<l) {
+			return right;
+		}else {
+			return left;
+		}
+	}
+	
+	public static TreeNod removeKeysIterative(TreeNod root, int l, int r) {
+
+	    // Step 1: Fix root
+	    while (root != null && (root.data < l || root.data > r)) {
+	        if (root.data < l) {
+	            root = root.right;
+	        } else {
+	            root = root.left;
+	        }
+	    }
+
+	    TreeNod curr = root;
+
+	    // Step 2: Fix left subtree
+	    while (curr != null) {
+	        while (curr.left != null && curr.left.data < l) {
+	            curr.left = curr.left.right;
+	        }
+	        curr = curr.left;
+	    }
+
+	    curr = root;
+
+	    // Step 3: Fix right subtree
+	    while (curr != null) {
+	        while (curr.right != null && curr.right.data > r) {
+	            curr.right = curr.right.left;
+	        }
+	        curr = curr.right;
+	    }
+
+	    return root;
+	}
 	public boolean checkPairSum(int target) {
 		HashSet<Integer> set = new HashSet<Integer>();
 		return findPair(root, target, set);

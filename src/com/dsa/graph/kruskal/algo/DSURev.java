@@ -23,6 +23,9 @@ public class DSURev {
 	
 	public void union(int x,int y) {
 		int xRoot=find(x),yRoot=find(y);
+		if(xRoot==yRoot) {
+			return;
+		}
 		if(rank[xRoot]>rank[yRoot]) {
 			parent[yRoot]=xRoot;
 		}else if(rank[xRoot]<rank[yRoot]) {

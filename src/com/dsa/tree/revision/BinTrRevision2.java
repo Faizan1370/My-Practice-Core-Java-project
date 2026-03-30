@@ -846,7 +846,7 @@ public class BinTrRevision2 {
 	    rangeSumBST(node.right, low, high);
 	    }
 	}
-	
+
 	public static int rangeSumIterative(TreeNodeRev node, int low, int high) {
 	    if (node == null) {
 	        return 0;
@@ -890,7 +890,6 @@ public class BinTrRevision2 {
 		root.left.right = new TreeNodeRev(7);
 		root.right.right = new TreeNodeRev(18);
 
-		System.out.println(findRangeSum(root, 7, 15));
 	}
 
 }

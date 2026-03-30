@@ -78,6 +78,37 @@ public class LeetCodeRevision3 {
 		return res;
 	}
 
+	public static int[] findIntersectionValues1(int[] nums1, int[] nums2) {
+
+	    HashSet<Integer> set1 = new HashSet<>();
+	    HashSet<Integer> set2 = new HashSet<>();
+
+	    for(int num : nums1) {
+	        set1.add(num);
+	    }
+
+	    for(int num : nums2) {
+	        set2.add(num);
+	    }
+
+	    int result1 = 0;
+	    int result2 = 0;
+
+	    for(int num : nums1) {
+	        if(set2.contains(num)) {
+	            result1++;
+	        }
+	    }
+
+	    for(int num : nums2) {
+	        if(set1.contains(num)) {
+	            result2++;
+	        }
+	    }
+
+	    return new int[]{result1, result2};
+	}
+
 	public static int numSpecial(int[][] mat) {
 		int row = mat.length;
 		int col = mat[0].length;
@@ -108,8 +139,37 @@ public class LeetCodeRevision3 {
 		}
 		return count;
 	}
+	public static int numSpecial1(int[][] mat) {
 
-	public static boolean isSequence(String s, String t) {
+	    int rows = mat.length;
+	    int cols = mat[0].length;
+
+	    int[] rowCount = new int[rows];
+	    int[] colCount = new int[cols];
+
+	    for(int i = 0; i < rows; i++) {
+	        for(int j = 0; j < cols; j++) {
+	            if(mat[i][j] == 1) {
+	                rowCount[i]++;
+	                colCount[j]++;
+	            }
+	        }
+	    }
+
+	    int count = 0;
+
+	    for(int i = 0; i < rows; i++) {
+	        for(int j = 0; j < cols; j++) {
+	            if(mat[i][j] == 1 && rowCount[i] == 1 && colCount[j] == 1) {
+	                count++;
+	            }
+	        }
+	    }
+
+	    return count;
+	}
+
+	public static boolean isSequence(String s, String t) {//not properly correct
 		if (s.length() > t.length()) {
 			return false;
 		}
@@ -125,7 +185,22 @@ public class LeetCodeRevision3 {
 		}
 		return s.equals(builder.toString());
 	}
+	public static boolean isSubsequence(String s, String t) {
 
+	    int i = 0;
+	    int j = 0;
+
+	    while(i < s.length() && j < t.length()) {
+
+	        if(s.charAt(i) == t.charAt(j)) {
+	            i++;
+	        }
+
+	        j++;
+	    }
+
+	    return i == s.length();
+	}
 	public static boolean isSequence1(String s, String t) {
 		int index = 0;
 		for (int i = 0; i < t.length(); i++) {
@@ -165,7 +240,7 @@ public class LeetCodeRevision3 {
 		return false;
 	}
 
-	public static boolean plantFlower1(int[] flower, int k) {
+	public static boolean plantFlower1(int[] flower, int k) { // properly correct
 		int count = 0;
 		for (int i = 0; i < flower.length; i++) {
 			if (flower[i] == 0) {
@@ -180,6 +255,22 @@ public class LeetCodeRevision3 {
 		}
 		return count >= k;
 	}
+	
+public static boolean canPlaceFlower1(int[] flowers,int n) {
+		
+		int count=0;
+		for(int i=0;i<flowers.length;i++) {
+			if((i==0 || flowers[i-1]==0) && (i==flowers.length-1 || flowers[i+1]==0)){
+				flowers[i] = 1;   // plant flower
+				count++;
+			}
+			if(count>=n) {
+				return true;
+			}
+		}
+		return false;
+	}
+
 
 	public static int removeElement(int[] nums, int val) {
 		int i = 0;
@@ -208,6 +299,10 @@ public class LeetCodeRevision3 {
 	}
 
 	public static String grestestCDiv(String str1, String str2) {
+
+	    if(!(str1 + str2).equals(str2 + str1)) {
+	        return "";
+	    }
 		String gcdStr = str1.substring(0, gcd(str1.length(), str2.length()));
 		return gcdStr;
 	}
@@ -356,6 +451,28 @@ public class LeetCodeRevision3 {
 		}
 		return new int[] { a, b };
 	}
+	
+	public static int[] findMissingRepeated(int[][] grid) {
+
+	    int n = grid.length;
+	    int size = n * n;
+
+	    int[] freq = new int[size + 1];
+	    int[] result = new int[2];
+
+	    for(int i = 0; i < n; i++){
+	        for(int j = 0; j < n; j++){
+	            freq[grid[i][j]]++;
+	        }
+	    }
+
+	    for(int i = 1; i <= size; i++){
+	        if(freq[i] == 2) result[0] = i;
+	        if(freq[i] == 0) result[1] = i;
+	    }
+
+	    return result;
+	}
 
 	public static int maxWordsSentence(String[] sentences) {
 		int count = 0;
@@ -461,6 +578,34 @@ public class LeetCodeRevision3 {
 		}
 		return countOne;
 	}
+	
+	public static int maxScoreOptimal(String s) {
+
+	    int ones = 0;
+
+	    // count total 1s
+	    for(char c : s.toCharArray()){
+	        if(c == '1'){
+	            ones++;
+	        }
+	    }
+
+	    int zeros = 0;
+	    int maxScore = 0;
+
+	    for(int i = 0; i < s.length() - 1; i++) {
+
+	        if(s.charAt(i) == '0'){
+	            zeros++;
+	        } else {
+	            ones--;
+	        }
+
+	        maxScore = Math.max(maxScore, zeros + ones);
+	    }
+
+	    return maxScore;
+	}
 
 	public static double maxSubarray(int[] nums, int k) {
 		int maxSum = 0;
@@ -519,6 +664,25 @@ public class LeetCodeRevision3 {
 		}
 		return Math.min(startWith1, startWith0);
 	}
+	public static int minChanges(String s) {
+
+	    int startWith0 = 0;
+	    int startWith1 = 0;
+
+	    for(int i = 0; i < s.length(); i++) {
+
+	        char expected0 = (i % 2 == 0) ? '0' : '1';
+	        char expected1 = (i % 2 == 0) ? '1' : '0';
+
+	        if(s.charAt(i) != expected0)
+	            startWith0++;
+
+	        if(s.charAt(i) != expected1)
+	            startWith1++;
+	    }
+
+	    return Math.min(startWith0, startWith1);
+	}
 
 	public static boolean isMonolatic(int[] nums) {
 		boolean isInc = true;
@@ -534,6 +698,18 @@ public class LeetCodeRevision3 {
 			return true;
 		}
 		return isDec;
+	}
+	public static boolean isMonolatic1(int[] nums) {
+		boolean isInc = true;
+		boolean isDec = true;
+		for(int i=1;i<nums.length;i++) {
+			if(nums[i-1]<nums[i]) {
+				isDec=false;
+			}else if(nums[i-1]>nums[i]) {
+				isInc=false;
+			}
+		}
+		return isInc || isDec;
 	}
 
 	public static int[] minNumberGame(int[] nums) {
@@ -606,6 +782,25 @@ public class LeetCodeRevision3 {
 		return false;
 	}
 	
+	public static List<String> stringMatchingClean(String[] words) {
+
+	    List<String> result = new ArrayList<>();
+
+	    for(int i = 0; i < words.length; i++) {
+
+	        for(int j = 0; j < words.length; j++) {
+
+	            if(i != j && words[j].contains(words[i])) {
+	                result.add(words[i]);
+	                break;
+	            }
+
+	        }
+	    }
+
+	    return result;
+	}
+	
 	public static boolean makeEqual(String[] words) {
 		int[] freq = new int[26];
 		if(words.length==1) {
@@ -625,7 +820,7 @@ public class LeetCodeRevision3 {
 	}
 	
 	public static int longestSubstring(String s) {
-		int max=0;
+		int max=-1;
 		HashMap<Character, Integer> map = new HashMap<Character, Integer>();
 		for(int i=0;i<s.length();i++) {
 			if(map.containsKey(s.charAt(i))) {
@@ -682,6 +877,18 @@ public class LeetCodeRevision3 {
 		 }
 		return count;
 	 }
+	 public static boolean stringAlikeOptimal(String s) {
+		    String vowels = "AEIOUaeiou";
+		    int count = 0;
+		    int n = s.length();
+
+		    for (int i = 0; i < n / 2; i++) {
+		        if (vowels.indexOf(s.charAt(i)) != -1) count++;
+		        if (vowels.indexOf(s.charAt(i + n/2)) != -1) count--;
+		    }
+
+		    return count == 0;
+		}
 	 
 	 public static int climbingStairs(int n) {
 		 int ans=0;
@@ -727,6 +934,7 @@ public class LeetCodeRevision3 {
 			 int w=dimension[1];
 			 int area=l*w;
 			 double diagonal=Math.sqrt(l*l+w*w);
+			// int diagonalSq = l * l + w * w; // fix
 			 if(diagonal>maxDiagonal) {
 				 maxDiagonal=diagonal;
 				 maxArea=area;
@@ -765,6 +973,31 @@ public class LeetCodeRevision3 {
 		 }
 		 return first+firstMin+secondMin;
 	 }
+	 public static int minCost1(int[] nums) { // fixed version
+
+		    if (nums.length < 3) {
+		        return Arrays.stream(nums).sum();
+		    }
+
+		    int first = Integer.MAX_VALUE;
+		    int second = Integer.MAX_VALUE;
+		    int third = Integer.MAX_VALUE;
+
+		    for (int num : nums) {
+		        if (num < first) {
+		            third = second;
+		            second = first;
+		            first = num;
+		        } else if (num < second) {
+		            third = second;
+		            second = num;
+		        } else if (num < third) {
+		            third = num;
+		        }
+		    }
+
+		    return first + second + third;
+		}
 	 public static int[] setMismatch(int[] nums) {
 		 int[] ans= new int[2];
 		 HashSet<Integer> set = new HashSet<Integer>();

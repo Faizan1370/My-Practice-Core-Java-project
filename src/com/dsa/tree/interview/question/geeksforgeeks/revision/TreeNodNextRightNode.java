@@ -1,10 +1,10 @@
 package com.dsa.tree.interview.question.geeksforgeeks.revision;
 
 public class TreeNodNextRightNode {
-	int data;
-	TreeNodNextRightNode left;
-	TreeNodNextRightNode right;
-	TreeNodNextRightNode nextRight;
+	public int data;
+	public TreeNodNextRightNode left;
+	public TreeNodNextRightNode right;
+	public TreeNodNextRightNode nextRight;
 	
 	
 	public TreeNodNextRightNode(int data) {

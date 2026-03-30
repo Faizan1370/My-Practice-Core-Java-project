@@ -1,8 +1,8 @@
 package com.dsa.graph.revision2.dijkstra;
 
 public class VertexD implements Comparable<VertexD>{
-	int vertex;
-	int distance;
+	public int vertex;
+	public int distance;
 	
 	public VertexD(int vertex,int distance) {
 		this.vertex=vertex;

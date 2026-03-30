@@ -238,28 +238,34 @@ public class BfsTraversal {
 	}
 
 	public static int getMinDiceThrows(int[] moves) {
-		int n = moves.length;
-		boolean[] visited = new boolean[n];
-		Queue<SnakeCellDist> queue = new LinkedList<SnakeCellDist>();
-		queue.add(new SnakeCellDist(0, 0));
-		visited[0] = true;
-
-		while (!queue.isEmpty()) {
-			SnakeCellDist cell = queue.poll();
-			int v = cell.vertex;
-			if (v == n - 1) {
-				return cell.dist;
-			}
-			for (int dice = 1; dice <= 6 && v + dice < n; dice++) {
-				int next = v + dice;
-				if (!visited[next]) {
-					visited[next] = true;
-					int dest = (moves[next] != -1) ? moves[next] : next;
-					queue.add(new SnakeCellDist(dest, cell.dist + 1));
-				}
-			}
-		}
-		return -1;
+	    int n = moves.length;
+	    if (n == 0) return 0;
+	    
+	    boolean[] visited = new boolean[n];
+	    Queue<SnakeCellDist> queue = new LinkedList<>();
+	    queue.add(new SnakeCellDist(0, 0));
+	    visited[0] = true;
+	    
+	    while (!queue.isEmpty()) {
+	        SnakeCellDist cell = queue.poll();
+	        int v = cell.vertex;
+	        
+	        if (v == n - 1) {
+	            return cell.dist;
+	        }
+	        
+	        for (int dice = 1; dice <= 6 && v + dice < n; dice++) {
+	            int next = v + dice;
+	            int dest = (moves[next] != -1) ? moves[next] : next;
+	            
+	            // Check visited at DESTINATION, not intermediate position
+	            if (!visited[dest]) {
+	                visited[dest] = true;
+	                queue.add(new SnakeCellDist(dest, cell.dist + 1));
+	            }
+	        }
+	    }
+	    return -1;
 	}
 
 	public int[][] fillColor(int[][] image, int sr, int sc, int newColor) {

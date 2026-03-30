@@ -222,6 +222,25 @@ public class LeetCodeRevision1 {
 		}
 		return i == j;
 	}
+	public static boolean validMountainArray1(int[] arr) {
+	    if(arr.length < 3) return false;  // Mountain needs at least 3 elements
+	    
+	    int i = 0;
+	    int j = arr.length - 1;
+	    
+	    // Climb up from left
+	    while(i < arr.length - 1 && arr[i] < arr[i + 1]) {
+	        i++;
+	    }
+	    
+	    // Climb up from right
+	    while(j > 0 && arr[j] < arr[j - 1]) {
+	        j--;
+	    }
+	    
+	    // Peak should be same index AND not at edges
+	    return i == j && i != 0 && i != arr.length - 1;
+	}
 
 	public static int jwelsStone(String jwels, String stone) {
 		HashSet<Character> set = new HashSet<Character>();
@@ -330,6 +349,18 @@ public class LeetCodeRevision1 {
 		}
 		return ctr;
 	}
+	
+	public static int evenNumOfDigits(int[] nums) {
+	    int count = 0;
+	    for(int num : nums) {
+	        // Log10 gives number of digits - 1
+	        int digitCount = (int)Math.log10(num) + 1;
+	        if((digitCount & 1) == 0) {
+	            count++;
+	        }
+	    }
+	    return count;
+	}
 
 	public static boolean[] kidsCandies(int[] candies, int extraCan) {
 		int max = Integer.MIN_VALUE;
@@ -429,6 +460,16 @@ public class LeetCodeRevision1 {
 		}
 		return sum / (arr.length - (2 * limit));
 	}
+	public static double meanOfArray1(int[] arr) {
+	    Arrays.sort(arr);
+	    int limit = arr.length / 4;
+	    
+	    return Arrays.stream(arr)
+	        .skip(limit)
+	        .limit(arr.length - 2 * limit)
+	        .average()
+	        .orElse(0.0);
+	}
 
 	public static ArrayList<Integer> sortArrayFreq(int[] nums) {
 		Map<Integer, Long> map = Arrays.stream(nums).boxed()
@@ -449,6 +490,23 @@ public class LeetCodeRevision1 {
 			}
 		});
 		return list;
+	}
+	public static List<Integer> sortArrayByFreq(int[] nums) {
+	    Map<Integer, Long> freqMap = Arrays.stream(nums)
+	        .boxed()
+	        .collect(Collectors.groupingBy(Function.identity(), Collectors.counting()));
+	    
+	    return Arrays.stream(nums)
+	        .boxed()
+	        .sorted((a, b) -> {
+	            int freqCompare = Long.compare(freqMap.get(a), freqMap.get(b));
+	            if (freqCompare != 0) {
+	                return freqCompare;
+	            } else {
+	                return b - a;
+	            }
+	        })
+	        .collect(Collectors.toList());
 	}
 
 	public static String goalParser(String s) {
@@ -488,6 +546,22 @@ public class LeetCodeRevision1 {
 		builder.append(longestString.substring(min));
 		return builder.toString();
 
+	}
+	public static String mergeAlternately(String word1, String word2) {
+	    StringBuilder result = new StringBuilder();
+	    int i = 0, j = 0;
+	    
+	    // Merge alternately while both strings have characters
+	    while (i < word1.length() && j < word2.length()) {
+	        result.append(word1.charAt(i++));
+	        result.append(word2.charAt(j++));
+	    }
+	    
+	    // Append remaining characters from either string
+	    result.append(word1.substring(i));
+	    result.append(word2.substring(j));
+	    
+	    return result.toString();
 	}
 
 	public static int secondLarget(String s) {
@@ -539,7 +613,7 @@ public class LeetCodeRevision1 {
 		System.out.println(set.size());
 		return set.size() == 26;
 	}
-
+	
 	public static String sortSentence(String s) {
 		String[] words = s.split(" ");
 		String[] result = new String[words.length];
@@ -549,6 +623,30 @@ public class LeetCodeRevision1 {
 			result[pos] = words[i].substring(0, words[i].length() - 1);
 		}
 		return String.join(" ", result);
+	}
+	public String sortingString(String s) {
+	    if (s == null || s.isEmpty()) return "";
+	    
+	    String[] words = s.split(" ");
+	    String[] result = new String[words.length];
+	    
+	    for (int i = 0; i < words.length; i++) {
+	        String word = words[i];
+	        if (word.length() < 2) continue; // Skip invalid
+	        
+	        // Get last character as position
+	        char lastChar = word.charAt(word.length() - 1);
+	        if (!Character.isDigit(lastChar)) continue; // Skip if not a digit
+	        
+	        int pos = Character.getNumericValue(lastChar) - 1;
+	        
+	        // Validate position range
+	        if (pos >= 0 && pos < result.length) {
+	            result[pos] = word.substring(0, word.length() - 1);
+	        }
+	    }
+	    
+	    return String.join(" ", result);
 	}
 
 	public static boolean equalFreq(String s) {
@@ -609,11 +707,29 @@ public class LeetCodeRevision1 {
 			freq2[word2.charAt(i) - 'a']++;
 		}
 		for (int i = 0; i < freq.length; i++) {
-			if (freq[1] - freq2[2] > 3) {
+			if (freq[i] - freq2[i] > 3) {
 				return false;
 			}
 		}
 		return true;
+	}
+	public static boolean stringEquilent1(String word1, String word2) {
+	    if (word1.length() != word2.length()) return false;  // Fixed!
+	    
+	    int[] freq = new int[26];
+	    int[] freq2 = new int[26];
+	    
+	    for(int i = 0; i < word1.length(); i++) {
+	        freq[word1.charAt(i)-'a']++;
+	        freq2[word2.charAt(i)-'a']++;
+	    }
+	    
+	    for(int i = 0; i < 26; i++) {
+	        if(Math.abs(freq[i] - freq2[i]) > 3) {  // Using absolute difference
+	            return false;
+	        }
+	    }
+	    return true;
 	}
 
 	public static int countWords(String[] word1, String[] word2) {
@@ -631,6 +747,26 @@ public class LeetCodeRevision1 {
 			}
 		}
 		return count;
+	}
+	public static int countWords1(String[] word1, String[] word2) {
+	    Map<String, Long> map = Arrays.stream(word1)
+	            .collect(Collectors.groupingBy(Function.identity(), Collectors.counting()));
+	    
+	    // Subtract occurrences in word2
+	    for (String word : word2) {
+	        if (map.containsKey(word)) {
+	            map.put(word, map.get(word) - 1);
+	        }
+	    }
+	    
+	    // Count words that appear equally in both
+	    int count = 0;
+	    for (Long value : map.values()) {
+	        if (value == 0) {
+	            count++;
+	        }
+	    }
+	    return count;
 	}
 
 	public static String firstPalindrom(String[] words) {
@@ -784,6 +920,33 @@ public class LeetCodeRevision1 {
 			}
 		}
 		return sum;
+	}
+	public static int alternateDigitSum2(int num) {
+	    int sum = 0;
+	    int sign = 1;
+
+	    while (num > 0) {
+	        int digit = num % 10;
+	        sum += sign * digit;
+	        sign *= -1;
+	        num /= 10;
+	    }
+
+	    return sum;
+	}
+	
+	public static int alternateDigitSum(int num) {
+	    String s = String.valueOf(num);
+	    int sum = 0;
+	    int sign = 1;
+
+	    for (int i = 0; i < s.length(); i++) {
+	        int digit = s.charAt(i) - '0';
+	        sum += sign * digit;
+	        sign *= -1; // flip sign
+	    }
+
+	    return sum;
 	}
 
 	public static int arrayConcat1(int[] nums) {
@@ -950,9 +1113,7 @@ public class LeetCodeRevision1 {
 
 
 	public static void main(String[] args) {
-		int mainTank=9,addtank=10;
-		System.out.println(totalDisTrav(mainTank, addtank));
-	
+		
 	}
 
 }

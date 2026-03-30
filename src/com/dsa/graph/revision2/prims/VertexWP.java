@@ -1,8 +1,8 @@
 package com.dsa.graph.revision2.prims;
 
 public class VertexWP implements Comparable<VertexWP>{
-	int vertex;
-	int weight;
+	public int vertex;
+	public int weight;
 	
 	public VertexWP(int vertex,int weight) {
 		this.vertex=vertex;
