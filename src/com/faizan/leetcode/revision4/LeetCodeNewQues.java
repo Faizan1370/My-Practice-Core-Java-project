@@ -170,9 +170,58 @@ public class LeetCodeNewQues {
 
 	    return maxLen;
 	}
+	public static boolean isIsomorphic(String s,String t) {
+		return checkIso(s).equals(checkIso(t));
+	}
+	private static String checkIso(String s) {
+		StringBuilder builder = new StringBuilder();
+		HashMap<Character, Integer> map = new HashMap<Character, Integer>();
+		for(int i=0;i<s.length();i++) {
+			char ch=s.charAt(i);
+			if(!map.containsKey(ch)) {
+				map.put(ch, i);
+			}
+			builder.append(map.get(ch)).append("-");
+		}
+		return builder.toString();
+	}
+	
+	public static boolean isIsomorphicOptimized(String s, String t) {
+	    if (s.length() != t.length()) return false;
+
+	    HashMap<Character, Character> mapST = new HashMap<>();
+	    HashMap<Character, Character> mapTS = new HashMap<>();
+
+	    for (int i = 0; i < s.length(); i++) {
+	        char c1 = s.charAt(i);
+	        char c2 = t.charAt(i);
+
+	        if (mapST.containsKey(c1) && mapST.get(c1) != c2) return false;
+	        if (mapTS.containsKey(c2) && mapTS.get(c2) != c1) return false;
+
+	        mapST.put(c1, c2);
+	        mapTS.put(c2, c1);
+	    }
+
+	    return true;
+	}
+	public static int maxDepth(String s) {
+		int max=0,openBrackets=0;
+		
+		for(char ch:s.toCharArray()) {
+			if(ch=='(') {
+				openBrackets++;
+				 max = Math.max(max, openBrackets); // update here
+			}else if(ch==')') {
+				openBrackets--;
+			}
+		}
+		return max;
+	}
+
 	public static void main(String[] args) {
-		String s="leetcode";
-		System.out.println(stringExistence(s));
+		String s="egg"; String t="add";
+		System.out.println(isIsomorphic(s, t));
 	}
 
 }

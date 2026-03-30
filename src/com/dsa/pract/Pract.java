@@ -512,6 +512,51 @@ public class Pract {
 		return new IncludeExcludePair(include, exclude);
 	}
 
+	public ArrayList<Integer> leftView(TNode root){
+		ArrayList<Integer> list = new ArrayList<Integer>();
+		if(root==null) {
+			return list;
+		}
+		leftViewUt(root,list,0);
+		return list;
+	}
+
+	private void leftViewUt(TNode root, ArrayList<Integer> list, int level) {
+		if(root==null) {
+			return;
+		}
+		if(list.size()==level) {
+			list.add(root.data);
+		}
+		leftViewUt(root.left, list, level+1);
+		leftViewUt(root.right, list, level+1);
+		
+	}
+	public void printTopView(TNode root) {
+		if(root==null) {
+			return;
+		}
+		Map<Integer,TNode> map = new TreeMap<Integer, TNode>();
+		Queue<HdNodeP> queue = new LinkedList<HdNodeP>();
+		queue.add(new HdNodeP(0, root));
+		
+		while(!queue.isEmpty()) {
+			HdNodeP pair = queue.poll();
+			int hd=pair.hd;
+			TNode node = pair.node;
+			
+			if(!map.containsKey(hd)) {
+				map.put(hd, node);
+			}
+			if(node.left !=null) {
+				queue.add(new HdNodeP(hd-1, node.left));
+			}
+			if(node.right !=null) {
+				queue.add(new HdNodeP(hd+1, node.right));
+			}
+		}
+	}
+
 	public static void main(String[] args) {
 
 	}
