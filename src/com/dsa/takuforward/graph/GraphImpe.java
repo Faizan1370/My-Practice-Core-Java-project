@@ -208,5 +208,73 @@ public class GraphImpe {
 		stack.add(u);
 
 	}
+	  public List<Integer> articulationPoints(int n, List<List<Integer>> adj) {
+		  boolean[] visited = new boolean[n];
+		  int[] low = new int[n];
+		  int[] tin = new int[n];
+		  boolean[] isArticulation = new boolean[n];
+		  
+		  for(int i=0;i<n;i++) {
+			  if(!visited[i]) {
+				  dfsArti(i,-1,visited,isArticulation,adj,low,tin);
+			  }
+		  }
+		  List<Integer> result = new ArrayList<>();
+	        for (int i = 0; i < n; i++) {
+	            if (isArticulation[i]) result.add(i);
+	        }
+
+	        return result;
+	  }
+
+	private void dfsArti(int node, int  parent, boolean[] visited, boolean[] isArticulation, List<List<Integer>> adj, int[] low,
+			int[] tin) {
+		visited[node]=true;
+		low[node] =tin[node]=time++;
+		
+		 int childCount = 0;
+		 
+		 for(int neg:adj.get(node)) {
+			 if(neg==parent) {
+				 continue;
+			 }
+			 if(!visited[neg]) {
+				 dfsArti(neg, node, visited, isArticulation, adj, low, tin);
+				 low[node] = Math.min(low[node], low[neg]);
+				 
+				 if(low[neg]>=tin[node] && parent !=-1) {
+					 isArticulation[node]=true;
+				 }
+				 childCount++;
+			 }else {
+				 low[node] =Math.min(low[node], tin[neg]);
+			 }
+		 }
+		 if(parent ==-1 && childCount>1) {
+			 isArticulation[node]=true;
+		 }
+		
+	}
+	public void floydWarshall(int[][] dist, int n) {
+
+	    // k = intermediate node
+	    for (int k = 0; k < n; k++) {
+
+	        // i = source
+	        for (int i = 0; i < n; i++) {
+
+	            // j = destination
+	            for (int j = 0; j < n; j++) {
+
+	                if (dist[i][k] != Integer.MAX_VALUE &&
+	                    dist[k][j] != Integer.MAX_VALUE) {
+
+	                    dist[i][j] = Math.min(dist[i][j],
+	                                          dist[i][k] + dist[k][j]);
+	                }
+	            }
+	        }
+	    }
+	}
 
 }

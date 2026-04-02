@@ -197,29 +197,7 @@ public class TreeImpl {
 	        }
 	    }
 	}
-	public static void morrisInorderP(TNode root) {
-		TNode curr = root;
-		
-		while(curr !=null) {
-			if(curr.left==null) {
-				System.out.print(curr.data  +" ");
-				curr=curr.right;
-			}else {
-				TNode pred =curr.left;
-				while(pred.right !=null && pred.right!=curr) {
-					pred =pred.right;
-				}
-				if(pred.right==null) {
-					pred.right=curr;
-					curr =curr.left;
-				}else {
-					pred.right=null;
-					System.out.print(curr.data +" ");
-					curr=curr.right;
-				}
-			}
-		}
-	}
+
 	public TNode lcaBst(TNode root,TNode p,TNode q) {
 		if(root==null) {
 			return null;

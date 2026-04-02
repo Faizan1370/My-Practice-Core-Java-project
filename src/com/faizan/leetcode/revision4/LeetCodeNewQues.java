@@ -5,6 +5,9 @@ import java.util.Arrays;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedList;
+import java.util.Queue;
+import java.util.Stack;
 
 public class LeetCodeNewQues {
 	public static String maxOddBinaryNumber(String s) {
@@ -217,6 +220,81 @@ public class LeetCodeNewQues {
 			}
 		}
 		return max;
+	}
+	
+	public static String makeStringGreat(String s) {
+		Stack<Character> stack = new Stack<Character>();
+		for(int i=0;i<s.length();i++) {
+			if(!stack.isEmpty() && Math.abs(stack.peek()-s.charAt(i))==32) { //Character.toLowerCase(a) == Character.toLowerCase(b)
+				stack.pop();
+			}else {
+				stack.push(s.charAt(i));
+			}
+		}
+		StringBuilder builder = new StringBuilder();
+		while(!stack.isEmpty()) {
+			builder.append(stack.pop());
+		}
+		
+		return builder.reverse().toString();
+	}
+	
+	public static int timeRequiredToBuy(int[] tickets,int k) {
+		Queue<Integer> queue = new LinkedList<Integer>();
+		for(int i=0;i<tickets.length;i++) {
+			queue.add(i);
+		}
+		int seconds=0;
+		while(!queue.isEmpty()) {
+			seconds++;
+			int person = queue.poll();
+			if(tickets[person]>=1) {
+				tickets[person]--;
+			}
+			if(person==k && tickets[person]==0) {
+				break;
+			}
+			if(person !=k && tickets[person]==0) {
+				continue;
+			}
+			queue.add(person);
+		}
+		return seconds;
+	}
+	public static int timeRequiredToBuyOp(int[] tickets, int k) {
+	    int time = 0;
+
+	    for (int i = 0; i < tickets.length; i++) {
+	        if (i <= k) {
+	            time += Math.min(tickets[i], tickets[k]);
+	        } else {
+	            time += Math.min(tickets[i], tickets[k] - 1);
+	        }
+	    }
+
+	    return time;
+	}
+	public static boolean canAliceWin(int[] nums) {
+		int singleDigitSum=0,doubelDigitSum=0;
+		
+		for(int i=0;i<nums.length;i++) {
+			if(nums[i]<10) {
+				singleDigitSum +=nums[i];
+			}else {
+				doubelDigitSum +=nums[i];
+			}
+		}
+		return singleDigitSum != doubelDigitSum;
+	}
+	public static int countSenior(String[] details) {
+		int count=0;
+		for(int i=0;i<details.length;i++) {
+			int age=Integer.parseInt(details[i].substring(11,13));
+			if(age>60) {
+				count++;
+			}
+		}
+		return count;
 	}
 
 	public static void main(String[] args) {
