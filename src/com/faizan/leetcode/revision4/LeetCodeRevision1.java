@@ -377,12 +377,14 @@ public class LeetCodeRevision1 {
 	}
 
 	public static boolean validMountainArray(int[] array) {
+		int n = array.length;
+	    if(n < 3) return false;
 		int i = 0, j = array.length - 1;
 
-		while (i < array.length && array[i] < array[i + 1]) {
+		while (i+1 < array.length && array[i] < array[i + 1]) {
 			i++;
 		}
-		while (j >= 0 && array[j] < array[j - 1]) {
+		while (j-1 >= 0 && array[j] < array[j - 1]) {
 			j--;
 		}
 

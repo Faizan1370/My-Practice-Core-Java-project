@@ -1,8 +1,8 @@
 package com.dsa.graph.again.rev;
 
 public class VWg implements Comparable<VWg>{
-	int v;
-	int w;
+	public int v;
+	public int w;
 	
 	public VWg(int v,int w) {
 		this.w=w;

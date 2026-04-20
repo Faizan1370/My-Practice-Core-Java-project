@@ -5,6 +5,7 @@ import java.util.LinkedList;
 import java.util.Queue;
 import java.util.Stack;
 
+import com.dsa.pract.TNode;
 import com.dsa.tree.interview.question.geeksforgeeks.TreeNod;
 
 public class BinBsPrac2 {
@@ -51,14 +52,14 @@ public class BinBsPrac2 {
 		return isValidBSt1(node.right, prev);
 	}
 
-	public static int largetBst(TreeNod root) {
+	public static int largestBst(TreeNod root) {
 		if(root==null) {
 			return 0;
 		}
 		if(isValidBst(root, Integer.MIN_VALUE, Integer.MAX_VALUE)) {
 			return size(root);
 		}
-		return Math.max(largetBst(root.left), largetBst(root.right));
+		return Math.max(largestBst(root.left), largestBst(root.right));
 	}
 
 	private static int size(TreeNod node) {
@@ -66,6 +67,39 @@ public class BinBsPrac2 {
 			return 0;
 		}
 		return size(node.left) + size(node.right) + 1;
+	}
+	
+	static int maxSize = 0;
+
+	public static int largestBST(TNode root) {
+	    maxSize = 0;
+	    helper(root);
+	    return maxSize;
+	}
+
+	private static NodeInfo helper(TNode root) {
+	    if (root == null) {
+	        return new NodeInfo(true, 0, Integer.MAX_VALUE, Integer.MIN_VALUE);
+	    }
+
+	    NodeInfo left = helper(root.left);
+	    NodeInfo right = helper(root.right);
+
+	    if (left.isBST && right.isBST &&
+	        root.data > left.max && root.data < right.min) {
+
+	        int size = left.size + right.size + 1;
+	        maxSize = Math.max(maxSize, size);
+
+	        return new NodeInfo(
+	            true,
+	            size,
+	            Math.min(root.data, left.min),
+	            Math.max(root.data, right.max)
+	        );
+	    }
+
+	    return new NodeInfo(false, 0, 0, 0);
 	}
 	
 	public static void printExtreameNode(TreeNod root) {

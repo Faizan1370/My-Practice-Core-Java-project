@@ -11,6 +11,7 @@ import java.util.Map.Entry;
 import java.util.Queue;
 import java.util.TreeMap;
 
+import com.dsa.pract.TNode;
 import com.dsa.tree.interview.question.geeksforgeeks.TreeNod;
 
 public class BinTrRevision2 {
@@ -453,6 +454,33 @@ public class BinTrRevision2 {
 		return true;
 
 	}
+	public static boolean isUnivalue(TreeNodeRev node, int val) {
+        if (node == null) return true;
+        if (node.data!= val) return false;
+        return isUnivalue(node.left, val) && isUnivalue(node.right, val);
+    }
+	
+	public static int countSingle(TreeNodeRev root) {
+        if (root == null) return 0;
+        int count = 0;
+        Queue<TreeNodeRev> q = new LinkedList<>();
+        q.add(root);
+
+        // BFS Traversal: Visit every node in the tree
+        while (!q.isEmpty()) {
+        	TreeNodeRev curr = q.poll();
+
+            // Independent Audit: Check the entire subtree of the current node
+            if (isUnivalue(curr, curr.data)) {
+                count++;
+            }
+
+            if (curr.left!= null) q.add(curr.left);
+            if (curr.right!= null) q.add(curr.right);
+        }
+        return count;
+    }
+
 
 	public static int height(TreeNodeRev node) {
 		if (node == null) {

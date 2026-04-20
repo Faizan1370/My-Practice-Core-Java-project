@@ -1,9 +1,9 @@
 package com.dsa.graph.kruskal.algo;
 
 public class Edge implements Comparable<Edge>{
-	int u;
-	int v;
-	int w;
+	public int u;
+	public int v;
+	public int w;
 	
 	public Edge(int u,int v,int w) {
 		this.u=u;

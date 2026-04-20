@@ -37,10 +37,14 @@ public class Ex21 {
 	
 	public static int[] rotateByK(int[] nums, int k) {
 		int n=nums.length;
-		if(n<=k || n==0 || k<=0) {
-			System.out.println("invalid");
-		}
-		k= k%n;
+		
+		//if(n<=k || n==0 || k<=0) {
+			//System.out.println("invalid");
+		//}
+		if (n == 0) return nums;
+
+	    k = k % n;
+	    if (k == 0) return nums;
 		reverse(nums,0,n-1);
 		reverse(nums, 0, k-1);
 		reverse(nums, k, n-1);
@@ -72,13 +76,14 @@ public class Ex21 {
 		System.out.println(maxSum);
 	}
 	public static void findMaxSumSubArray1() {
-		int currentSum=0,maxSum=0;
 		int[] array = { 3, -2, -3, 4, 7 };
-		for(int i=0;i<array.length;i++) {
-			currentSum = Math.max(array[i], currentSum+array[i]);
-			maxSum=Math.max(maxSum, currentSum);
-		}
-		System.out.println(maxSum);
+	    int currentSum = array[0];
+	    int maxSum = array[0];
+
+	    for (int i = 1; i < array.length; i++) {
+	        currentSum = Math.max(array[i], currentSum + array[i]);
+	        maxSum = Math.max(maxSum, currentSum);
+	    }
 		
 	}
 	public static ArrayList<int[]> indices(int[] array, int target) {
@@ -86,11 +91,10 @@ public class Ex21 {
 		ArrayList<int[]> list = new ArrayList<int[]>();
 		for(int i=0;i<array.length;i++) {
 			int compliment=target-array[i];
-			if(map.containsKey(compliment)) {
-				list.add(new int[] {i,map.get(compliment)});
-			}else {
+			  if (map.containsKey(compliment)) {
+		            list.add(new int[]{map.get(compliment), i});
+		        }
 				map.put(array[i],i);
-			}
 			
 		}
 		return list;
@@ -188,6 +192,23 @@ public class Ex21 {
 		array[position-1]=element;
 		System.out.println(Arrays.toString(array));
 		
+	}
+	public static void insertElement1() {
+	    int[] array = {3, 5, 7, 2, 9};
+	    int element = 6;
+	    int position = 3;
+
+	    int[] result = new int[array.length + 1];
+
+	    for (int i = 0, j = 0; i < result.length; i++) {
+	        if (i == position - 1) {
+	            result[i] = element;
+	        } else {
+	            result[i] = array[j++];
+	        }
+	    }
+
+	    System.out.println(Arrays.toString(result));
 	}
 	public static void deleteElement() {
 		int[] array = { 3, 5, 7, 2, 9 };
