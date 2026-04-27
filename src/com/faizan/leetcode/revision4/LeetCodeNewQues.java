@@ -680,10 +680,61 @@ public class LeetCodeNewQues {
 		}
 		return res;
 	}
+	public static int[] transformArray(int[] nums) {
+		int evenCount=0;
+		for(int num:nums) {
+			if(num % 2==0) {
+				evenCount++;
+			}
+		}
+		int[] res = new int[nums.length];
+		int idx=nums.length-1;
+		while(evenCount !=0) {
+			res[idx]=1;
+			evenCount--;
+			idx--;
+		}
+		return res;
+		
+	}
+	public static int[][] mergeArray(int[][] nums1,int[][] nums2){
+		HashMap<Integer, Integer> map = new HashMap<Integer, Integer>();
+		for(int[] num:nums1) {
+			map.put(num[0], num[1]);
+		}
+		for(int[] num:nums2) {
+				map.put(num[0], map.getOrDefault(num[0], 0) + num[1]);
+		}
+		int[][] res = new int[map.size()][2];
+		int i=0;
+		for(Map.Entry<Integer, Integer> entry:map.entrySet()) {
+			res[i][0]=entry.getKey();
+			res[i][1]=entry.getValue();
+			i++;
+		}
+		return res;
+	}
+	public static int minimumRecolors(String blocks,int k) {
+		int left=0;
+		int whiteCount=0,numRecolors=blocks.length()+1;
+		for(int right=0;right<blocks.length();right++) {
+			if(blocks.charAt(right)=='W') {
+				whiteCount++;
+			}
+			if(right-left+1==k) {
+				numRecolors=Math.min(numRecolors, whiteCount);
+				if(blocks.charAt(left)=='W') {
+					whiteCount--;
+				}
+				left++;
+			}
+		}
+		return numRecolors;
+	}
 
 	public static void main(String[] args) {
-		int[] nums= {1,2,2,1,1,0};
-		System.out.println(Arrays.toString(applyOperations(nums)));
+		String blocks ="WBBWWBBWBW";
+		System.out.println(minimumRecolors(blocks, 7));
 		
 	}
 

@@ -28,5 +28,20 @@ public class DSSet {
 			rank[xRoot]++;
 		}
 	}
+	public boolean unionRed(int x,int y) {
+		int xRoot=find(x),yRoot=find(y);
+		if(xRoot==yRoot) {
+			return true;
+		}
+		if(rank[xRoot]>rank[yRoot]) {
+			parent[yRoot]=xRoot;
+		}else if(rank[yRoot]>rank[xRoot]) {
+			parent[xRoot]=yRoot;
+		}else {
+			parent[yRoot]=xRoot;
+			rank[xRoot]++;
+		}
+		return false;
+	}
 
 }

@@ -82,6 +82,26 @@ public class Rev3 {
 
 		return dist[dst] == Integer.MAX_VALUE ? -1 : dist[dst];
 	}
+	public int findCheapestPriceBellManFord1(int n, int[][] flights, int src, int dst, int k) {
+		int[] dist = new int[n];
+		Arrays.fill(dist, Integer.MAX_VALUE);
+
+		dist[src] = 0;
+		for(int i=0;i<=k;i++) {
+			int[] temp =dist.clone();
+			
+			for(int[] flight:flights) {
+				int u = flight[0];
+				int v = flight[1];
+				int cost = flight[2];
+				if(dist[u] !=Integer.MAX_VALUE && dist[u] + cost < temp[v]) {
+					temp[v] = dist[u] + cost;
+				}
+			}
+			dist=temp;
+		}
+		return dist[dst] == Integer.MAX_VALUE ? -1 : dist[dst];
+	}
 
 	public static int findCheapestPrice1(int n, int[][] flights, int src, int dst, int k) {
 		ArrayList<ArrayList<int[]>> adj = new ArrayList<>();
@@ -193,6 +213,51 @@ public class Rev3 {
 					dist[next] = newCost;
 					stops[next] = newStop;
 					pq.add(new PriceNodePair(next, newCost, newStop));
+				}
+			}
+		}
+		return -1;
+	}
+	public static int findCheapestPrice3(int n, int[][] flights, int src, int dst, int k) {
+		ArrayList<ArrayList<int[]>> adj = new ArrayList<ArrayList<int[]>>();
+		for(int i=0;i<n;i++) {
+			adj.add(new ArrayList<int[]>());
+		}
+		for(int[] flight:flights) {
+			int city=flight[0];
+			int dest = flight[1];
+			int cost = flight[2];
+			adj.get(city).add(new int[] {dest,cost});
+		}
+		int[] dist = new int[n];
+		int[] stops = new int[n];
+		Arrays.fill(dist, Integer.MAX_VALUE);
+		Arrays.fill(stops, Integer.MAX_VALUE);
+		PriorityQueue<PriceNodePair> queue = new PriorityQueue<PriceNodePair>();
+		queue.add(new PriceNodePair(src, 0, 0));
+		dist[src]=0;
+		stops[src]=0;
+		
+		while(!queue.isEmpty()) {
+			PriceNodePair pair = queue.poll();
+			int city =pair.v;
+			int cost = pair.price;
+			int st = pair.stops;
+			if(city==dst) {
+				return cost;
+			}
+			if(st>k) {
+				continue;
+			}
+			for(int[] neg:adj.get(city)) {
+				int dest = neg[0];
+				int price =neg[1];
+				int newStops = st+1;
+				int newCost = cost+price;
+				if(newCost<dist[dest] || newStops < stops[dest]) {
+					dist[dest]=newCost;
+					stops[dest]=newStops;
+					queue.add(new PriceNodePair(dest, newCost, newStops));
 				}
 			}
 		}
