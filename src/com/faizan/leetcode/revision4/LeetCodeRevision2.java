@@ -6,6 +6,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -110,16 +111,24 @@ public class LeetCodeRevision2 {
 		
 	}
 	
-	public static int evenDigitsSum(int num) {
-		int sum=0;
+	public static int countEven(int num) {
 		int count=0;
 		for(int i=1;i<=num;i++) {
-			sum +=i;
-			if((sum & 1)==0) {
+			if(sumOfDigits(i)%2==0) {
 				count++;
 			}
 		}
 		return count;
+	}
+	
+	private static int sumOfDigits(int n) {
+		int sum=0;
+		while(n!=0) {
+			int r=n%10;
+			sum=sum+r;
+			n=n/10;
+		}
+		return sum;
 	}
 	
 	public static String[] sortPeople(int[] height,String[] names) {
@@ -136,6 +145,17 @@ public class LeetCodeRevision2 {
 			result[i]=names[indices[i]];
 		}
 		return result;
+	}
+	public static String[] sortPeopleMapBased(String[] names, int[] height) {
+	    Map<String, Integer> map = new HashMap<>();
+
+	    for (int i = 0; i < names.length; i++) {
+	        map.put(names[i], height[i]);
+	    }
+
+	    Arrays.sort(names, (a, b) -> map.get(b) - map.get(a));
+
+	    return names;
 	}
 	
 	public static int distinctAvg(int[] nums) {
@@ -177,9 +197,9 @@ public class LeetCodeRevision2 {
 			if(chDigits(word)) {
 				if(max<Integer.parseInt(word)) {
 					max=Integer.parseInt(word);
-				}else {
-					max=Math.max(max, word.length());
 				}
+			}else {
+				max=Math.max(max, word.length());
 			}
 		}
 		return max;
@@ -241,6 +261,38 @@ public class LeetCodeRevision2 {
 			}
 		}
 		return -1;
+	}
+	public static int smallestCommonUnsotred(int[] nums1, int[] nums2) {
+	    HashSet<Integer> set = new HashSet<>();
+
+	    for (int num : nums1) {
+	        set.add(num);
+	    }
+
+	    int min = Integer.MAX_VALUE;
+
+	    for (int num : nums2) {
+	        if (set.contains(num)) {
+	            min = Math.min(min, num);
+	        }
+	    }
+
+	    return min == Integer.MAX_VALUE ? -1 : min;
+	}
+	public static int getCommon(int[] nums1, int[] nums2) {
+	    int i = 0, j = 0;
+
+	    while (i < nums1.length && j < nums2.length) {
+	        if (nums1[i] == nums2[j]) {
+	            return nums1[i];
+	        } else if (nums1[i] < nums2[j]) {
+	            i++;
+	        } else {
+	            j++;
+	        }
+	    }
+
+	    return -1;
 	}
 	public static int alternateDigitSum(int num) {
 		String numStr=num+"";
@@ -360,6 +412,37 @@ public class LeetCodeRevision2 {
 		   
 		   
 	   }
+	   public static int[] distinctDifferenceArray(int[] nums) {
+
+		    int n = nums.length;
+		    int[] result = new int[n];
+
+		    Map<Integer, Integer> suffixFreq = new HashMap<>();
+		    Set<Integer> prefixSet = new HashSet<>();
+
+		    // initially all elements are in suffix
+		    for (int num : nums) {
+		        suffixFreq.put(num, suffixFreq.getOrDefault(num, 0) + 1);
+		    }
+
+		    for (int i = 0; i < n; i++) {
+
+		        // move current element to prefix
+		        prefixSet.add(nums[i]);
+
+		        // remove from suffix
+		        suffixFreq.put(nums[i], suffixFreq.get(nums[i]) - 1);
+
+		        // if frequency becomes 0 remove completely
+		        if (suffixFreq.get(nums[i]) == 0) {
+		            suffixFreq.remove(nums[i]);
+		        }
+
+		        result[i] = prefixSet.size() - suffixFreq.size();
+		    }
+
+		    return result;
+		}
 	   
 	   public static int totatDistanceTravled(int mainTank,int addTank) {
 		   int totalDistance=0;
@@ -447,6 +530,47 @@ public class LeetCodeRevision2 {
 		}
 		return max;
 	}
+	public static int maxEqualDigitSum(int[] nums) {
+
+	    HashMap<Integer, Integer> map = new HashMap<>();
+
+	    int ans = -1;
+
+	    for (int num : nums) {
+
+	        int maxDigit = maxDigit(num);
+
+	        if (map.containsKey(maxDigit)) {
+
+	            ans = Math.max(ans, num + map.get(maxDigit));
+
+	            map.put(maxDigit,
+	                    Math.max(map.get(maxDigit), num));
+
+	        } else {
+
+	            map.put(maxDigit, num);
+	        }
+	    }
+
+	    return ans;
+	}
+
+	private static int maxDigit(int num) {
+
+	    int maxDigit = 0;
+
+	    while (num > 0) {
+
+	        int rem = num % 10;
+
+	        maxDigit = Math.max(maxDigit, rem);
+
+	        num /= 10;
+	    }
+
+	    return maxDigit;
+	}
 	public static boolean acronym(String[] words,String s) {
 		StringBuilder builder = new StringBuilder();
 		for(String word:words) {
@@ -472,6 +596,27 @@ public class LeetCodeRevision2 {
 			count++;
 		}
 		return count;
+	}
+	public static int minOperationsCorrectCode(int[] nums, int k) {
+
+	    HashSet<Integer> set = new HashSet<>();
+
+	    int count = 0;
+
+	    for (int i = nums.length - 1; i >= 0; i--) {
+
+	        if (nums[i] <= k) {
+	            set.add(nums[i]);
+	        }
+
+	        count++;
+
+	        if (set.size() == k) {
+	            return count;
+	        }
+	    }
+
+	    return count;
 	}
 	
 	public static int divNonDiv(int n,int m) {

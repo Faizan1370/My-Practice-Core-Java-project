@@ -281,7 +281,23 @@ public class LeetCodeRevision5 {
 		}
 		return 0;
 	}
-	
+	public static int smallestCommonUnsorted(int[] nums1, int[] nums2) {
+	    HashSet<Integer> set = new HashSet<>();
+
+	    for (int num : nums1) {
+	        set.add(num);
+	    }
+
+	    int min = Integer.MAX_VALUE;
+
+	    for (int num : nums2) {
+	        if (set.contains(num)) {
+	            min = Math.min(min, num);
+	        }
+	    }
+
+	    return min == Integer.MAX_VALUE ? -1 : min;
+	}
 	public static void main(String[] args) {
 		int[] nums1= {1,2,3};
 		int[] nums2= {2,3};

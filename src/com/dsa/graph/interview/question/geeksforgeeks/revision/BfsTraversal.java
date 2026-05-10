@@ -286,6 +286,30 @@ public class BfsTraversal {
 		dfsFillColor(image, x, y + 1, oldColor, newColor);
 		dfsFillColor(image, x, y - 1, oldColor, newColor);
 	}
+	static int[][] floodFill(int[][] img, int sr, int sc, int newColor) {
+	    if (img[sr][sc] == newColor) return img;
+
+	    int oldColor = img[sr][sc];
+	    dfsFloodFill(sr, sc, img, oldColor, newColor);
+	    return img;
+	}
+
+	private static void dfsFloodFill(int x, int y, int[][] img, int oldColor, int newColor) {
+	    if (x < 0 || x >= img.length || y < 0 || y >= img[0].length || img[x][y] != oldColor) {
+	        return;
+	    }
+
+	    img[x][y] = newColor;
+
+	    int[] dr = {-1, 0, 1, 0};
+	    int[] dc = {0, 1, 0, -1};
+
+	    for (int i = 0; i < 4; i++) {
+	        int nr = x + dr[i];
+	        int nc = y + dc[i];
+	        dfsFloodFill(nr, nc, img, oldColor, newColor);
+	    }
+	}
 
 	public static boolean cycleInDirected(ArrayList<ArrayList<Integer>> adj) {
 		int V = adj.size();

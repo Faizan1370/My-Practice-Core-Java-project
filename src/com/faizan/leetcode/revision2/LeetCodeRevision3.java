@@ -129,6 +129,23 @@ public class LeetCodeRevision3 {
 		}
 		return sum;
 	}
+	public static int alternateDigitSum2(int n) {
+		int rev=0;
+		int sum=0;
+		int sign=1;
+		
+		while(n>0) {
+			rev = rev *10+(n %10);
+			n /=10;
+		}
+		while(rev >0) {
+			int digit = rev %10;
+			sum += sign *digit;
+			sign *=-1;
+			rev /=10;
+		}
+		return sum;
+	}
 	
 	public static int concateValue(int[] nums) {
 		int sum=0;
@@ -143,6 +160,29 @@ public class LeetCodeRevision3 {
 	    	sum+=nums[start];
 	    }
 		return sum;
+	}
+	public static int concateValueOp(int[] nums) {
+	    int sum = 0;
+	    int start = 0, end = nums.length - 1;
+
+	    while (start < end) {
+	        int left = nums[start];
+	        int right = nums[end];
+
+	        int digits = (int) Math.log10(right) + 1;
+	        int concat = left * (int)Math.pow(10, digits) + right;
+
+	        sum += concat;
+
+	        start++;
+	        end--;
+	    }
+
+	    if (start == end) {
+	        sum += nums[start];
+	    }
+
+	    return sum;
 	}
 	
 	public static int countVowelWord(String[] words) {
