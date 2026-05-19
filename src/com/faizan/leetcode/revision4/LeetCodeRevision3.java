@@ -256,7 +256,7 @@ public class LeetCodeRevision3 {
 		return count >= k;
 	}
 	
-public static boolean canPlaceFlower1(int[] flowers,int n) {
+public static boolean canPlaceFlower1(int[] flowers,int n) { //more correct
 		
 		int count=0;
 		for(int i=0;i<flowers.length;i++) {
@@ -285,6 +285,20 @@ public static boolean canPlaceFlower1(int[] flowers,int n) {
 
 		}
 		return len;
+	}
+	public static int removeElementOrdered(int[] nums, int val) {
+
+	    int j = 0;
+
+	    for (int i = 0; i < nums.length; i++) {
+
+	        if (nums[i] != val) {
+	            nums[j] = nums[i];
+	            j++;
+	        }
+	    }
+
+	    return j;
 	}
 
 	public static int removeElement2(int[] nums, int val) {
@@ -327,7 +341,7 @@ public static boolean canPlaceFlower1(int[] flowers,int n) {
 		return "";
 	}
 
-	public static int pivotIndex1(int[] nums) {
+	public static int pivotIndex1(int[] nums) { // correct
 		int sum = 0;
 		for (int i = 0; i < nums.length; i++) {
 			sum += nums[i];
@@ -619,6 +633,25 @@ public static boolean canPlaceFlower1(int[] flowers,int n) {
 		}
 		double res = maxSum / (double) k;
 		return res;
+	}
+	public static double maxSubarrayOptimal(int[] nums, int k) {
+
+	    int sum = 0;
+
+	    for (int i = 0; i < k; i++) {
+	        sum += nums[i];
+	    }
+
+	    int maxSum = sum;
+
+	    for (int i = k; i < nums.length; i++) {
+
+	        sum += nums[i] - nums[i - k];
+
+	        maxSum = Math.max(maxSum, sum);
+	    }
+
+	    return maxSum / (double) k;
 	}
 
 	public static boolean pathCross1(String path) {
