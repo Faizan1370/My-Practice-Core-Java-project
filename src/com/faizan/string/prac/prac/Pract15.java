@@ -64,7 +64,7 @@ public class Pract15 {
 			map.put(str.charAt(i), i);
 			if(i-start+1>maxLen) {
 				maxLen=i-start+1;
-				start=maxStart;
+				maxStart=start;
 			}
 			
 			
@@ -74,6 +74,9 @@ public class Pract15 {
 		
 	}
 	public static boolean checkAnagram(String s,String t) {
+		   if(s.length() != t.length()) {
+		        return false;
+		    }
 		int[] counts= new int[26];
 		
 		for(char c:s.toCharArray()) {
@@ -87,8 +90,44 @@ public class Pract15 {
 				return false;
 			}
 		}
-		return false;
+		return true;
 	}
+	public static boolean checkAnagram1(String s,String t) {
+		int[] counts= new int[26];
+		for(char cs:s.toCharArray()) {
+			counts[cs-'a']++;
+		}
+		for(char cs:t.toCharArray()) {
+			counts[cs-'a']--;
+		}
+		for(int c:counts) {
+			if(c !=0) {
+				return false;
+			}
+		}
+		return true;
+		
+	}
+	public static void longestSubstring2() {
+		String str = "faizan";
+		int start=0,maxStart=0,maxLen=0;
+	   HashMap<Character, Integer> map = new HashMap<Character, Integer>();
+	   for(int i=0;i<str.length();i++) {
+		   if(map.containsKey(str.charAt(i))) {
+			   start=Math.max(start, map.get(str.charAt(i))+1);
+		   }
+		   map.put(str.charAt(i), i);
+		   
+		   if(i-start+1>maxLen) {
+			   maxLen = i-start+1;
+			   maxStart=start;
+		   }
+	   }
+		System.out.println(maxLen);
+		System.out.println(str.substring(maxStart,maxStart+maxLen));
+		
+	}
+
 
 	public static void main(String[] args) {
 		longestSubstring();

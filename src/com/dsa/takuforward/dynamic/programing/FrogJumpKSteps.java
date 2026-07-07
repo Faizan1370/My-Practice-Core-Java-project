@@ -128,5 +128,5 @@ public class FrogJumpKSteps {
 
 	    return dp[n - 1];
 	}
-	
+
 }

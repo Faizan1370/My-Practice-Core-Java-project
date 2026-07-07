@@ -1,5 +1,8 @@
 package com.dsa.pract;
 
+import java.util.Arrays;
+import java.util.Comparator;
+
 public class DSSet {
 	int[] parent;
 	int[] rank;
@@ -43,5 +46,24 @@ public class DSSet {
 		}
 		return false;
 	}
+	  public static int kruskalsMST(int V, int[][] edges) {
+		  Arrays.sort(edges,Comparator.comparingInt(e->e[2]));
+		  DSSetUn dsSetUn = new DSSetUn(V);
+		  int cost=0,count=0;
+		  
+		  for (int[] e : edges) {
+	            int x = e[0], y = e[1], w = e[2];
+	            if (dsSetUn.find(x) != dsSetUn.find(y)) {
+	            	dsSetUn.union(x, y);
+	            	cost +=w;
+	            	count++;
+	            	if(count==V-1) {
+	            		break;
+	            	}
+	            }
+	            
+		  }
+		return cost;
+	  }
 
 }

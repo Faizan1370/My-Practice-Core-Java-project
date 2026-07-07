@@ -35,8 +35,8 @@ public class LeetCodeRevision2 {
 			freq2[word2.charAt(i)-'a']++;
 		}
 		for(int i=0;i<freq1.length;i++) {
-			if((freq1[i]-freq2[i])>3) {
-				return false;
+			if(Math.abs(freq1[i] - freq2[i]) > 3) {
+			    return false;
 			}
 		}
 		return true;
@@ -472,7 +472,8 @@ public class LeetCodeRevision2 {
 		   }
 		   ArrayList<Integer> list = new ArrayList<Integer>(map.values());
 		   int count=0;
-		   for(int num:list) {
+		 //  for(int num:list) {
+			   for(int num:map.values()) {
 			   if(num>=2) {
 				   count++;
 			   }

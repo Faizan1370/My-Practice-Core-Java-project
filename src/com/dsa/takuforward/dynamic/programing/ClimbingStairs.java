@@ -38,7 +38,7 @@ public class ClimbingStairs {
 		return memo[n];
 	}
 	//Bottom-Up DP (Tabulation)
-	public int climbStairs3(int n) {
+	public static int climbStairs3(int n) {
 		 if (n <= 2) return n;
 		 int[] dp = new int[n + 1];
 		 dp[1]=1;
@@ -76,6 +76,24 @@ public class ClimbingStairs {
 	    }
 
 	    return b;
+	}
+	public int climbStairs5P(int n) {
+		if(n<=1) {
+			return 1;
+		}
+		  int a = 0, b = 1;
+		  for(int i=1;i<=n;i++) {
+			  int c =a+b;
+			  a=b;
+			  b=c;
+		  }
+		return b;
+
+	}
+	
+
+	public static void main(String[] args) {
+		System.out.println(climbStairs3(4));
 	}
 
 }

@@ -114,7 +114,27 @@ public class LeetCodeNewQues {
 			}
 
 			if (leftSum == rightSum) {
-				return left + 1; // pivot
+				return left; // pivot
+			}
+		}
+
+		return -1;
+	}
+
+	public static int pivotInteger1(int n) {
+
+		int totalSum = n * (n + 1) / 2;
+
+		int leftSum = 0;
+
+		for (int i = 1; i <= n; i++) {
+
+			leftSum += i;
+
+			int rightSum = totalSum - leftSum + i;
+
+			if (leftSum == rightSum) {
+				return i;
 			}
 		}
 
@@ -137,11 +157,44 @@ public class LeetCodeNewQues {
 			}
 			int once = 0;
 			for (int i = 0; i < digits; i++) {
-				once += once * 10 + 1; // 111...
+				once = once * 10 + 1; // 111...
 			}
 			totalSum += maxDigit * once;
 		}
 		return totalSum;
+	}
+
+	public static int sumOfEncryptedInt1(int[] nums) {
+
+		int sum = 0;
+
+		for (int num : nums) {
+
+			int temp = num;
+
+			int maxDigit = 0;
+
+			int digits = 0;
+
+			while (temp > 0) {
+
+				maxDigit = Math.max(maxDigit, temp % 10);
+
+				temp /= 10;
+
+				digits++;
+			}
+
+			int encrypted = 0;
+
+			for (int i = 0; i < digits; i++) {
+				encrypted = encrypted * 10 + maxDigit;
+			}
+
+			sum += encrypted;
+		}
+
+		return sum;
 	}
 
 	public static boolean stringExistence(String s) {
@@ -240,8 +293,11 @@ public class LeetCodeNewQues {
 	public static String makeStringGreat(String s) {
 		Stack<Character> stack = new Stack<Character>();
 		for (int i = 0; i < s.length(); i++) {
-			if (!stack.isEmpty() && Math.abs(stack.peek() - s.charAt(i)) == 32) { // Character.toLowerCase(a) ==
-																					// Character.toLowerCase(b)
+			// if (!stack.isEmpty() && Math.abs(stack.peek() - s.charAt(i)) == 32) { //
+			// Character.toLowerCase(a) ==
+			// Character.toLowerCase(b)
+			if (Character.toLowerCase(stack.peek()) == Character.toLowerCase(s.charAt(i))
+					&& stack.peek() != s.charAt(i)) {
 				stack.pop();
 			} else {
 				stack.push(s.charAt(i));
@@ -517,213 +573,226 @@ public class LeetCodeNewQues {
 		return maxOnes;
 	}
 
-	public static ArrayList<Integer> stableMountain(int[] heights,int thresold){
+	public static ArrayList<Integer> stableMountain(int[] heights, int thresold) {
 		ArrayList<Integer> list = new ArrayList<Integer>();
-		for(int i=1;i<heights.length;i++) {
-			if(heights[i-1]>thresold) {
+		for (int i = 1; i < heights.length; i++) {
+			if (heights[i - 1] > thresold) {
 				list.add(heights[i]);
 			}
 		}
 		return list;
 	}
+
 	public static boolean checkIfExist(int[] arr) {
 		HashMap<Integer, Integer> map = new HashMap<Integer, Integer>();
-		for(int i=0;i<arr.length;i++) {
-			int doub= 2*arr[i];
-			int half = arr[i]/2;
-			if(map.containsKey(doub) || (arr[i] %2==0) && map.containsKey(half)) {
+		for (int i = 0; i < arr.length; i++) {
+			int doub = 2 * arr[i];
+			int half = arr[i] / 2;
+			if (map.containsKey(doub) || (arr[i] % 2 == 0) && map.containsKey(half)) {
 				return true;
 			}
 		}
 		return false;
 	}
-	public static int prefixWordExist(String sentence,String searchWord) {
-		int count=0;
+
+	public static int prefixWordExist(String sentence, String searchWord) {
+		int count = 0;
 		String[] words = sentence.split(" ");
-		for(String word:words) {
-			if(word.startsWith(searchWord)) {
+		for (String word : words) {
+			if (word.startsWith(searchWord)) {
 				count++;
 			}
 		}
 		return count;
-		
+
 	}
+
 	public static int countPartitionEvenSum(int[] nums) {
-		int count=0;
-		int totalSum=0;
-		for(int num:nums) {
-			totalSum +=num;
+		int count = 0;
+		int totalSum = 0;
+		for (int num : nums) {
+			totalSum += num;
 		}
-		int leftSum=0;
-		for(int i=0;i<nums.length-1;i++) {
-			
-			leftSum +=nums[i];
-			if((leftSum -(totalSum-leftSum)) % 2==0) {
+		int leftSum = 0;
+		for (int i = 0; i < nums.length - 1; i++) {
+
+			leftSum += nums[i];
+			if ((leftSum - (totalSum - leftSum)) % 2 == 0) {
 				count++;
 			}
 		}
 		return count;
 	}
-	
+
 	public static int countPartitionsOpti(int[] nums) {
-	    int totalSum = 0;
+		int totalSum = 0;
 
-	    for (int num : nums) {
-	        totalSum += num;
-	    }
+		for (int num : nums) {
+			totalSum += num;
+		}
 
-	    if (totalSum % 2 != 0) {
-	        return 0;
-	    }
+		if (totalSum % 2 != 0) {
+			return 0;
+		}
 
-	    return nums.length - 1; // all splits valid
+		return nums.length - 1; // all splits valid
 	}
+
 	public static boolean isArraySpecial(int[] nums) {
-		if(nums.length==1) {
+		if (nums.length == 1) {
 			return true;
 		}
-		for(int i=0;i<nums.length-1;i++) {
-			if((nums[i] % 2)==(nums[i+1] %2)){
+		for (int i = 0; i < nums.length - 1; i++) {
+			if ((nums[i] % 2) == (nums[i + 1] % 2)) {
 				return false;
 			}
 		}
 		return true;
 	}
+
 	public static boolean check(int[] nums) {
-		int len=nums.length;
-		int deviations=0;
-		for(int i=0;i<len;i++) {
-			if(i<len-1 && nums[i]>nums[i+1]) {
+		int len = nums.length;
+		int deviations = 0;
+		for (int i = 0; i < len; i++) {
+			if (i < len - 1 && nums[i] > nums[i + 1]) {
 				deviations++;
-			}else if(i==len-1 && nums[len-1]>nums[0]) {
+			} else if (i == len - 1 && nums[len - 1] > nums[0]) {
 				deviations++;
 			}
 		}
-		return (deviations>1)? false:true;
+		return (deviations > 1) ? false : true;
 	}
+
 	public static int longestMonotonicSubarray(int[] nums) {
-		int increasing=1,decreasing=1;
-		int longest=1;
-		for(int i=1;i<nums.length;i++) {
-			if(nums[i-1]<nums[i]) {
+		int increasing = 1, decreasing = 1;
+		int longest = 1;
+		for (int i = 1; i < nums.length; i++) {
+			if (nums[i - 1] < nums[i]) {
 				increasing++;
-				decreasing=1;
-			}else if(nums[i-1]>nums[i]) {
+				decreasing = 1;
+			} else if (nums[i - 1] > nums[i]) {
 				decreasing++;
-				increasing=1;
-			}else {
-				increasing=1;
-				decreasing=1;
+				increasing = 1;
+			} else {
+				increasing = 1;
+				decreasing = 1;
 			}
-			longest=Math.max(longest, Math.max(increasing, decreasing));
+			longest = Math.max(longest, Math.max(increasing, decreasing));
 		}
 		return longest;
-		
+
 	}
+
 	public static int maxAscendingSubarray(int[] nums) {
-		int sum=nums[0];
-		int maxSum=nums[0];
-		for(int i=1;i<nums.length;i++) {
-			if(nums[i]>nums[i-1]) {
-				sum +=nums[i];
-			}else {
-				sum=nums[i];
+		int sum = nums[0];
+		int maxSum = nums[0];
+		for (int i = 1; i < nums.length; i++) {
+			if (nums[i] > nums[i - 1]) {
+				sum += nums[i];
+			} else {
+				sum = nums[i];
 			}
-			maxSum=Math.max(maxSum, sum);
+			maxSum = Math.max(maxSum, sum);
 		}
 		return maxSum;
 	}
+
 	public static String cleraDigits(String s) {
 		StringBuilder builder = new StringBuilder();
-		 for (int i = 0; i < s.length(); i++) {
-		        char ch = s.charAt(i);
+		for (int i = 0; i < s.length(); i++) {
+			char ch = s.charAt(i);
 
-		        if (Character.isDigit(ch)) {
-		            if (builder.length() > 0) {
-		                builder.deleteCharAt(builder.length() - 1);
-		            }
-		        } else {
-		            builder.append(ch);
-		        }
-		    }
+			if (Character.isDigit(ch)) {
+				if (builder.length() > 0) {
+					builder.deleteCharAt(builder.length() - 1);
+				}
+			} else {
+				builder.append(ch);
+			}
+		}
 		return builder.toString();
 	}
-	public static int sumOfGoodNumbers(int[] nums,int k) {
-		int sum=0;
-		for(int i=0;i<nums.length;i++) {
-			boolean isGood=true;
-			if(i-k>=0 && nums[i]<=nums[i-k]) {
-				isGood=false;
+
+	public static int sumOfGoodNumbers(int[] nums, int k) {
+		int sum = 0;
+		for (int i = 0; i < nums.length; i++) {
+			boolean isGood = true;
+			if (i - k >= 0 && nums[i] <= nums[i - k]) {
+				isGood = false;
 			}
-			if(i+k <nums.length && nums[i]<=nums[i+k]) {
-				isGood=false;
+			if (i + k < nums.length && nums[i] <= nums[i + k]) {
+				isGood = false;
 			}
-			if(isGood) {
-				sum +=nums[i];
+			if (isGood) {
+				sum += nums[i];
 			}
 		}
 		return sum;
 	}
+
 	public static int[] applyOperations(int[] nums) {
 		int[] res = new int[nums.length];
-		for(int i=0;i<nums.length-1;i++) {
-			if(nums[i]==nums[i+1]) {
-				nums[i]=nums[i]*2;
-				nums[i+1]=0;
+		for (int i = 0; i < nums.length - 1; i++) {
+			if (nums[i] == nums[i + 1]) {
+				nums[i] = nums[i] * 2;
+				nums[i + 1] = 0;
 			}
 		}
-		int idx=0;
-		for(int i=0;i<nums.length;i++) {
-			if(nums[i] !=0) {
-				res[idx++]=nums[i];
+		int idx = 0;
+		for (int i = 0; i < nums.length; i++) {
+			if (nums[i] != 0) {
+				res[idx++] = nums[i];
 			}
 		}
 		return res;
 	}
+
 	public static int[] transformArray(int[] nums) {
-		int evenCount=0;
-		for(int num:nums) {
-			if(num % 2==0) {
+		int evenCount = 0;
+		for (int num : nums) {
+			if (num % 2 == 0) {
 				evenCount++;
 			}
 		}
 		int[] res = new int[nums.length];
-		int idx=nums.length-1;
-		while(evenCount !=0) {
-			res[idx]=1;
+		int idx = nums.length - 1;
+		while (evenCount != 0) {
+			res[idx] = 1;
 			evenCount--;
 			idx--;
 		}
 		return res;
-		
+
 	}
-	public static int[][] mergeArray(int[][] nums1,int[][] nums2){
+
+	public static int[][] mergeArray(int[][] nums1, int[][] nums2) {
 		HashMap<Integer, Integer> map = new HashMap<Integer, Integer>();
-		for(int[] num:nums1) {
+		for (int[] num : nums1) {
 			map.put(num[0], num[1]);
 		}
-		for(int[] num:nums2) {
-				map.put(num[0], map.getOrDefault(num[0], 0) + num[1]);
+		for (int[] num : nums2) {
+			map.put(num[0], map.getOrDefault(num[0], 0) + num[1]);
 		}
 		int[][] res = new int[map.size()][2];
-		int i=0;
-		for(Map.Entry<Integer, Integer> entry:map.entrySet()) {
-			res[i][0]=entry.getKey();
-			res[i][1]=entry.getValue();
+		int i = 0;
+		for (Map.Entry<Integer, Integer> entry : map.entrySet()) {
+			res[i][0] = entry.getKey();
+			res[i][1] = entry.getValue();
 			i++;
 		}
 		return res;
 	}
-	public static int minimumRecolors(String blocks,int k) {
-		int left=0;
-		int whiteCount=0,numRecolors=blocks.length()+1;
-		for(int right=0;right<blocks.length();right++) {
-			if(blocks.charAt(right)=='W') {
+
+	public static int minimumRecolors(String blocks, int k) {
+		int left = 0;
+		int whiteCount = 0, numRecolors = blocks.length() + 1;
+		for (int right = 0; right < blocks.length(); right++) {
+			if (blocks.charAt(right) == 'W') {
 				whiteCount++;
 			}
-			if(right-left+1==k) {
-				numRecolors=Math.min(numRecolors, whiteCount);
-				if(blocks.charAt(left)=='W') {
+			if (right - left + 1 == k) {
+				numRecolors = Math.min(numRecolors, whiteCount);
+				if (blocks.charAt(left) == 'W') {
 					whiteCount--;
 				}
 				left++;
@@ -733,9 +802,9 @@ public class LeetCodeNewQues {
 	}
 
 	public static void main(String[] args) {
-		String blocks ="WBBWWBBWBW";
+		String blocks = "WBBWWBBWBW";
 		System.out.println(minimumRecolors(blocks, 7));
-		
+
 	}
 
 }

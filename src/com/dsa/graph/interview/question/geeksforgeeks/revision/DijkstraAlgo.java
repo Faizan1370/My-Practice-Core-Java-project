@@ -7,7 +7,7 @@ import java.util.PriorityQueue;
 public class DijkstraAlgo {
 	static ArrayList<Integer> dijkstra(ArrayList<ArrayList<int[]>> adj, int src) {
 		int V=adj.size();
-		PriorityQueue<int[]> queue = new PriorityQueue<>((a,b)->a[0]-a[1]);
+		PriorityQueue<int[]> queue = new PriorityQueue<>((a,b)->a[0]-a[0]);
 		queue.add(new int[] {0,src});
 		int[] dist = new int[V];
 		Arrays.fill(dist, Integer.MAX_VALUE);

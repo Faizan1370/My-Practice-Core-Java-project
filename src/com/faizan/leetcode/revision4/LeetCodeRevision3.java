@@ -959,6 +959,33 @@ public static boolean canPlaceFlower1(int[] flowers,int n) { //more correct
 		 }
 		 return maxSum;
 	 }
+	 public static int missingIntegerFix(int[] nums) {
+
+		    HashSet<Integer> set = new HashSet<>();
+
+		    for(int num : nums) {
+		        set.add(num);
+		    }
+
+		    int sum = nums[0];
+
+		    // find sequential prefix sum
+		    for(int i = 1; i < nums.length; i++) {
+
+		        if(nums[i] == nums[i - 1] + 1) {
+		            sum += nums[i];
+		        } else {
+		            break;
+		        }
+		    }
+
+		    // find smallest missing integer >= sum
+		    while(set.contains(sum)) {
+		        sum++;
+		    }
+
+		    return sum;
+		}
 	 public static int areaOfMaxDiagonal(int[][] dimensions) {
 		 int maxArea=0;
 		double maxDiagonal=0;

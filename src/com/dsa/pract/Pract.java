@@ -7,6 +7,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.IntSummaryStatistics;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -18,12 +19,20 @@ import java.util.Queue;
 import java.util.Set;
 import java.util.Stack;
 import java.util.TreeMap;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.function.Consumer;
 import java.util.function.Function;
+import java.util.function.Predicate;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import com.dsa.graph.again.rev.Dsuni;
 import com.dsa.graph.again.rev.VWg;
 import com.dsa.graph.interview.question.geeksforgeeks.SnakeCell;
+import com.dsa.graph.interview.question.geeksforgeeks.revision.SnakeCellDist;
 import com.dsa.graph.interview.question.geeksforgeeks.revision3.PriceNodePair;
 import com.dsa.graph.kruskal.algo.Edge;
 import com.dsa.graph.revision2.dijkstra.VertexD;
@@ -38,243 +47,283 @@ import com.dsa.tree.interview.question.geeksforgeeks.revision.NodeInfo;
 import com.dsa.tree.interview.question.geeksforgeeks.revision.TreeNodNextRightNode;
 import com.dsa.tree.revision.IncExcludePair;
 import com.dsa.tree.revision.TreeNodeRev;
+import com.faizan.java8Prac.Customer;
+import com.faizan.java8Prac.Employee;
 
 public class Pract {
 
-	static boolean isCycle(ArrayList<ArrayList<Integer>> adj) {
-		int V = adj.size();
+	static boolean findTarget(TNode root, int target) {
+		if (root == null) {
+			return false;
+		}
+		HashSet<Integer> set = new HashSet<Integer>();
+		return targetSum(root, set, target);
+	}
 
+	private static boolean targetSum(TNode root, HashSet<Integer> set, int target) {
+		if (root == null) {
+			return false;
+		}
+		if (targetSum(root.left, set, target)) {
+			return true;
+		}
+		if (set.contains(target - root.data)) {
+			return true;
+		}
+		set.add(root.data);
+		return targetSum(root.right, set, target);
+	}
+
+	static boolean findTargetItrative(TNode root, int target) {
+
+		if (root == null) {
+			return false;
+		}
+		HashSet<Integer> set = new HashSet<Integer>();
+		Queue<TNode> queue = new LinkedList<>();
+		queue.add(root);
+
+		while (!queue.isEmpty()) {
+			TNode current = queue.poll();
+			if (set.contains(target - current.data)) {
+				return true;
+			}
+			set.add(current.data);
+			if (current.left != null) {
+				queue.add(current.left);
+			}
+			if (current.right != null) {
+				queue.add(current.right);
+			}
+
+		}
+		return false;
+	}
+
+	static int sum = 0;
+
+	static void transformToGreaterSumTree(TNode root) {
+		buildGreaterSumTree(root);
+	}
+
+	private static void buildGreaterSumTree(TNode root) {
+		if (root == null) {
+			return;
+		}
+		buildGreaterSumTree(root.right);
+		int temp = root.data;
+		root.data = sum;
+		sum += temp;
+		buildGreaterSumTree(root.left);
+
+	}
+
+	static int getMaxSum(TNode root) {
+		IncExcludePair pair = maxNonAjacentSum(root);
+		return Math.max(pair.include, pair.exclude);
+	}
+
+	private static IncExcludePair maxNonAjacentSum(TNode root) {
+		if (root == null) {
+			return new IncExcludePair(0, 0);
+		}
+		IncExcludePair left = maxNonAjacentSum(root.left);
+		IncExcludePair right = maxNonAjacentSum(root.right);
+		int incldue = root.data + left.exclude + right.exclude;
+		int exclude = Math.max(left.include, left.exclude) + Math.max(right.include, right.exclude);
+
+		return new IncExcludePair(incldue, exclude);
+	}
+
+	static ArrayList<Integer> TopoSort(ArrayList<ArrayList<Integer>> adj) {
+		int V = adj.size();
+		Stack<Integer> stack = new Stack<Integer>();
 		boolean[] visited = new boolean[V];
 
 		for (int i = 0; i < V; i++) {
 			if (!visited[i]) {
-				if (dfs(i, visited, adj, -1)) {
-					return true;
-				}
+				dfs(i, adj, visited, stack);
 			}
 		}
-		return false;
+		ArrayList<Integer> list = new ArrayList<>();
+		while (!stack.isEmpty()) {
+			list.add(stack.pop());
+		}
+
+		return list;
+	}
+
+	private static void dfs(int node, ArrayList<ArrayList<Integer>> adj, boolean[] visited, Stack<Integer> stack) {
+		visited[node] = true;
+
+		for (int neg : adj.get(node)) {
+			if (!visited[neg]) {
+				dfs(neg, adj, visited, stack);
+			}
+		}
+		stack.push(node);
 
 	}
 
-	private static boolean dfs(int v, boolean[] visited, ArrayList<ArrayList<Integer>> adj, int parent) {
-		visited[v] = true;
-
-		for (int negh : adj.get(v)) {
-			if (!visited[negh]) {
-				if (dfs(negh, visited, adj, v)) {
-					return true;
-				}
-			} else if (parent != negh) {
-				return true;
-			}
+	static boolean canFinish(int n, int[][] prerequisites) {
+		ArrayList<ArrayList<Integer>> adj = new ArrayList<ArrayList<Integer>>();
+		for (int i = 0; i < n; i++) {
+			adj.add(new ArrayList<Integer>());
 		}
-		return false;
-	}
-
-	static boolean isCycleDirected(ArrayList<ArrayList<Integer>> adj) {
-		int V = adj.size();
-
-		boolean[] visited = new boolean[V];
-		boolean[] recStack = new boolean[V];
-
-		for (int i = 0; i < V; i++) {
-			if (!visited[i]) {
-				if (dfsDirected(i, visited, adj, recStack)) {
-					return true;
-				}
-			}
+		for (int[] pre : prerequisites) {
+			int dest = pre[0];
+			int src = pre[1];
+			adj.get(src).add(dest);
 		}
-		return false;
 
-	}
+		boolean[] visited = new boolean[n];
+		boolean[] recStack = new boolean[n];
 
-	private static boolean dfsDirected(int v, boolean[] visited, ArrayList<ArrayList<Integer>> adj,
-			boolean[] recStack) {
-		visited[v] = true;
-		recStack[v] = true;
-
-		for (int negh : adj.get(v)) {
-			if (!visited[negh]) {
-				if (dfsDirected(negh, visited, adj, recStack)) {
-					return true;
-				}
-			} else if (recStack[negh]) {
-				return true;
-			}
-		}
-		recStack[v] = false;
-		return false;
-	}
-
-	public static String firstPalindromic(String[] arr) {
-		if (arr.length == 0) {
-			return "";
-		}
-		for (String word : arr) {
-			if (isPalindrome(word)) {
-				return word;
-			}
-		}
-		return "";
-	}
-
-	private static boolean isPalindrome(String word) {
-		int start = 0, end = word.length() - 1;
-		while (start < end) {
-			if (word.charAt(start) != word.charAt(end)) {
+		for (int i = 0; i < n; i++) {
+			if (!visited[i] && dfsTask(i, adj, visited, recStack)) {
 				return false;
 			}
-			start++;
-			end--;
 		}
 		return true;
+
 	}
 
-	public static int countEvenDigitSum(int n) {
-		int count = 0;
-		for (int i = 1; i <= n; i++) {
-			if (isEvenDigitSum(i)) {
-				count++;
+	private static boolean dfsTask(int node, ArrayList<ArrayList<Integer>> adj, boolean[] visited, boolean[] recStack) {
+		visited[node] = true;
+		recStack[node] = true;
+
+		for (int neg : adj.get(node)) {
+			if (!visited[neg]) {
+				if (dfsTask(neg, adj, visited, recStack)) {
+					return true;
+				}
+			} else if (recStack[neg]) {
+				return true;
 			}
 		}
-		return count;
+		recStack[node] = false;
+		return false;
 	}
 
-	private static boolean isEvenDigitSum(int num) {
-		int sum = 0;
-		while (num > 0) {
-			int r = num % 10;
-			sum += r;
-			num /= 10;
+	static int[] scheduleTask(int n, int[][] prerequisites) {
+		ArrayList<ArrayList<Integer>> adj = new ArrayList<ArrayList<Integer>>();
+		for (int i = 0; i < n; i++) {
+			adj.add(new ArrayList<Integer>());
 		}
-		return (sum % 2 == 0);
-	}
+		for (int[] pre : prerequisites) {
+			int dest = pre[0];
+			int src = pre[1];
+			adj.get(src).add(dest);
+		}
 
-	public static String[] sortPeople(String[] names, int[] height) {
-		if (height.length != names.length) {
-			return new String[] { "", "" };
+		boolean[] visited = new boolean[n];
+		boolean[] recStack = new boolean[n];
+		Stack<Integer> stack = new Stack<Integer>();
+
+		for (int i = 0; i < n; i++) {
+			if (!visited[i] && dfsSchduleTask(i, adj, visited, recStack, stack)) {
+				return new int[] { 0 };
+			}
 		}
-		Integer[] indices = new Integer[height.length];
-		for (int i = 0; i < height.length; i++) {
-			indices[i] = i;
+		int[] result = new int[n];
+		int idx = 0;
+
+		while (!stack.isEmpty()) {
+			result[idx++] = stack.pop();
 		}
-		Arrays.sort(indices, (a, b) -> height[b] - height[a]);
-		String[] result = new String[names.length];
-		for (int i = 0; i < indices.length; i++) {
-			result[i] = names[indices[i]];
-		}
+
 		return result;
+
 	}
 
-	public static int distinctAvg(int[] nums) {
-		Arrays.sort(nums);
-		int start = 0, end = nums.length - 1;
-		HashSet<Integer> set = new HashSet<Integer>();
-		while (start < end) {
-			int sum = nums[start] + nums[end]; // if sum same avg would be same
-			if (!set.contains(sum)) { // can remove set auto remove duplicates
-				set.add(sum);
+	private static boolean dfsSchduleTask(int node, ArrayList<ArrayList<Integer>> adj, boolean[] visited,
+			boolean[] recStack, Stack<Integer> stack) {
+		visited[node] = true;
+		recStack[node] = true;
+
+		for (int neg : adj.get(node)) {
+			if (!visited[neg]) {
+				if (dfsSchduleTask(neg, adj, visited, recStack, stack)) {
+					return true;
+				}
+			} else if (recStack[neg]) {
+				return true;
 			}
-
-			start++;
-			end--;
 		}
-		return set.size();
+		recStack[node] = false;
+		stack.push(node);
+		return false;
 	}
 
-	static TNode prev = null;
-	static TNode succ = null;
-
-	public static TNode inorderSucceor(TNode root, int target) {
-		prev = null;
-		succ = null;
-		getSuccessor(root, target);
-		return succ;
-	}
-
-	private static void getSuccessor(TNode root, int target) {
-		if (root == null || succ != null) {
-			return;
-		}
-		getSuccessor(root.left, target);
-		if (prev != null && prev.data == target && succ == null) {
-			succ = root;
-			return;
-		}
-		prev = root;
-
-		getSuccessor(root.right, target);
-	}
-
-	public static TNode inroderSuccessor1(TNode root, int target) {
+	public static int largestBst(TNode root) {
 		if (root == null) {
-			return null;
+			return 0;
 		}
-		TNode curr = root;
-		TNode succ = null;
-		while (curr != null) {
-			if (curr.data > target) {
-				curr = succ;
-				curr = curr.left;
-			} else {
-				curr = curr.right;
+		if (isValid(root, Long.MAX_VALUE, Long.MIN_VALUE)) {
+			return size(root);
+		}
+		return Math.max(largestBst(root.left), largestBst(root.right));
+	}
+
+	private static int size(TNode root) {
+		if (root == null) {
+			return 0;
+		}
+		return 1 + size(root.left) + size(root.right);
+	}
+
+	private static boolean isValid(TNode root, long maxValue, long minValue) {
+		if (root == null) {
+			return true;
+		}
+		if (root.data <= minValue || root.data >= maxValue) {
+			return false;
+		}
+		return isValid(root.left, root.data, minValue) && isValid(root.right, maxValue, root.data);
+	}
+
+	public static ArrayList<Integer> printExtreameNode(TNode root) {
+		ArrayList<Integer> list = new ArrayList<Integer>();
+		if (root == null) {
+			return list;
+		}
+		Queue<TNode> queue = new LinkedList<TNode>();
+		queue.add(root);
+
+		boolean leftRight = true;
+
+		while (!queue.isEmpty()) {
+			int size = queue.size();
+
+			for (int i = 0; i < size; i++) {
+				TNode current = queue.poll();
+
+				if (leftRight && i == size - 1) {
+					list.add(current.data);
+				} else if (!leftRight && i == 0) {
+					list.add(current.data);
+				}
+				if (current.left != null) {
+					queue.add(current.left);
+				}
+				if (current.right != null) {
+					queue.add(current.right);
+				}
 			}
+			leftRight = !leftRight;
 		}
-		return succ;
+		return list;
 	}
 
-	public static TNode succItravticeStack(TNode root, int target) {
-		Stack<TNode> stack = new Stack<TNode>();
-		TNode prev = null;
-		TNode cuNode = root;
-		while (!stack.isEmpty() || cuNode != null) {
-			while (cuNode != null) {
-				stack.push(cuNode);
-				cuNode = cuNode.left;
-			}
-			cuNode = stack.pop();
-			if (prev != null && prev.data == target) {
-				return cuNode;
-			}
-			prev = cuNode;
-			cuNode = cuNode.right;
-		}
-		return null;
-
-	}
-
-	static int kthLargest(TNode root, int k) {
-		int[] count = { 0 };
-		int[] largest = { -1 };
-		kthLargest(root, k, count, largest);
-		return largest[0];
-	}
-
-	private static void kthLargest(TNode root, int k, int[] count, int[] largest) {
-		if (root == null || largest[0] != -1) {
-			return;
-		}
-		kthLargest(root.right, k, count, largest);
-		count[0]++;
-		if (count[0] == k && largest[0] == -1) {
-			largest[0] = root.data;
-			return;
-		}
-
-		kthLargest(root.left, k, count, largest);
-	}
-
-	static ArrayList<Integer> topoSortKahn(ArrayList<ArrayList<Integer>> adj) {
+	static ArrayList<Integer> kahns(ArrayList<ArrayList<Integer>> adj) {
 		int V = adj.size();
 		int[] indegree = new int[V];
 		for (int u = 0; u < V; u++) {
-			for (int v : adj.get(u)) {
-				indegree[v]++;
+			for (int n : adj.get(u)) {
+				indegree[n]++;
 			}
 		}
 		Queue<Integer> queue = new LinkedList<Integer>();
-
 		for (int i = 0; i < V; i++) {
 			if (indegree[i] == 0) {
 				queue.add(i);
@@ -284,1113 +333,133 @@ public class Pract {
 		while (!queue.isEmpty()) {
 			int curr = queue.poll();
 			topo.add(curr);
-
-			for (int ng : adj.get(curr)) {
-				if (--indegree[ng] == 0) {
-					queue.add(ng);
+			for (int neg : adj.get(curr)) {
+				if (--indegree[neg] == 0) {
+					queue.add(neg);
 				}
 			}
 		}
 		return topo;
-	}
-
-	public static boolean circularSentence(String sentence) {
-		if (sentence.charAt(0) != sentence.charAt(sentence.length() - 1)) {
-			return false;
-		}
-		for (int i = 0; i < sentence.length(); i++) {
-			if (Character.isWhitespace(sentence.charAt(i))) {
-
-				if (i == 0 || i == sentence.length() - 1) {
-					return false;
-				}
-				if (sentence.charAt(i + 1) != sentence.charAt(i - 1)) {
-					return false;
-				}
-			}
-		}
-		return true;
-	}
-
-	public static int maxValue(String[] strs) {
-		int max = 0;
-		for (String word : strs) {
-			if (chDigits(word)) {
-				max = Math.max(max, Integer.parseInt(word));
-			} else {
-				max = Math.max(max, word.length());
-			}
-		}
-		return max;
-	}
-
-	private static boolean chDigits(String word) {
-		int count = 0;
-		for (int i = 0; i < word.length(); i++) {
-			if (Character.isDigit(word.charAt(i))) {
-				count++;
-			}
-		}
-		return count == word.length();
-	}
-
-	public static int countSimiliarPair(String[] words) {
-		int count = 0;
-		for (int i = 0; i < words.length; i++) {
-			for (int j = i + 1; j < words.length; j++) {
-				if (checkEquivalent(words[i], words[j])) {
-					count++;
-				}
-			}
-		}
-		return count;
-	}
-
-	private static boolean checkEquivalent(String word1, String word2) {
-		HashSet<Character> set = new HashSet<Character>();
-		HashSet<Character> set1 = new HashSet<Character>();
-		for (int i = 0; i < word1.length(); i++) {
-			set.add(word1.charAt(i));
-		}
-		for (int i = 0; i < word2.length(); i++) {
-			set1.add(word2.charAt(i));
-		}
-
-		return set.equals(set1);
-	}
-
-	public static int maxPosNeg(int[] nums) {
-		int negCount = 0, posCount = 0;
-		for (int num : nums) {
-			if (num < 0) {
-				negCount++;
-			} else if (num > 0) {
-				posCount++;
-			}
-		}
-		return Math.max(negCount, posCount);
-	}
-
-	public static int smallestCommon(int[] nums1, int[] nums2) {
-		HashSet<Integer> set = new HashSet<Integer>();
-		for (int num : nums1) {
-			set.add(num);
-		}
-		int min = Integer.MAX_VALUE;
-		for (int num : nums2) {
-			if (set.contains(num)) {
-				min = Math.min(min, num);
-			}
-		}
-		return min == Integer.MAX_VALUE ? -1 : min;
 
 	}
 
-	public static int smallestCommon1(int[] nums1, int[] nums2) {
-		int i = 0, j = 0;
-
-		while (i < nums1.length && j < nums2.length) {
-			if (nums1[i] == nums2[j]) {
-				return nums1[i];
-			} else if (nums1[i] < nums2[j]) {
-				i++;
-			} else {
-				j++;
-			}
-		}
-		return -1;
-	}
-
-	int diameter = 0;
-
-	public int diameter(TNode root) {
-		diameterUtil(root);
-		return diameter;
-	}
-
-	private int diameterUtil(TNode root) {
-		if (root == null) {
-			return 0;
-		}
-		int lh = diameterUtil(root.left);
-		int rh = diameterUtil(root.right);
-		diameter = Math.max(diameter, 1 + lh + rh);
-
-		return Math.max(lh, rh) + 1;
-
-	}
-
-	static boolean isSubtree(TNode root1, TNode root2) {
-		if (root2 == null)
-			return true;
-
-		// Main tree empty but subtree not → false
-		if (root1 == null)
-			return false;
-		if (areIden(root1, root2)) {
-			return true;
-		}
-
-		return isSubtree(root1.left, root2) || isSubtree(root1.right, root2);
-
-	}
-
-	private static boolean areIden(TNode root1, TNode root2) {
-		if (root1 == null && root2 == null) {
-			return true;
-		}
-		if (root1 == null || root2 == null || root1.data != root2.data) {
-			return false;
-		}
-		return areIden(root1.left, root2.left) && areIden(root1.right, root2.right);
-	}
-
-	public boolean checkBst(TNode root) {
-		return dfsCheckBst(root, Long.MAX_VALUE, Long.MIN_VALUE);
-	}
-
-	private boolean dfsCheckBst(TNode root, long maxValue, long minValue) {
-		if (root == null) {
-			return true;
-		}
-		if (root.data <= minValue || root.data >= maxValue) {
-			return false;
-		}
-		return dfsCheckBst(root.left, root.data, minValue) && dfsCheckBst(root.right, maxValue, root.data);
-	}
-
-	TNode pr = null;
-
-	public boolean checkBst1(TNode root) {
-		if (root == null) {
-			return true;
-		}
-		return chBst(root);
-	}
-
-	private boolean chBst(TNode root) {
-		if (root == null) {
-			return true;
-		}
-		if (!chBst(root.left)) {
-			return false;
-		}
-		if (pr != null && pr.data >= root.data) {
-			return false;
-		}
-		pr = root;
-		return chBst(root.right);
-	}
-
-	public static int kruskalsMST(int V, int[][] edges) {
-		Arrays.sort(edges, Comparator.comparing(e -> e[2]));
-		DSSet dsSet = new DSSet(V);
-		int cost = 0, count = 0;
-		for (int[] edge : edges) {
-			int u = edge[0], v = edge[1], w = edge[2];
-
-			if (dsSet.find(u) != dsSet.find(v)) {
-				dsSet.union(u, v);
-				cost += w;
-				count++;
-				if (count == V - 1) {
-					break;
-				}
-			}
-		}
-		return cost;
-	}
-
-	public int countIsland(int[][] grid) {
-		int count = 0;
-		int m = grid.length;
-		int n = grid[0].length;
-		for (int i = 0; i < m; i++) {
-			for (int j = 0; j < n; j++) {
-				if (grid[i][j] == 'L') {
-					count++;
-				}
-			}
-		}
-		DSSet dsu = new DSSet(m * n);
-
-		int[][] dirs = { { 1, 0 }, { 0, 1 }, { -1, 0 }, { 0, -1 } };
-		for (int i = 0; i < m; i++) {
-			for (int j = 0; j < n; j++) {
-				if (grid[i][j] == 'L') {
-					for (int[] d : dirs) {
-						int ni = i + d[0];
-						int nj = j + d[1];
-						if (ni >= 0 && nj >= 0 && ni < m && nj < n && grid[ni][nj] == 'L') {
-							int u = i * n + j;
-							int v = ni * n + nj;
-
-							if (dsu.find(u) != dsu.find(v)) {
-								dsu.union(u, v);
-								count--; // ✅ only here
-							}
-						}
-					}
-				}
-			}
-		}
-		return count;
-
-	}
-
-	public static int alternateDigitSum(int n) {
-		String strNum = n + "";
-		int sum = Character.getNumericValue(strNum.charAt(0));
-		for (int i = 1; i < strNum.length(); i++) {
-			if (i % 2 == 0) {
-				sum += Character.getNumericValue(strNum.charAt(i));
-			} else {
-				sum -= Character.getNumericValue(strNum.charAt(i));
-			}
-		}
-		return sum;
-	}
-
-	public static int alternateDigitSum1(int n) {
-		int rev = 0;
-		int sum = 0;
-		int sign = 1;
-
-		while (n > 0) {
-			rev = rev * 10 + (n % 10);
-			n /= 10;
-		}
-		while (rev > 0) {
-			int digit = rev % 10;
-			sum += sign * digit;
-			sign *= -1;
-			rev /= 10;
-		}
-		return sum;
-	}
-
-	public static int concateValue(int[] nums) {
-		int sum = 0;
-		int start = 0, end = nums.length - 1;
-		while (start < end) {
-			sum += Integer.parseInt(String.valueOf(nums[start] + String.valueOf(nums[end])));
-			start++;
-			end--;
-		}
-		if (nums.length % 2 != 0) {
-			sum += nums[start];
-		}
-		return sum;
-	}
-
-	public static int isWinner(int[] player1, int[] player2) {
-		if (countScore(player1) > countScore(player2)) {
-			return 1;
-		} else if (countScore(player2) > countScore(player1)) {
-			return 2;
-		} else {
-			return 0;
-		}
-	}
-
-	private static int countScore(int[] player) {
-		int score = 0;
-		for (int i = 1; i < player.length; i++) {
-			if (i == 1) {
-				if (player[i - 1] >= 10) {
-					score += 2 * player[i];
-				} else {
-					score += player[i];
-				}
-			} else if (i > 1) {
-				if (player[i - 1] >= 10 || player[i - 2] >= 10) {
-					score += 2 * player[i];
-				} else {
-					score += player[i];
-				}
-			} else {
-				score += player[i];
-			}
-		}
-		return score;
-	}
-
-	public static int[] distinctDiffrenceArray(int[] nums) {
-		int[] diff = new int[nums.length];
-
-		for (int i = 0; i < nums.length; i++) {
-			HashSet<Integer> prefix = new HashSet<Integer>();
-			HashSet<Integer> suffix = new HashSet<Integer>();
-
-			for (int j = 0; j <= i; j++) {
-				prefix.add(nums[i]);
-			}
-			for (int j = i + 1; j < nums.length; j++) {
-				suffix.add(nums[i]);
-			}
-			diff[i] = prefix.size() - suffix.size();
-		}
-		return diff;
-	}
-
-	public static int totatDistanceTravled(int mainTank, int addTank) {
-		int totalDistnce = 0;
-
-		while (mainTank >= 5 && addTank > 0) {
-			mainTank = (mainTank - 5) + 1;
-			addTank--;
-			totalDistnce = totalDistnce + 50;
-		}
-		totalDistnce += mainTank * 10;
-		return totalDistnce;
-	}
-
-	public static boolean isGood(int[] nums) {
-		Arrays.sort(nums);
-		int max = nums[nums.length - 1];
-		if (nums.length != (max + 1)) {
-			return false;
-		}
-		HashMap<Integer, Integer> map = new HashMap<Integer, Integer>();
-		for (int num : nums) {
-			map.put(num, map.getOrDefault(num, 0) + 1);
-		}
-		ArrayList<Integer> list = new ArrayList<Integer>(map.values());
-		int count = 0;
-		for (int num : list) {
-			if (num >= 2) {
-				count++;
-			}
-		}
-		if (map.get(max) == 2 && count == 1) {
-			return true;
-		}
-		return false;
-	}
-
-	public static List<String> splitWordsbySeprator(List<String> words, String seprator) {
-		List<String> list = new ArrayList<String>();
-		for (int i = 0; i < words.size(); i++) {
-			String[] wordArr = words.get(i).split("[" + seprator + "]");
-			for (String word : wordArr) {
-				list.add(word);
-			}
-		}
-		return list;
-	}
-
-	public static int purchseAmount(int purchaseAmount) {
-		int rem = purchaseAmount % 10;
-		int balance = 10 - rem;
-		if (purchaseAmount < 0 || purchaseAmount > 100) {
-			return 100;
-		}
-		if (rem > 5) {
-			purchaseAmount = purchaseAmount - rem;
-		} else {
-			purchaseAmount = purchaseAmount + balance;
-		}
-		return 100 - purchaseAmount;
-	}
-
-	public static int maxEqualDigitSum(int[] nums) {
-		int max = Integer.MIN_VALUE;
-		for (int i = 0; i < nums.length; i++) {
-			for (int j = i + 1; j < nums.length; j++) {
-				if (maxDigit(nums[i]) == maxDigit(nums[j])) {
-					max = Math.max(max, (nums[i] + nums[j]));
-				}
-			}
-		}
-		return max;
-	}
-
-	private static int maxDigit(int num) {
-		int maxDigit = Integer.MIN_VALUE;
-		while (num > 0) {
-			int rem = num % 10;
-			maxDigit = Math.max(maxDigit, rem);
-			num /= 10;
-		}
-		return maxDigit;
-	}
-
-	public static int minOprations(int[] nums, int k) {
-		HashSet<Integer> set = new HashSet<Integer>();
-		int count = 0;
-		for (int i = 1; i <= k; i++) {
-			set.add(i);
-		}
-		for (int num : nums) {
-			if (set.contains(num)) {
-				set.remove(num);
-				if (set.isEmpty()) {
-					break;
-				}
-			}
-			count++;
-		}
-		return count;
-	}
-
-	public static int highestAltitude(int[] gain) {
-		int currentGain = 0, maxGain = 0;
-		for (int g : gain) {
-			currentGain += g;
-			maxGain = Math.max(maxGain, currentGain);
-		}
-		return maxGain;
-	}
-
-	public static ArrayList<Integer> zigzagTravrsal(TNode root) {
-		ArrayList<Integer> list = new ArrayList<Integer>();
-		if (root == null) {
-			return list;
-		}
-		Queue<TNode> queue = new LinkedList<TNode>();
-		queue.add(root);
-		boolean leftToRight = true;
-
-		while (!queue.isEmpty()) {
-			int size = queue.size();
-			LinkedList<Integer> temp = new LinkedList<Integer>();
-			for (int i = 0; i < size; i++) {
-				TNode cur = queue.poll();
-
-				if (leftToRight) {
-					temp.addLast(cur.data);
-				} else {
-					temp.addFirst(cur.data);
-				}
-				if (cur.left != null) {
-					queue.add(cur.left);
-				}
-				if (cur.right != null) {
-					queue.add(cur.right);
-				}
-			}
-			list.addAll(temp);
-			leftToRight = !leftToRight;
-		}
-		return list;
-	}
-
-	static int spanningTree(int V, ArrayList<ArrayList<int[]>> adj) {
-		PriorityQueue<int[]> pq = new PriorityQueue<int[]>((a, b) -> a[0] - b[0]);
-
-		boolean[] visited = new boolean[V];
-		int res = 0;
-
-		pq.add(new int[] { 0, 0 });
-
-		while (!pq.isEmpty()) {
-			int[] pair = pq.poll();
-			int wt = pair[0];
-			int nd = pair[1];
-
-			if (visited[nd]) {
-				continue;
-			}
-			res += wt;
-			visited[nd] = true;
-
-			for (int[] v : adj.get(nd)) {
-				if (!visited[v[0]]) {
-					pq.add(new int[] { v[1], v[0] });
-				}
-			}
-		}
-		return res;
-	}
-
-	static int[] bellmanFord(int V, int[][] edges, int src) {
-		int[] dist = new int[V];
-		Arrays.fill(dist, Integer.MAX_VALUE);
-		dist[src] = 0;
-
-		for (int i = 0; i < V - 1; i++) {
-			for (int[] edge : edges) {
-				int u = edge[0];
-				int v = edge[1];
-				int wt = edge[2];
-				if (dist[u] != Integer.MAX_VALUE && dist[u] + wt < dist[v]) {
-					dist[v] = dist[u] + wt;
-				}
-			}
-		}
-		for (int[] edge : edges) {
-			int u = edge[0];
-			int v = edge[1];
-			int wt = edge[2];
-			if (dist[u] != Integer.MAX_VALUE && dist[u] + wt < dist[v]) {
-				return new int[] { -1, -1 };
-			}
-		}
-		return dist;
-	}
-
-	public static int[] indicesDiff(int[] nums, int valueDiff, int indexDiff) {
-		for (int i = 0; i < nums.length; i++) {
-			for (int j = i + 1; j < nums.length; j++) {
-				if (Math.abs(i - j) >= indexDiff && Math.abs(nums[i] - nums[j]) == valueDiff) {
-					return new int[] { i, j };
-				}
-			}
-		}
-		return new int[] { -1, -1 };
-	}
-
-	public static boolean wordPattern(String s, String pattern) {
-		String[] words = s.split(" ");
-		if (words.length != pattern.length()) {
-			return false;
-		}
-		HashMap<Character, String> charMap = new HashMap<Character, String>();
-		HashMap<String, Character> wordMap = new HashMap<String, Character>();
-		for (int i = 0; i < words.length; i++) {
-			char ch = pattern.charAt(i);
-			String word = words[i];
-			if (!charMap.containsKey(ch)) {
-				if (wordMap.containsKey(word)) {
-					return false;
-				} else {
-					charMap.put(ch, word);
-					wordMap.put(word, ch);
-				}
-			} else if (!charMap.get(ch).equals(word)) {
-				return false;
-			}
-		}
-		return true;
-	}
-
-	public static int[] leftRightSumDiffArr(int[] nums) {
-		int sum = 0;
-		for (int num : nums) {
-			sum += num;
-		}
-		int leftSum = 0;
-		int[] ans = new int[nums.length];
-		for (int i = 0; i < nums.length; i++) {
-			int rightSum = sum - leftSum - nums[i];
-			ans[i] = Math.abs(leftSum - rightSum);
-			leftSum += nums[i];
-		}
-		return ans;
-	}
-
-	static int[] dijkstra(ArrayList<ArrayList<int[]>> adj, int src) {
+	static boolean checkCycle(ArrayList<ArrayList<Integer>> adj) {
 		int V = adj.size();
-		int[] dist = new int[V];
-		Arrays.fill(dist, Integer.MAX_VALUE);
-		PriorityQueue<int[]> pq = new PriorityQueue<int[]>((a, b) -> a[1] - b[1]);
-		pq.add(new int[] { src, 0 });
-		dist[src] = 0;
-
-		while (!pq.isEmpty()) {
-			int[] pair = pq.poll();
-			int u = pair[0];
-			int d = pair[1];
-
-			if (d > dist[u]) {
-				continue;
-			}
-			for (int[] ng : adj.get(u)) {
-				int v = ng[0];
-				int dis = ng[1];
-				if (dist[u] + dis < dist[v]) {
-					dist[v] = dist[u] + dis;
-					pq.add(new int[] { v, dist[v] });
-				}
+		int[] indegree = new int[V];
+		for (int u = 0; u < V; u++) {
+			for (int n : adj.get(u)) {
+				indegree[n]++;
 			}
 		}
-		return dist;
-
-	}
-
-	static boolean canFinish(int n, int[][] prerequisites) {
-		boolean[] visited = new boolean[n];
-		boolean[] recStack = new boolean[n];
-		ArrayList<ArrayList<Integer>> adj = new ArrayList<>();
-		for (int i = 0; i < n; i++) {
-			adj.add(new ArrayList<>());
-		}
-		for (int[] pre : prerequisites) {
-			int dest = pre[0];
-			int src = pre[1];
-			adj.get(src).add(dest);
-		}
-
-		for (int i = 0; i < n; i++) {
-			if (!visited[i]) {
-				if (dfsTask(i, adj, visited, recStack)) {
-					return false;
-				}
-			}
-		}
-		return true;
-
-	}
-
-	private static boolean dfsTask(int v, ArrayList<ArrayList<Integer>> adj, boolean[] visited, boolean[] recStack) {
-		visited[v] = true;
-		recStack[v] = true;
-
-		for (int ng : adj.get(v)) {
-			if (!visited[ng]) {
-				if (dfsTask(ng, adj, visited, recStack)) {
-					return true;
-				}
-			} else if (recStack[ng]) {
-				return true;
-			}
-
-		}
-		recStack[v] = false;
-		return false;
-	}
-
-	static boolean canFinish1(int n, int[][] prerequisites) {
-		int[] indegree = new int[n];
-		ArrayList<ArrayList<Integer>> adj = new ArrayList<>();
-		for (int i = 0; i < n; i++) {
-			adj.add(new ArrayList<>());
-		}
-		for (int[] pre : prerequisites) {
-			int dest = pre[0];
-			int src = pre[1];
-			adj.get(src).add(dest);
-			indegree[dest]++;
-		}
-		Queue<Integer> queue = new LinkedList<>();
-
-		// Add all indegree 0 nodes
-		for (int i = 0; i < n; i++) {
-
+		Queue<Integer> queue = new LinkedList<Integer>();
+		for (int i = 0; i < V; i++) {
 			if (indegree[i] == 0) {
 				queue.add(i);
 			}
 		}
-
+		int count = 0;
 		while (!queue.isEmpty()) {
-			int node = queue.poll();
-
-			for (int ng : adj.get(node)) {
-				if (--indegree[ng] == 0) {
-					queue.add(ng);
+			int curr = queue.poll();
+			count++;
+			for (int neg : adj.get(curr)) {
+				if (--indegree[neg] == 0) {
+					queue.add(neg);
 				}
 			}
 		}
-		// If any node still has indegree > 0
-		// then cycle exists
-		for (int deg : indegree) {
-
-			if (deg != 0) {
-				return false;
-			}
-		}
-
-		return true;
+		return count != V;
 
 	}
 
-	static ArrayList<Integer> boundaryTraversal(TNode root) {
-		ArrayList<Integer> res = new ArrayList<>();
-		if (root == null)
-			return res;
-		// add root if not leaf
-		if (!isLeaf(root)) {
-			res.add(root.data);
-		}
-		collecLeft(root.left, res);
-		collectLeavs(root, res);
-		collectRight(root.right, res);
-		return res;
-
-	}
-
-	private static void collectRight(TNode root, ArrayList<Integer> res) {
-		if (root == null || isLeaf(root)) {
-			return;
-		}
-		if (root.right != null) {
-			collectRight(root.right, res);
-		} else if (root.left != null) {
-			collectRight(root.left, res);
-		}
-		res.add(root.data);
-
-	}
-
-	private static void collectLeavs(TNode root, ArrayList<Integer> res) {
+	public static void builNextRightItrative(TreeNodNextRightNode root) {
 		if (root == null) {
 			return;
 		}
-		if (isLeaf(root)) {
-			res.add(root.data);
+		Queue<TreeNodNextRightNode> queue = new LinkedList<TreeNodNextRightNode>();
+		queue.add(root);
+
+		while (!queue.isEmpty()) {
+			TreeNodNextRightNode prev = null;
+			int size = queue.size();
+
+			for (int i = 0; i < size; i++) {
+				TreeNodNextRightNode current = queue.poll();
+				if (prev != null) {
+					prev.nextRight = current;
+				}
+				prev = current;
+				if (current.left != null) {
+					queue.add(current.left);
+				}
+				if (current.right != null) {
+					queue.add(current.right);
+				}
+			}
+			if (prev != null) {
+				prev.nextRight = null;
+			}
+
+		}
+
+	}
+
+	TNode prev = null, head = null;
+
+	void BinaryTree2DoubleLinkedList(TNode root) {
+		if (root == null) {
 			return;
 		}
-		collectLeavs(root.left, res);
-		collectLeavs(root.right, res);
-
-	}
-
-	private static void collecLeft(TNode root, ArrayList<Integer> res) {
-		if (root == null || isLeaf(root)) {
-			return;
+		BinaryTree2DoubleLinkedList(root.left);
+		if (prev == null) {
+			head = root;
+		} else {
+			prev.right = root;
+			root.left = prev;
 		}
-		res.add(root.data);
-		if (root.left != null) {
-			collecLeft(root.left, res);
-		} else if (root.right != null) {
-			collecLeft(root.right, res);
+		prev = root;
+		BinaryTree2DoubleLinkedList(root.right);
+
+	}
+
+	int maxSum = Integer.MIN_VALUE;
+
+	public int maxPathSum(TNode root) {
+		maxSum = Integer.MIN_VALUE;
+		maxPathSumUtil(root);
+		return maxSum;
+	}
+
+	private int maxPathSumUtil(TNode root) {
+		if (root == null) {
+			return 0;
+		}
+		int left = Math.max(0, maxPathSumUtil(root.left));
+		int right = Math.max(0, maxPathSumUtil(root.right));
+		int current = root.data + left + right;
+		maxSum = Math.max(maxSum, current);
+		return root.data + Math.max(left, right);
+	}
+
+	static TNode sortedListToBST(LNode head) {
+		ArrayList<Integer> list = new ArrayList<Integer>();
+
+		while (head != null) {
+			list.add(head.data);
+			head = head.next;
 		}
 
+		return buildBst(list, 0, list.size() - 1);
 	}
 
-	private static boolean isLeaf(TNode root) {
-		return (root.left == null && root.right == null);
-	}
-
-	public static List<ArrayList<Integer>> arrayDiff(int[] nums1, int[] nums2) {
-		return Arrays.asList(arrDiffUtil(nums1, nums2), arrDiffUtil(nums2, nums1));
-	}
-
-	private static ArrayList<Integer> arrDiffUtil(int[] nums1, int[] nums2) {
-		HashSet<Integer> set1 = new HashSet<Integer>();
-		HashSet<Integer> set2 = new HashSet<Integer>();
-		for (int num : nums2) {
-			set1.add(num);
-		}
-		for (int num : nums1) {
-			if (!set1.contains(num)) {
-				set2.add(num);
-			}
-		}
-		return new ArrayList<Integer>(set2);
-	}
-
-	public static int maxBallons(String s) {
-		HashMap<Character, Integer> map = new HashMap<Character, Integer>();
-		map.put('b', 0);
-		map.put('a', 0);
-		map.put('l', 0);
-		map.put('o', 0);
-		map.put('n', 0);
-
-		for (int i = 0; i < s.length(); i++) {
-			if (map.containsKey(s.charAt(i))) {
-				map.put(s.charAt(i), map.get(s.charAt(i)) + 1);
-			}
-		}
-		int min = map.get('b');
-		min = Math.min(min, map.get('a'));
-		min = Math.min(min, map.get('o') / 2);
-		min = Math.min(min, map.get('n'));
-		return min;
-
-	}
-
-	public static int conseciveChar(String s) {
-		int current = 1, max = 1;
-		for (int i = 1; i < s.length(); i++) {
-			if (s.charAt(i - 1) == s.charAt(i)) {
-				current++;
-			} else {
-				current = 1;
-			}
-			max = Math.max(max, current);
-		}
-		return max;
-	}
-
-	static TNode buildTree(int[] inorder, int[] preorder) {
-		HashMap<Integer, Integer> indexMap = new HashMap<Integer, Integer>();
-		for (int i = 0; i < inorder.length; i++) {
-			indexMap.put(inorder[i], i);
-		}
-		int[] preIndex = { 0 };
-		return buildTreeUtil(preIndex, preorder, indexMap, 0, inorder.length - 1);
-	}
-
-	private static TNode buildTreeUtil(int[] preIndex, int[] preorder, HashMap<Integer, Integer> indexMap, int start,
-			int end) {
+	private static TNode buildBst(ArrayList<Integer> list, int start, int end) {
 		if (start > end) {
 			return null;
 		}
-		int rootVal = preorder[preIndex[0]++];
-		TNode rootNode = new TNode(rootVal);
-		int index = indexMap.get(rootVal);
-		rootNode.left = buildTreeUtil(preIndex, preorder, indexMap, start, index - 1);
-		rootNode.right = buildTreeUtil(preIndex, preorder, indexMap, index + 1, end);
+		int mid = (start + end + 1) / 2;
+		TNode rootNode = new TNode(list.get(mid));
+		rootNode.left = buildBst(list, start, mid - 1);
+		rootNode.right = buildBst(list, mid + 1, end);
 		return rootNode;
-	}
-
-	public static TNode preToBST(int[] pre) {
-		TNode root = null;
-		for (int node : pre) {
-			root = insertNode(root, node);
-		}
-		return root;
-
-	}
-
-	private static TNode insertNode(TNode root, int node) {
-		TNode newNode = new TNode(node);
-
-		if (root == null) {
-			return newNode;
-		}
-		TNode curr = root;
-		TNode parent = null;
-
-		while (curr != null) {
-			parent = curr;
-			if (curr.data > node) {
-				curr = curr.left;
-			} else {
-				curr = curr.right;
-			}
-		}
-		if (parent.data > node) {
-			parent.left = new TNode(node);
-		} else {
-			parent.right = new TNode(node);
-		}
-		return root;
-	}
-
-	public static ArrayList<Integer> ancestors(TNode root, int key) {
-		ArrayList<Integer> list = new ArrayList<Integer>();
-		if (root == null) {
-			return list;
-		}
-		HashMap<TNode, TNode> parentMap = new HashMap<TNode, TNode>();
-		TNode targetNode = buidPrentMapBFS(root, parentMap, key);
-		if (targetNode == null) {
-			return list;
-		}
-		// move upward using parent map
-		TNode current = parentMap.get(targetNode);
-
-		while (current != null) {
-			list.add(current.data);
-			current = parentMap.get(current);
-		}
-
-		return list;
-
-	}
-
-	private static TNode buidPrentMapBFS(TNode root, HashMap<TNode, TNode> parentMap, int key) {
-		if (root == null) {
-			return null;
-		}
-		Queue<TNode> queue = new LinkedList<TNode>();
-		queue.add(root);
-		parentMap.put(root, null);
-		TNode targetNode = null;
-		while (!queue.isEmpty()) {
-			TNode current = queue.poll();
-			if (key == current.data) {
-				targetNode = current;
-			}
-			if (current.left != null) {
-				parentMap.put(current.left, current);
-			}
-			if (current.right != null) {
-				parentMap.put(current.right, current);
-			}
-		}
-		return targetNode;
-
-	}
-
-	public static ArrayList<Integer> ancestors1(TNode root, int key) {
-		ArrayList<Integer> list = new ArrayList<>();
-
-		findAncestors(root, key, list);
-
-		return list;
-	}
-
-	private static boolean findAncestors(TNode root, int key, ArrayList<Integer> list) {
-		if (root == null) {
-			return false;
-		}
-		if (root.data == key) {
-			return true;
-		}
-		boolean left = findAncestors(root.left, key, list);
-		boolean right = findAncestors(root.right, key, list);
-		if (left || right) {
-			list.add(root.data);
-			return true;
-		}
-		return false;
-
-	}
-
-	static boolean checkPath(ArrayList<ArrayList<Integer>> adj, int u, int v) {
-		int V = adj.size();
-		boolean[] visited = new boolean[V];
-		return dfsCheckPath(u, v, adj, visited);
-
-	}
-
-	private static boolean dfsCheckPath(int currrent, int dest, ArrayList<ArrayList<Integer>> adj, boolean[] visited) {
-		visited[currrent] = true;
-		if (currrent == dest) {
-			return true;
-		}
-		for (int ng : adj.get(currrent)) {
-			if (!visited[ng]) {
-				if (dfsCheckPath(ng, dest, adj, visited)) {
-					return true;
-				}
-			}
-		}
-		return false;
-
-	}
-
-	static int checkPathCount(ArrayList<ArrayList<Integer>> adj, int u, int v) {
-		int V = adj.size();
-		boolean[] visited = new boolean[V];
-		int[] count = { 0 };
-		dfsCheckPathCount(u, v, adj, visited, count);
-		return count[0];
-
-	}
-
-	private static void dfsCheckPathCount(int currrent, int dest, ArrayList<ArrayList<Integer>> adj, boolean[] visited,
-			int[] count) {
-		visited[currrent] = true;
-		if (currrent == dest) {
-			count[0]++;
-			return;
-		}
-		for (int ng : adj.get(currrent)) {
-			if (!visited[ng]) {
-				dfsCheckPathCount(ng, dest, adj, visited, count);
-
-			}
-		}
-		visited[currrent] = false;
-
-	}
-
-	public TNode removeKeys(TNode root, int l, int r) {
-		return removeUtil(root, l, r);
-	}
-
-	private TNode removeUtil(TNode root, int l, int r) {
-		if (root == null) {
-			return null;
-		}
-		TNode left = removeUtil(root.left, l, r);
-		TNode right = removeUtil(root.right, l, r);
-		if (root.data >= l && root.data <= r) {
-			root.left = left;
-			root.right = right;
-			return root;
-		} else if (root.data < l) {
-			return right;
-		} else {
-			return left;
-		}
-	}
-
-	private TNode removeUtil1(TNode root, int l, int r) {
-		if (root == null) {
-			return null;
-		}
-		if (root.data < l) {
-			removeUtil1(root.right, l, r);
-		}
-		if (root.data > r) {
-			return removeUtil1(root.left, l, r);
-		}
-		removeUtil1(root.left, l, r);
-		removeUtil1(root.right, l, r);
-
-		return root;
-	}
-
-	public TNode removeItrative(TNode root, int l, int r) {
-		if (root == null) {
-			return null;
-		}
-
-		while (root != null && (root.data < l || root.data > r)) {
-			if (root.data < l) {
-				root = root.right;
-			} else {
-				root = root.left;
-			}
-		}
-		TNode current = root;
-
-		while (current != null) {
-			while (current.left != null && current.left.data < l) {
-				current.left = current.left.right;
-			}
-			current = current.left;
-		}
-		current = root;
-		while (current != null) {
-			while (current.right != null && current.right.data > r) {
-				current.right = current.right.left;
-			}
-			current = current.right;
-		}
-		return root;
-	}
-
-	static boolean findTarget(TNode root, int target) {
-		if (root == null) {
-			return false;
-		}
-		HashSet<Integer> set = new HashSet<>();
-		return pairSum(root, target, set);
-	}
-
-	private static boolean pairSum(TNode root, int target, HashSet<Integer> set) {
-		if (root == null) {
-			return false;
-		}
-		if (pairSum(root.left, target, set)) {
-			return true;
-		}
-		if (set.contains(target - root.data)) {
-			return true;
-		}
-		set.add(root.data);
-		return pairSum(root.right, target, set);
-	}
-
-	public boolean findTagetItrative(TNode root, int target) {
-		if (root == null) {
-			return false;
-		}
-		HashSet<Integer> set = new HashSet<Integer>();
-		Queue<TNode> queue = new LinkedList<TNode>();
-		queue.add(root);
-
-		while (!queue.isEmpty()) {
-			TNode curr = queue.poll();
-			if (set.contains(target - curr.data)) {
-				return true;
-			}
-			set.add(curr.data);
-			if (curr.left != null) {
-				queue.add(curr.left);
-			}
-			if (curr.right != null) {
-				queue.add(curr.right);
-			}
-		}
-		return false;
 	}
 
 	public static int findCheapestPrice(int n, int[][] flights, int src, int dst, int k) {
@@ -1405,33 +474,39 @@ public class Pract {
 		int[] stops = new int[n];
 		Arrays.fill(dist, Integer.MAX_VALUE);
 		Arrays.fill(stops, Integer.MAX_VALUE);
-		PriorityQueue<PriceNodePair> pq = new PriorityQueue<>();
-		pq.add(new PriceNodePair(src, 0, 0));
+		PriorityQueue<NdStops> pq = new PriorityQueue<NdStops>();
+		pq.add(new NdStops(src, 0, 0));
 		dist[src] = 0;
 		stops[src] = 0;
 
 		while (!pq.isEmpty()) {
-			PriceNodePair pair = pq.poll();
-			int city = pair.v;
+			NdStops pair = pq.poll();
+			int node = pair.vertex;
 			int price = pair.price;
-			int st = pair.stops;
-			if (city == dst)
+			int stop = pair.stops;
+
+			if (node == dst) {
 				return price;
-			if (st > k) {
+			}
+			if (stop > k) {
 				continue;
 			}
-			for (int[] edge : adj.get(city)) {
-				int dest = edge[0];
-				int cost = edge[1];
-				int newStops = st + 1;
-				int newCost = cost + price;
 
-				if (newCost < dist[dest] || newStops < stops[dest]) {
-					dist[dest] = newCost;
-					stops[dest] = newStops;
-					pq.add(new PriceNodePair(dest, newCost, newStops));
+			for (int[] neg : adj.get(node)) {
+				int negNode = neg[0];
+				int negPrice = neg[1];
+
+				int newCost = price + negPrice;
+				int newStop = stop + 1;
+
+				if (newCost < dist[negNode] || newStop < stops[negNode]) {
+					dist[negNode] = newCost;
+					stops[negNode] = newStop;
+					pq.add(new NdStops(negNode, dist[negNode], stops[negNode]));
 				}
+
 			}
+
 		}
 		return -1;
 	}
@@ -1439,9 +514,7 @@ public class Pract {
 	public int findCheapestPriceBellManFord(int n, int[][] flights, int src, int dst, int k) {
 		int[] dist = new int[n];
 		Arrays.fill(dist, Integer.MAX_VALUE);
-
 		dist[src] = 0;
-
 		for (int i = 0; i <= k; i++) {
 			int[] temp = dist.clone();
 
@@ -1450,10 +523,7 @@ public class Pract {
 				int v = flight[1];
 				int cost = flight[2];
 
-				if (dist[u] == Integer.MAX_VALUE) {
-					continue;
-				}
-				if (dist[u] + cost < dist[v]) {
+				if (dist[u] != Integer.MAX_VALUE && dist[u] + cost < temp[v]) {
 					temp[v] = dist[u] + cost;
 				}
 			}
@@ -1462,230 +532,1107 @@ public class Pract {
 		return dist[dst] == Integer.MAX_VALUE ? -1 : dist[dst];
 	}
 
-	public int findChampion(int[][] teams) {
-
-		for (int i = 0; i < teams.length; i++) {
-			int count = 0;
-			for (int j = 0; j < teams[0].length; j++) {
-				if (teams[i][j] == 1) {
-					count++;
-				}
-				if (count == teams.length - 1) {
-					return i;
-				}
-			}
-		}
-		return -1;
-	}
-
-	public static int elementAppear25Per(int[] arr) {
-		int limit = arr.length / 4;
-
-		for (int i = 0; i < arr.length - limit; i++) {
-			if (arr[i] == arr[i + limit]) {
-				return arr[i];
-			}
-		}
-		return -1;
-	}
-
-	public static int[] findIntersectionValues(int[] nums1, int[] nums2) {
-
-		HashSet<Integer> set1 = new HashSet<>();
-		HashSet<Integer> set2 = new HashSet<>();
-		for (int num : nums1) {
-			set1.add(num);
-		}
-		for (int num : nums2) {
-			set2.add(num);
-		}
-		int result1 = 0;
-		int result2 = 0;
-		for (int num : nums1) {
-			if (set2.contains(num)) {
-				result1++;
-			}
-		}
-		for (int num : nums2) {
-			if (set1.contains(num)) {
-				result2++;
-			}
-		}
-
-		return new int[] { result1, result2 };
+	public TNode deleteNode1(TNode root, int key) {
+		return deleteNodeUtil(root, key);
 
 	}
 
-	public static int numSpecial(int[][] mat) {
-		int row = mat.length;
-		int col = mat[0].length;
-		int count = 0;
-		for (int i = 0; i < row; i++) {
-			for (int j = 0; j < col; j++) {
-				if (mat[i][j] == 0) {
-					continue;
-				}
-				boolean flag = false;
-				for (int r = 0; r < row; r++) {
-					if (r != i && mat[r][j] == 1) {
-						flag = true;
-						break;
-					}
-				}
-				for (int c = 0; c < col; c++) {
-					if (c != j && mat[i][c] == 1) {
-						flag = true;
-						break;
-					}
-				}
-				if (!flag) {
-					count++;
-				}
-			}
+	private TNode deleteNodeUtil(TNode root, int key) {
+		if (root == null) {
+			return null;
 		}
-		return count;
-
+		if (root.data > key) {
+			root.left = deleteNodeUtil(root.left, key);
+		} else if (root.data < key) {
+			root.right = deleteNodeUtil(root.right, key);
+		} else {
+			if (root.left == null) {
+				return root.right;
+			} else if (root.right == null) {
+				return root.left;
+			}
+			root.data = findMin(root.right);
+			root.right = deleteNodeUtil(root.right, root.data);
+		}
+		return root;
 	}
 
-	public static int numSpecial1(int[][] mat) {
-
-		int row = mat.length;
-		int col = mat[0].length;
-
-		int[] rowCount = new int[row];
-		int[] colCount = new int[col];
-
-		// Count ones in rows and columns
-		for (int i = 0; i < row; i++) {
-
-			for (int j = 0; j < col; j++) {
-
-				if (mat[i][j] == 1) {
-
-					rowCount[i]++;
-					colCount[j]++;
-				}
-			}
+	private int findMin(TNode root) {
+		while (root.left != null) {
+			root = root.left;
 		}
-
-		int count = 0;
-
-		// Find special positions
-		for (int i = 0; i < row; i++) {
-
-			for (int j = 0; j < col; j++) {
-
-				if (mat[i][j] == 1 && rowCount[i] == 1 && colCount[j] == 1) {
-
-					count++;
-				}
-			}
-		}
-
-		return count;
+		return root.data;
 	}
 
-	static int sum = 0;
+	public static int maxPathSumLeaf(TNode root) {
+		if (root == null) {
+			return 0;
+		}
+		int[] maxSum = { Integer.MIN_VALUE };
+		maxPathSumUt(root, 0, maxSum);
+		return maxSum[0];
+	}
 
-	public static void transformTree(TNode root) {
+	private static void maxPathSumUt(TNode root, int currentSum, int[] maxSum) {
 		if (root == null) {
 			return;
 		}
-		transformGreaterSum(root);
+		currentSum += root.data;
+		if (root.left == null && root.right == null) {
+			maxSum[0] = Math.max(maxSum[0], currentSum);
+		}
+		maxPathSumUt(root.left, currentSum, maxSum);
+		maxPathSumUt(root.right, currentSum, maxSum);
+
 	}
 
-	private static void transformGreaterSum(TNode root) {
+	public static int maxPathSumLeaf1(TNode root) {
 		if (root == null) {
+			return 0;
+		}
+		int maxSum = Integer.MIN_VALUE;
+		Queue<NodeSumPair> queue = new LinkedList<NodeSumPair>();
+		queue.add(new NodeSumPair(root, 0));
+
+		while (!queue.isEmpty()) {
+			NodeSumPair pair = queue.poll();
+			TNode node = pair.node;
+			int currentSum = pair.sum;
+			if (node.left == null && node.right == null) {
+				maxSum = Math.max(maxSum, currentSum);
+			}
+			if (node.left != null) {
+				queue.add(new NodeSumPair(node.left, currentSum + node.left.data));
+			}
+			if (node.right != null) {
+				queue.add(new NodeSumPair(node.right, currentSum + node.right.data));
+			}
+		}
+		return maxSum;
+	}
+
+	static int countPaths(int n, int[][] edgeList, int source, int destination) {
+		int[] count = { 0 };
+		ArrayList<ArrayList<Integer>> adj = new ArrayList<ArrayList<Integer>>();
+		for (int i = 0; i < n; i++) {
+			adj.add(new ArrayList<Integer>());
+		}
+		for (int[] edge : edgeList) {
+			adj.get(edge[0]).add(edge[1]);
+		}
+		boolean[] visited = new boolean[n + 1];
+		dfsPathCount(source, destination, visited, adj, count);
+		return count[0];
+	}
+
+	private static void dfsPathCount(int node, int destination, boolean[] visited, ArrayList<ArrayList<Integer>> adj,
+			int[] count) {
+		visited[node] = true;
+		if (node == destination) {
+			count[0]++;
 			return;
 		}
-		transformGreaterSum(root.right);
-		int temp = root.data;
-		root.data = sum;
-		sum += temp;
-		transformGreaterSum(root.left);
+
+		for (int neg : adj.get(node)) {
+			if (!visited[neg]) {
+				dfsPathCount(neg, destination, visited, adj, count);
+			}
+		}
+		visited[node] = false;
 
 	}
 
-	static int getMaxSum(TNode root) {
-		if (root == null)
-			return 0;
+	static int countPathsBFS(int n, int[][] edgeList, int source, int destination) {
+		ArrayList<ArrayList<Integer>> adj = new ArrayList<>();
 
-		return getMaxSumUtil(root);
+		for (int i = 0; i < n; i++) {
+			adj.add(new ArrayList<>());
+		}
+
+		for (int[] edge : edgeList) {
+			adj.get(edge[0]).add(edge[1]);
+		}
+
+		int count = 0;
+
+		Queue<Integer> queue = new LinkedList<Integer>();
+		queue.add(source);
+
+		while (!queue.isEmpty()) {
+			int node = queue.poll();
+			if (node == destination) {
+				count++;
+				continue;
+			}
+
+			for (int neg : adj.get(node)) {
+				queue.add(neg);
+			}
+		}
+		return count;
 	}
 
-	private static int getMaxSumUtil(TNode root) {
-		if (root == null) {
-			return 0;
+	public static int[] rotateByK(int[] nums, int k) {
+		int n = nums.length;
+		if (n <= k || n == 0 || k <= 0) {
+			System.out.println("invalid");
 		}
-		int include = root.data;
-		if (root.left != null) {
-			include += getMaxSumUtil(root.left.left) + getMaxSumUtil(root.left.right);
-		}
-		if (root.right != null) {
-			include += getMaxSumUtil(root.right.left) + getMaxSumUtil(root.right.right);
-		}
-		int exclude = getMaxSumUtil(root.left) + getMaxSumUtil(root.right);
-		return Math.max(include, exclude);
+		if (n == 0)
+			return nums;
+		k = k % n;
+		reverse(nums, 0, n - 1);
+		reverse(nums, 0, k - 1);
+		reverse(nums, k, n - 1);
+		return nums;
 	}
 
-	static int getMaxSum1(TNode root) {
-		IncExcludePair max = maxSumUtil(root);
-		return Math.max(max.include, max.exclude);
+	private static void reverse(int[] nums, int start, int end) {
+		if (start > end) {
+			return;
+		}
+		int temp = nums[start];
+		nums[start] = nums[end];
+		nums[end] = temp;
+		start++;
+		end--;
+
 	}
 
-	private static IncExcludePair maxSumUtil(TNode root) {
-		if (root == null) {
-			return new IncExcludePair(0, 0);
+	public static void findMaxSumSubArray() {
+		int currentSum = 0, maxSum = 0;
+		int[] array = { 3, -2, -3, 4, 7 };
+		for (int i = 0; i < array.length; i++) {
+			currentSum += array[i];
+			if (currentSum > maxSum) {
+				maxSum = currentSum;
+			}
+			if (currentSum < 0) {
+				currentSum = 0;
+			}
 		}
-		IncExcludePair left = maxSumUtil(root.left);
-		IncExcludePair right = maxSumUtil(root.right);
-		int iclude = root.data + left.exclude + right.exclude;
-		int exclude = Math.max(left.include, left.exclude) + Math.max(right.exclude, right.include);
-		return new IncExcludePair(iclude, exclude);
 	}
 
-	public static int largestBst(TNode root) {
-		if (root == null) {
-			return 0;
+	public static void findMaxSumSubArray1() {
+		int[] array = { 3, -2, -3, 4, 7 };
+		int currentSum = array[0];
+		int maxSum = array[0];
+
+		for (int i = 1; i < array.length; i++) {
+			currentSum = Math.max(array[i], currentSum + array[i]);
+			maxSum = Math.max(maxSum, currentSum);
 		}
-		return largestBstUtil(root);
+
 	}
 
-	private static int largestBstUtil(TNode root) {
-		if (root == null) {
-			return 0;
+	public static ArrayList<int[]> indices(int[] array, int target) {
+		HashMap<Integer, Integer> map = new HashMap<Integer, Integer>();
+		ArrayList<int[]> list = new ArrayList<int[]>();
+		for (int i = 0; i < array.length; i++) {
+			int compliment = target - array[i];
+			if (map.containsKey(compliment)) {
+				list.add(new int[] { map.get(compliment), i });
+			}
+			map.put(array[i], i);
 		}
-		if (isBst(root)) {
-			return size(root);
-		}
-		return Math.max(largestBst(root.left), largestBst(root.right));
+		return list;
 	}
 
-	private static int size(TNode root) {
-		if (root == null) {
-			return 0;
+	public static int kthLargest(int[] nums, int k) {
+		PriorityQueue<Integer> queue = new PriorityQueue<Integer>();
+		for (int i = 0; i < nums.length; i++) {
+			queue.add(nums[i]);
+			if (queue.size() > k) {
+				queue.poll();
+			}
 		}
-		return 1 + size(root.left) + size(root.right);
+		return queue.peek();
 	}
 
-	private static boolean isBst(TNode root) {
+	public static int kthSmallest(int[] nums, int k) {
+		PriorityQueue<Integer> queue = new PriorityQueue<Integer>((a, b) -> b - a);
+		for (int i = 0; i < nums.length; i++) {
+			queue.add(nums[i]);
+			if (queue.size() > k) {
+				queue.poll();
+			}
+		}
+		return queue.peek();
+	}
+
+	public static int[] twoSumSortedArray(int[] nums, int target) {
+		int start = 0, end = nums.length - 1;
+		while (start < end) {
+			if ((nums[start] + nums[end] == target)) {
+				return new int[] { start, end };
+			} else if ((nums[start] + nums[end] > target)) {
+				end--;
+			} else {
+				start++;
+			}
+		}
+		return new int[] { -1, -1 };
+	}
+
+	public static void removeDeuplicate() {
+		int[] array = { 7, 8, 3, 7, 4 };
+		int[] result = new int[array.length];
+		int k = 0;
+		for (int i = 0; i < array.length; i++) {
+			boolean isDup = false;
+			for (int j = 0; j < k; j++) {
+				if (array[i] == result[j]) {
+					isDup = true;
+					break;
+				}
+			}
+			if (!isDup) {
+				result[k] = array[i];
+				k++;
+			}
+		}
+
+	}
+
+	static int countSingle(TNode root) {
+		int[] count = { 0 };
+
+		countSingleValue(root, count);
+		return count[0];
+	}
+
+	private static boolean countSingleValue(TNode root, int[] count) {
 		if (root == null) {
 			return true;
 		}
-		return checkBst(root, Long.MAX_VALUE, Long.MIN_VALUE);
-	}
+		boolean left = countSingleValue(root.left, count);
+		boolean right = countSingleValue(root.right, count);
 
-	private static boolean checkBst(TNode root, long maxValue, long minValue) {
-		if (root == null) {
-			return true;
-		}
-		if (root.data <= minValue || root.data >= maxValue) {
+		if (!left || !right) {
 			return false;
 		}
-		return checkBst(root.left, root.data, minValue) && checkBst(root.right, maxValue, root.data);
+		if (root.left != null && root.data != root.left.data) {
+			return false;
+		}
+		if (root.right != null && root.data != root.right.data) {
+			return false;
+		}
+		count[0]++;
+		return true;
+
 	}
 
-	public ArrayList<Integer> extremeNode(TNode root) {
+	static int countSingleItrative(TNode root) {
+		Stack<TNode> stack = new Stack<TNode>();
+		TNode current = root;
+		int count = 0;
+		while (!stack.isEmpty() || current != null) {
+			while (current.left != null) {
+				stack.push(current);
+				current = current.left;
+			}
+			current = stack.pop();
+			if (current.left != null && current.left.data != current.data) {
+				continue;
+			}
+			if (current.right != null && current.right.data != current.data) {
+				continue;
+			}
+			count++;
+			current = current.right;
+
+		}
+		return count;
+	}
+
+	static boolean isCycle(ArrayList<ArrayList<Integer>> adj) {
+		int V = adj.size();
+
+		boolean[] visited = new boolean[V];
+		for (int i = 0; i < V; i++) {
+			if (!visited[i])
+				if (dfsCyclye(i, visited, adj, -1)) {
+					return true;
+				}
+		}
+		return false;
+	}
+
+	private static boolean dfsCyclye(int node, boolean[] visited, ArrayList<ArrayList<Integer>> adj, int parent) {
+		visited[node] = true;
+
+		for (int neg : adj.get(node)) {
+			if (!visited[neg]) {
+				if (dfsCyclye(neg, visited, adj, node)) {
+					return true;
+				}
+			} else if (neg != parent) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+	public static void removeDeuplicate1() {
+		int[] array = { 7, 8, 3, 7, 4 };
+		int[] result = new int[array.length];
+		int[] seen = new int[101];
+		int k = 0;
+		for (int i = 0; i < array.length; i++) {
+			if (seen[array[i]] == 0) {
+				seen[array[i]] = 1;
+				result[k] = array[i];
+				k++;
+			}
+		}
+
+	}
+
+	public static void removeDeuplicate2() {
+		int[] array = { 7, 8, 3, 7, 4 };
+		int[] result = new int[array.length];
+		boolean[] seen = new boolean[256];
+		int k = 0;
+		for (int i = 0; i < array.length; i++) {
+			if (!seen[array[i]]) {
+				seen[array[i]] = true;
+				result[k] = array[i];
+				k++;
+			}
+		}
+
+	}
+
+	public static void insertElement() {
+		int[] array = { 3, 5, 7, 2, 9 };
+		int element = 6;
+		int position = 3;
+
+		for (int i = array.length - 1; i > position - 1; i--) {
+			array[i] = array[i - 1];
+		}
+		array[position - 1] = element;
+
+	}
+
+	public static void deleteElement() {
+		int[] array = { 3, 5, 7, 2, 9 };
+		int delete = 5;
+
+		for (int i = 0; i < array.length; i++) {
+			if (array[i] == delete) {
+				for (int j = i; j < array.length - 1; j++) {
+					array[j] = array[j + 1];
+				}
+				break;
+			}
+		}
+
+	}
+
+	public static void movePosNeg() {
+		int[] array = { -3, 5, -7, 2, 9 };
+		int j = 0;
+		for (int i = 0; i < array.length; i++) {
+			if (array[i] < 0) {
+				if (i != j) {
+					int temp = array[i];
+					array[i] = array[j];
+					array[j] = temp;
+				}
+				j++;
+			}
+		}
+
+	}
+
+	public static void selectionSort() {
+		int[] array = { 10, 5, 7, 2, 9 };
+
+		for (int i = 0; i < array.length; i++) {
+			int minIndex = i;
+			for (int j = i + 1; j < array.length; j++) {
+				if (array[minIndex] > array[j]) {
+					minIndex = j;
+				}
+			}
+			int temp = array[i];
+			array[i] = array[minIndex];
+			array[minIndex] = temp;
+		}
+	}
+
+	public static void insertionSort() {
+		int[] array = { 3, 5, 7, 2, 9 };
+		for (int i = 1; i < array.length; i++) {
+			int key = array[i];
+			int j = i - 1;
+			while (j >= 0 && array[j] > key) {
+				array[j + 1] = array[j];
+				j--;
+			}
+			array[j + 1] = key;
+		}
+	}
+
+	public static boolean palinDrom(int n) {
+		int temp = n;
+		int sum = 0;
+
+		while (n > 0) {
+			int r = n % 10;
+			sum = sum * 10 + r;
+			n /= 10;
+		}
+		if (temp == sum) {
+			return true;
+		} else {
+			return false;
+		}
+	}
+
+	public static int romanToInteger(String s) {
+		HashMap<Character, Integer> map = new HashMap<Character, Integer>();
+		map.put('I', 1);
+		map.put('V', 5);
+		map.put('X', 10);
+		map.put('L', 50);
+		map.put('C', 100);
+		map.put('D', 500);
+		map.put('M', 100);
+		int result = 0;
+		for (int i = 1; i < s.length(); i++) {
+			if (map.get(s.charAt(i - 1)) > map.get(s.charAt(i))) {
+				result -= map.get(s.charAt(i - 1));
+			} else {
+				result += map.get(s.charAt(i - 1));
+			}
+		}
+		return result;
+
+	}
+
+	public static boolean validPara(String s) {
+		Stack<Character> stack = new Stack<Character>();
+
+		for (int i = 0; i < s.length(); i++) {
+			char ch = s.charAt(i);
+			if (ch == '(' || ch == '{' || ch == '[') {
+				stack.push(ch);
+			} else {
+				if (stack.isEmpty()) {
+					return false;
+				}
+				char top = stack.pop();
+				if (ch == ')' && top != '(') {
+					return false;
+				}
+				if (ch == '}' && top != '{') {
+					return false;
+				}
+				if (ch == ']' && top != '[') {
+					return false;
+				}
+			}
+		}
+		return stack.isEmpty();
+	}
+
+	public static int[] bitCount(int n) {
+		int[] result = new int[n + 1];
+		for (int i = 0; i <= n; i++) {
+			int bitCount = Integer.bitCount(i);
+			result[i] = bitCount;
+		}
+		return result;
+	}
+
+	public static int[] mergeSortedArray(int[] nums, int[] nums2, int m, int n) {
+		int p1 = m - 1;
+		int p2 = n - 1;
+		int p3 = nums.length - 1;
+		while (p3 >= 0) {
+			int element1 = (p1 >= 0) ? nums[p1] : Integer.MIN_VALUE;
+			int element2 = (p2 >= 0) ? nums2[p2] : Integer.MIN_VALUE;
+			if (element1 > element2) {
+				nums[p3] = element1;
+				p3--;
+				p1--;
+			} else {
+				nums[p3] = element2;
+				p3--;
+				p2--;
+			}
+		}
+		return nums2;
+	}
+
+	public static void evenNumber() {
+		List<Integer> list = List.of(2, 4, 7, 9);
+		list.stream().filter(num -> num % 2 == 0).forEach(num -> System.out.println(num));
+
+	}
+
+	public static void firstNonRepeatingChar() {
+		String str = "faizan";
+		Character character = str.chars().mapToObj(ch -> (char) ch)
+				.collect(Collectors.groupingBy(Function.identity(), Collectors.counting())).entrySet().stream()
+				.filter(entry -> entry.getValue() == 1L).map(entry -> entry.getKey()).findFirst().get();
+
+	}
+
+	public static void firstRepeatingChar() {
+		String str = "faizan";
+		Character character = str.chars().mapToObj(ch -> (char) ch)
+				.collect(Collectors.groupingBy(Function.identity(), Collectors.counting())).entrySet().stream()
+				.filter(entry -> entry.getValue() > 1L).map(entry -> entry.getKey()).findFirst().get();
+
+	}
+
+	public static void firstNonRepeatingChar1() {
+		String str = "faizan";
+		Character character = str.chars().mapToObj(ch -> (char) ch).filter(ch -> str.indexOf(ch) == str.lastIndexOf(ch))
+				.findFirst().get();
+
+	}
+
+	public static void firstRepeatingChar1() {
+		String str = "faizan";
+		Character character = str.chars().mapToObj(ch -> (char) ch).filter(ch -> str.indexOf(ch) != str.lastIndexOf(ch))
+				.findFirst().get();
+
+	}
+
+	public static void sortElement() {
+		List<Integer> list = Arrays.asList(5, 7, 3, 89, 23, 54);
+		list.stream().sorted().forEach(num -> System.out.println(num));
+
+	}
+
+	public static void cubeElemenetGreaterThanValue() {
+		List<Integer> list = Arrays.asList(1, 7, 8, 2);
+		list.stream().filter(num -> num * num * num > 50).forEach(num -> System.out.println(num));
+	}
+
+	public static void cubeElemenetGreaterThanValue1() {
+		List<Integer> list = Arrays.asList(1, 7, 8, 2);
+		list.stream().map(num -> num * num * num).filter(num -> num > 50).forEach(num -> System.out.println(num));
+	}
+
+	public static void mergerTwoStream() {
+		List<Integer> list1 = Arrays.asList(4, 7, 2, 10, 8, 5, 10, 20, 40);
+		List<Integer> list2 = Arrays.asList(23, 56, 45, 90);
+		Stream<Integer> concat = Stream.concat(list1.stream(), list2.stream());
+
+	}
+
+	public static void maxElement() {
+		List<Integer> list = Arrays.asList(4, 7, 3, 7, 10, 19);
+		Integer a = list.stream().sorted(Comparator.reverseOrder()).findFirst().get();
+		Integer b = list.stream().max(Comparator.comparingInt(num -> ((Integer) num).intValue()).reversed()).get();
+		int asInt = list.stream().mapToInt(num -> (Integer) num).max().getAsInt();
+	}
+
+	static List<Employee> list = new ArrayList<>();
+	static {
+		Employee emp = new Employee(100, null, "Software Engineer", 100);
+		Employee emp1 = new Employee(700, "Arun", "QA tester", 500);
+		Employee emp2 = new Employee(400, "Minhaz", "C++ developer", 300);
+		Employee emp3 = new Employee(300, "Kamlesh", "Software Engineer", 700);
+		list.add(emp);
+		list.add(emp1);
+		list.add(emp2);
+		list.add(emp3);
+	}
+
+	public static void groupByDept() {
+		Map<String, List<Employee>> collect = list.stream().collect(Collectors.groupingBy(emp -> emp.getDesignation()));
+	}
+
+	public static void convertIntoMap() {
+		List<String> list = List.of("abc", "abrt");
+		Map<String, Integer> collect = list.stream().collect(Collectors.toMap(val -> val, val -> val.length()));
+	}
+
+	public static void groupByDepWithHieghestSal() {
+		list.stream()
+				.collect(Collectors.groupingBy(emp -> emp.getDesignation(),
+						Collectors.maxBy(Comparator.comparingInt(emp -> emp.getSalary()))))
+				.entrySet().stream().forEach(entry -> System.out.println(entry));
+	}
+
+	public static void kthHiehestSal() {
+		int k = 2;
+		Employee employee = list.stream().sorted(Comparator.comparingInt(emp -> emp.getSalary())).skip(k - 1)
+				.findFirst().get();
+
+	}
+
+	public static void convertArrayToStream() {
+		int[] array = { 5, 7, 7, 9, 3, 6 };
+		Stream<Integer> boxed = Arrays.stream(array).boxed();
+		Stream<Integer> mapToObj = Arrays.stream(array).mapToObj(num -> (Integer) num);
+
+	}
+
+	public static void completableFuture() {
+		ExecutorService executorService = Executors.newFixedThreadPool(1);
+		CompletableFuture<Void> completableFuture = CompletableFuture.runAsync(() -> {
+			System.out.println("hello");
+		}, executorService).exceptionally((ex) -> {
+			System.out.println(ex);
+			return null;
+		});
+		completableFuture.join();
+		executorService.shutdown();
+	}
+
+	public static void completableFutureSuplyAs() {
+		ExecutorService executorService = Executors.newFixedThreadPool(1);
+		CompletableFuture<String> completableFuture = CompletableFuture.supplyAsync(() -> {
+			return "hi";
+		}, executorService).thenApply(str -> str.toUpperCase()).exceptionally((ex) -> {
+			return null;
+		});
+		String join = completableFuture.join();
+		executorService.shutdown();
+
+	}
+
+	static int isSumProperty(TNode root) {
+		if (root == null) {
+			return 0;
+		}
+		return propertySum(root);
+	}
+
+	private static int propertySum(TNode root) {
+		if (root == null) {
+			return 0;
+		}
+		int sum = 0;
+
+		if (root.left != null) {
+			sum += root.left.data;
+		}
+
+		if (root.right != null) {
+			sum += root.right.data;
+		}
+		return ((root.data == sum) && (propertySum(root.left) == 1) && (propertySum(root.right)) == 1) ? 1 : 0;
+	}
+
+	public static boolean isSumProperty1(TreeNod root) {
+		if (root == null) {
+			return true;
+		}
+		return sumpProp(root);
+	}
+
+	private static boolean sumpProp(TreeNod root) {
+		if (root == null) {
+			return true;
+		}
+		if (root.left == null && root.right == null) {
+			return true;
+		}
+		int lh = (root.left != null) ? root.left.data : 0;
+		int rh = (root.right != null) ? root.right.data : 0;
+		if (root.data != lh + rh) {
+			return false;
+		}
+		return sumpProp(root.left) && sumpProp(root.right);
+	}
+
+	public static boolean sumPropIt(TNode root) {
+		if (root == null) {
+			return true;
+		}
+		Queue<TNode> queue = new LinkedList<TNode>();
+		queue.add(root);
+
+		while (!queue.isEmpty()) {
+			TNode current = queue.poll();
+
+			if (current.left == null && current.right == null) {
+				continue;
+			}
+			int sum = 0;
+			if (current.left != null) {
+				sum += current.left.data;
+				queue.add(current.left);
+			}
+			if (current.right != null) {
+				sum += current.right.data;
+				queue.add(current.right);
+			}
+			if (current.data != sum) {
+				return false;
+			}
+		}
+		return true;
+	}
+
+	static int countIslands(char[][] grid) {
+		int m = grid.length;
+		int n = grid[0].length;
+		int count = 0;
+		boolean[][] visited = new boolean[m][n];
+		for (int i = 0; i < m; i++) {
+			for (int j = 0; j < n; j++) {
+				if (!visited[i][j] && grid[i][j] == 'L') {
+					dfsCountIsland(i, j, grid, visited);
+					count++;
+				}
+			}
+		}
+		return count;
+	}
+
+	private static void dfsCountIsland(int r, int c, char[][] grid, boolean[][] visited) {
+		int m = grid.length;
+		int n = grid[0].length;
+
+		visited[r][c] = true;
+		int[] dr = { -1, -1, -1, 0, 0, 1, 1, 1 };
+		int[] dc = { -1, 0, 1, -1, 1, -1, 0, 1 };
+
+		for (int i = 0; i < 8; i++) {
+			int nr = dr[i] + r;
+			int nc = dc[i] + c;
+
+			if (nr >= 0 && nr < m && nc >= 0 && nc < n && !visited[nr][nc] && grid[nr][nc] == 'L') {
+				dfsCountIsland(nr, nc, grid, visited);
+			}
+		}
+
+	}
+
+	public static int getMinDiceThrows(int[] moves) {
+		int n = moves.length;
+		if (n == 0)
+			return 0;
+
+		boolean[] visited = new boolean[n];
+		Queue<SnakeCellDist> queue = new LinkedList<>();
+		queue.add(new SnakeCellDist(0, 0));
+		visited[0] = true;
+
+		while (!queue.isEmpty()) {
+			SnakeCellDist pair = queue.poll();
+			int v = pair.vertex;
+			if (v == n - 1) {
+				return pair.dist;
+			}
+
+			for (int dice = 1; dice <= 6 && v + dice < n; dice++) {
+				int next = v + dice;
+				int dest = (moves[next] != -1) ? moves[next] : next;
+
+				if (!visited[dest]) {
+					visited[dest] = true;
+					queue.add(new SnakeCellDist(dest, pair.dist + 1));
+				}
+			}
+
+		}
+		return -1;
+	}
+
+	public static void combineTwoPredicate() {
+		Predicate<String> predicate = (str) -> str.startsWith("A");
+		Predicate<String> predicate2 = (str) -> str.startsWith("A");
+		Predicate<String> and = predicate.and(predicate2);
+		System.out.println(and.test("App"));
+	}
+
+	public static void combineTwoConsumer() {
+		Consumer<String> consumer = (str) -> System.out.println(str);
+		Consumer<String> consumer2 = (str) -> System.out.println(str);
+		Consumer<String> andThen = consumer.andThen(consumer2);
+		andThen.accept("hi");
+	}
+
+	public static void combineTwoSuuplier() {
+		Supplier<String> supplier = () -> "hi";
+		Supplier<String> supplier2 = () -> "bro";
+
+		Supplier<String> supplier3 = () -> supplier.get() + supplier2.get();
+	}
+
+	public static void combineTwoFunction() {
+		Function<Integer, Integer> function = (x) -> x + 2;
+		Function<Integer, Integer> function2 = (x) -> x + 3;
+		Function<Integer, Integer> andThen = function.andThen(function2);
+		andThen.apply(3);
+	}
+
+	public static void avgSal() {
+		double asDouble = list.stream().filter(emp -> emp.getDesignation().contains("Soft")).map(emp -> emp.getSalary())
+				.mapToDouble(sal -> sal.doubleValue()).average().getAsDouble();
+
+	}
+
+	public static void reduceSum() {
+		List<Integer> list1 = Arrays.asList(3, 5, 7, 8);
+		Integer reduce = list1.stream().reduce(0, (a, b) -> a + b);
+		Integer collect = list1.stream().collect(Collectors.summingInt(num -> num.intValue()));
+		int sum2 = list1.stream().mapToInt(num -> num.intValue()).sum();
+		Integer integer = list1.stream().reduce(Integer::sum).get();
+	}
+
+	public static void optional() {
+		Optional<Object> optional = Optional.empty();
+		System.out.println(optional);
+		list.stream().forEach((emp) -> {
+			Optional.ofNullable(emp.getName()).orElse("faiz");
+		});
+	}
+
+	public static void mapFlatMap() {
+		List<com.faizan.java8Prac.Customer> collect = Stream
+				.of(new Customer(54, "abc@abc.com", "abc", Arrays.asList(916123456, 896745230)),
+						new Customer(87, "harsih@abc.com", "harish", Arrays.asList(916123690, 89645230)),
+						new Customer(77, "jameel@abc.com", "jameel", Arrays.asList(875123456, 763745654)))
+				.collect(Collectors.toList());
+		collect.stream().flatMap(cs -> cs.getNumbers().stream()).forEach(num -> System.out.println(num));
+
+	}
+
+	public static int buySell(int[] prices) {
+		int min = Integer.MAX_VALUE;
+		int maxProfit = 0;
+		for (int i = 0; i < prices.length; i++) {
+			if (prices[i] < min) {
+				min = prices[i];
+			}
+			int currentProfit = prices[i] - min;
+			maxProfit = Math.max(maxProfit, currentProfit);
+		}
+		return maxProfit;
+	}
+
+	public static int singleNumber(int[] nums) {
+		int result = 0;
+		for (int num : nums) {
+			result ^= num;
+		}
+		return result;
+
+	}
+
+	public static boolean duplicate2(int[] nums, int k) {
+		for (int i = 0; i < nums.length; i++) {
+			for (int j = 1; j < nums.length; j++) {
+				if (nums[i] == nums[j] && Math.abs(i - j) <= k) {
+					return true;
+				}
+			}
+		}
+		return false;
+	}
+
+	public static boolean ranSomeNote(String ransomeNote, String magzize) {
+		Map<Character, Long> map = magzize.chars().mapToObj(ch -> (char) ch)
+				.collect(Collectors.groupingBy(Function.identity(), Collectors.counting()));
+		for (int i = 0; i < ransomeNote.length(); i++) {
+			if (map.containsKey(ransomeNote.charAt(i)) && map.get(ransomeNote.charAt(i)) >= 1) {
+				map.put(ransomeNote.charAt(i), map.get(ransomeNote.charAt(i)) - 1);
+			} else {
+				return false;
+			}
+		}
+		return true;
+
+	}
+
+	static boolean isSubtree(TreeNod root1, TreeNod root2) {
+		if (root1 == null) {
+			return false;
+		}
+		if (root2 == null) {
+			return true;
+		}
+		if (subTree(root1, root2)) {
+			return true;
+		}
+		return isSubtree(root1.left, root2) || isSubtree(root1.right, root2);
+	}
+
+	private static boolean subTree(TreeNod root1, TreeNod root2) {
+		if (root1 == null && root2 == null) {
+			return true;
+		}
+		if (root1 == null || root2 == null || root1.data != root2.data) {
+			return false;
+		}
+		return subTree(root1.left, root2.left) && subTree(root1.right, root2.right);
+	}
+
+	public static int inorderSucc(TNode root, int k) {
+		int result = -1;
+		TNode current = root;
+		while (current != null) {
+			if (current.data > k) {
+				result = current.data;
+				current = current.left;
+			} else {
+				current = current.right;
+			}
+		}
+		return result;
+	}
+
+	public static int inorderPred(TNode root, int k) {
+		int result = -1;
+		TNode current = root;
+
+		while (current != null) {
+			if (current.data > k) {
+				current = current.left;
+			} else {
+				result = current.data;
+				current = current.right;
+			}
+		}
+		return result;
+	}
+
+	public static TNode findSucc(TNode root, int target) {
+		TNode[] prev = new TNode[1];
+		TNode[] succ = new TNode[1];
+		findSuccRec(root, prev, succ, target);
+		return succ[0];
+
+	}
+
+	private static void findSuccRec(TNode root, TNode[] prev2, TNode[] succ, int target) {
+		if (root == null || succ[0] != null) {
+			return;
+		}
+		findSuccRec(root.left, prev2, succ, target);
+		if (target == prev2[0].data && succ[0] == null) {
+			succ[0] = root;
+			return;
+		}
+		prev2[0] = root;
+
+		findSuccRec(root.right, prev2, succ, target);
+
+	}
+
+	public TNode findSuccIt(TNode root, int target) {
+		if (root == null) {
+			return null;
+		}
+		TNode prev = null;
+		Stack<TNode> stack = new Stack<TNode>();
+		TNode current = root;
+
+		while (!stack.isEmpty() || current != null) {
+			while (current != null) {
+				stack.push(current);
+				current = current.left;
+			}
+			current = stack.pop();
+			if (prev != null && prev.data == target) {
+				return current;
+			}
+			prev = current;
+			current = current.right;
+		}
+		return null;
+	}
+
+	public boolean checkBst(TNode root) {
+		if (root == null) {
+			return true;
+		}
+		return checkBstUt(root, Long.MAX_VALUE, Long.MIN_VALUE);
+	}
+
+	private boolean checkBstUt(TNode root, long maxValue, long minValue) {
+		if (root == null) {
+			return true;
+		}
+		if (root.data < minValue || root.data > maxValue) {
+			return false;
+		}
+		return checkBstUt(root.left, root.data, minValue) && checkBstUt(root.right, maxValue, root.data);
+	}
+
+	public String kthDistinct(String[] arr, int k) {
+		String string = Arrays.stream(arr)
+				.collect(Collectors.groupingBy(Function.identity(), LinkedHashMap::new, Collectors.counting()))
+				.entrySet().stream().filter(entry -> entry.getValue() == 1L).map(entry -> entry.getKey()).skip(k - 1)
+				.findFirst().orElse("");
+		return string;
+	}
+
+	public int smallestIndexWithequalVal(int[] nums) {
+		for (int i = 0; i < nums.length; i++) {
+			if (i % 10 == nums[i]) {
+				return i;
+			}
+		}
+		return -1;
+	}
+
+	public static boolean equivalentString(String word1, String word2) {
+
+		if (word1.length() != word2.length()) {
+			return false;
+		}
+		int[] freq1 = new int[100];
+		int[] freq2 = new int[100];
+		for (int i = 0; i < word1.length(); i++) {
+			freq1[word1.charAt(i) - 'a']++;
+		}
+		for (int i = 0; i < word2.length(); i++) {
+			freq2[word2.charAt(i) - 'a']++;
+		}
+		for (int i = 0; i < freq1.length; i++) {
+			if ((freq1[i] - freq2[i]) > 3) {
+				return false;
+			}
+		}
+		return true;
+	}
+
+	public static int countWords(String[] word1, String[] word2) {
+		Map<String, Long> map = Arrays.stream(word1)
+				.collect(Collectors.groupingBy(Function.identity(), Collectors.counting()));
+
+		for (String word : word2) {
+			if (map.containsKey(word)) {
+				map.put(word, map.get(word) - 1);
+			}
+		}
+		int count = 0;
+		for (String word : word2) {
+			if (map.containsKey(word) && map.get(word) == 0) {
+				count++;
+			}
+		}
+		return count;
+
+	}
+
+	public static int countWords1(String[] word1, String[] word2) {
+		Map<String, Long> map = Arrays.stream(word1)
+				.collect(Collectors.groupingBy(Function.identity(), Collectors.counting()));
+		Map<String, Long> map1 = Arrays.stream(word2)
+				.collect(Collectors.groupingBy(Function.identity(), Collectors.counting()));
+		int count = 0;
+		for (Map.Entry<String, Long> entry : map.entrySet()) {
+			if (map.containsKey(entry.getKey()) && map1.containsKey(entry.getKey()) && map.get(entry.getKey()) == 1L
+					&& map1.get(entry.getKey()) == 1L) {
+				count++;
+			}
+		}
+		return count;
+	}
+
+	public ArrayList<Integer> zigzagTrav(TNode root) {
 		ArrayList<Integer> list = new ArrayList<Integer>();
 		if (root == null) {
 			return list;
@@ -1696,442 +1643,1049 @@ public class Pract {
 
 		while (!queue.isEmpty()) {
 			int size = queue.size();
+			LinkedList<Integer> temp = new LinkedList<Integer>();
 			for (int i = 0; i < size; i++) {
-				TNode curr = queue.poll();
-				if (leftRight && i == size - 1) {
-					list.add(curr.data);
-				} else if (!leftRight && i == 0) {
-					list.add(curr.data);
+				TNode current = queue.poll();
+
+				if (leftRight) {
+					temp.addLast(current.data);
+				} else {
+					temp.addFirst(current.data);
 				}
-				if (curr.left != null) {
-					queue.add(curr.left);
+				if (current.left != null) {
+					queue.add(current.left);
 				}
-				if (curr.right != null) {
-					queue.add(curr.right);
+				if (current.right != null) {
+					queue.add(current.right);
 				}
 			}
+			list.addAll(temp);
 			leftRight = !leftRight;
 		}
 		return list;
 	}
 
-	public static void builNextRightItrative(TreeNodNextRightNode root) {
-		if (root == null) {
-			return;
-		}
-		Queue<TreeNodNextRightNode> queue = new LinkedList<TreeNodNextRightNode>();
-		queue.add(root);
+	static int spanningTree(int V, ArrayList<ArrayList<int[]>> adj) {
+		PriorityQueue<int[]> queue = new PriorityQueue<int[]>((a, b) -> a[1] - b[1]);
+		queue.add(new int[] { 0, 0 });
+		int mst = 0;
+		boolean[] visited = new boolean[V];
 
 		while (!queue.isEmpty()) {
-			int size = queue.size();
-			TreeNodNextRightNode prev = null;
-
-			for (int i = 0; i < size; i++) {
-				TreeNodNextRightNode cur = queue.poll();
-				if (prev != null) {
-					prev.nextRight = cur;
-				}
-				prev = cur;
-				if (cur.left != null) {
-					queue.add(cur.left);
-				}
-				if (cur.right != null) {
-					queue.add(cur.right);
-				}
+			int[] pair = queue.poll();
+			int node = pair[0];
+			int wt = pair[1];
+			if (visited[node]) {
+				continue;
 			}
-			if (prev != null) {
-				prev.nextRight = null;
-			}
+			mst += wt;
+			visited[node] = true;
 
-		}
-
-	}
-
-	public static boolean isSubsequence(String s, String t) {
-
-		int i = 0, j = 0;
-
-		while (i < s.length() && j < t.length()) {
-			if (s.charAt(i) == t.charAt(j)) {
-				i++;
-			}
-			j++;
-		}
-		return i == s.length();
-	}
-
-	public static boolean plantFlower1(int[] flower, int k) { // properly correct
-		int count = 0;
-		for (int i = 0; i < flower.length; i++) {
-			if ((i == 0 || flower[i - 1] == 0) && (i == flower.length - 1 || flower[i + 1] == 0)) {
-				flower[i] = 1;
-				count++;
-				if (count >= k) {
-					return true;
+			for (int[] neg : adj.get(node)) {
+				if (!visited[neg[0]]) {
+					queue.add(new int[] { neg[0], neg[1] });
 				}
 			}
 		}
-		return false;
+		return mst;
+
 	}
 
-	public static int removeElement(int[] nums, int val) {
-		int i = 0;
-		int len = nums.length;
-		while (i < len) {
-			if (nums[i] == val) {
-				nums[i] = nums[len - 1];
-				len--;
+	static ArrayList<ArrayList<Integer>> verticalOrder(TNode root) {
+		ArrayList<ArrayList<Integer>> list = new ArrayList<ArrayList<Integer>>();
+		if (root == null) {
+			return list;
+		}
+		Map<Integer, ArrayList<Integer>> map = new TreeMap<Integer, ArrayList<Integer>>();
+		Queue<HdNPair> queue = new LinkedList<HdNPair>();
+		queue.add(new HdNPair(0, root));
+
+		while (!queue.isEmpty()) {
+			HdNPair pair = queue.poll();
+
+			if (map.containsKey(pair.hd)) {
+				map.get(pair.hd).add(pair.node.data);
 			} else {
-				i++;
+				ArrayList<Integer> temp = new ArrayList<Integer>();
+				temp.add(pair.node.data);
+				map.put(pair.hd, temp);
+			}
+			if (pair.node.left != null) {
+				queue.add(new HdNPair(pair.hd - 1, pair.node.left));
+			}
+			if (pair.node.right != null) {
+				queue.add(new HdNPair(pair.hd + 1, pair.node.right));
 			}
 		}
-		return len;
-	}
-
-	public String greatestCommonDiv(String str1, String str2) {
-
-	    if (!(str1 + str2).equals(str2 + str1)) {
-	        return "";
-	    }
-
-	    int len = gcd(str1.length(), str2.length());
-
-	    return str1.substring(0, len);
-	}
-
-	private int gcd(int num1, int num2) {
-		if (num2 == 0) {
-			return num1;
-		}
-		return gcd(num2, num1 % num2);
-	}
-	public int numberOfIsland1(int[][] grid) {
-		int m = grid.length;
-		int n= grid[0].length;
-		int count=0;
-		DisjointSetDS disjointSetDS = new DisjointSetDS(m * n);
-		for(int i=0;i<m;i++) {
-			for(int j=0;j<n;j++) {
-				if(grid[i][j]=='L') {
-					count++;
-				}
-			}
-		}
-		int[] dr = { -1, 1, 0, 0, -1, -1, 1, 1 };
-		int[] dc = { 0, 0, -1, 1, -1, 1, -1, 1 };
-		for(int i=0;i<m;i++) {
-			for(int j=0;j<n;j++) {
-				if (grid[i][j] == 'L') {
-				for(int k=0;k<8;k++) {
-					int nr=i+dr[k];
-					int nc = j+dc[k];
-					if(nr>=0 && nc>=0 && nr<m && nc <n && grid[nr][nc]=='L') {
-						if(disjointSetDS.unionWithOutSideCount(i * n+j, nr * n+nc)) {
-							count--;
-						}
-					}
-				}
-			}
-			}
-		}
-		return count;
-		
-	}
-	public int kosaraju(int V, List<List<Integer>> adj) {
-		Stack<Integer> stack = new Stack<Integer>();
-		boolean[] visited = new boolean[V];
-		
-		for(int i=0;i<V;i++) {
-			if(!visited[i]) {
-				dfsScc(i,visited,adj,stack);
-			}
-		}
-		ArrayList<ArrayList<Integer>> revAdj = new ArrayList<ArrayList<Integer>>();
-		for(int i=0;i<V;i++) {
-			revAdj.add(new ArrayList<Integer>());
-		}
-		for(int u=0;u<V;u++) {
-			for(int v:adj.get(u)) {
-				revAdj.get(v).add(u);
-			}
-		}
-		int count=0;
-		Arrays.fill(visited, false);
-		  while (!stack.isEmpty()) {
-
-		        int node = stack.pop();
-
-		        if (!visited[node]) {
-
-		            dfsScc1(node, visited, revAdj);
-
-		            count++;
-		        }
-		    }
-		  return count;
-	}
-
-	private void dfsScc1(int v, boolean[] visited, ArrayList<ArrayList<Integer>> revAdj) {
-		visited[v]=true;
-		
-		for(int ng:revAdj.get(v)) {
-			if(!visited[ng]) {
-				dfsScc1(ng, visited, revAdj);
-			}
-		}
-		
-	}
-
-	private void dfsScc(int v, boolean[] visited, List<List<Integer>> adj, Stack<Integer> stack) {
-		visited[v]=true;
-		
-		for(int ng:adj.get(v)) {
-			if(!visited[ng]) {
-				dfsScc(ng, visited, adj, stack);
-			}
-		}
-		stack.push(v);
-		
-	}
-	
-	public static int pivotIndex(int[] nums) {
-		int sum=0;
-		for(int num:nums) {
-			sum +=num;
-		}
-		int leftSum=0;
-		for(int i=0;i<nums.length;i++) {
-			if(leftSum == (sum-leftSum-nums[i])) {
-				return i;
-			}
-			leftSum +=nums[i];
-		}
-		return -1;
-	}
-	public static boolean uniqueOcuurence(int[] nums) {
-		Map<Integer, Long> map = Arrays.stream(nums).mapToObj(num->(Integer)num)
-		.collect(Collectors.groupingBy(Function.identity(),Collectors.counting()));
-		return map.size()==new HashSet<Long>(map.values()).size();
-	}
-	public static String reverseVowel(String s) {
-		char[] words = s.toCharArray();
-		String vowels = "AEIOUaeiuo";
-		int start=0,end=words.length-1;
-		while(start<end) {
-			while(start<end && vowels.indexOf(words[start])==-1) {
-				start++;
-			}
-			while(start<end && vowels.indexOf(words[end])==-1) {
-				end--;
-			}
-			char temp = words[start];
-			words[start]=words[end];
-			words[end]=temp;
-			start++;
-			end--;
-		}
-		return new String(words);
-	}
-	public static List<Integer> containingChar(String[] words, char ch) {
-		List<Integer> list = new ArrayList<Integer>();
-		for(int i=0;i<words.length;i++) {
-			if(words[i].indexOf(ch)!=-1) {
-				list.add(i);
-			}
+		for (Map.Entry<Integer, ArrayList<Integer>> entry : map.entrySet()) {
+			list.add(entry.getValue());
 		}
 		return list;
 	}
 
-	public static int maxWordsSentence(String[] sentences) {
-		int count=0;
-		for(String word:sentences) {
-			String[] words = word.split(" ");
-			count = Math.max(count, word.length());
-		}
-		return count;
-	}
-	public static int[] findMissingRepeating(int[][] grid) {
-		int n = grid.length;
-		int a = 0, b = 0;
-		HashSet<Integer> set = new HashSet<Integer>();
-		for(int i=0;i<n;i++) {
-			for(int j=0;j<n;j++) {
-				if(set.contains(grid[i][j])) {
-					a=grid[i][j];
-				}
-				set.add(grid[i][j]);
-			}
-		}
-		for (int i = 1; i <= n * n; i++) {
-			if(!set.contains(i)) {
-				b=i;
-				break;
-			}
-		}
-		return new int[] {a,b};
-	}
-	int time = 0;
+	static int[] dijkstra(ArrayList<ArrayList<int[]>> adj, int src) {
+		int V = adj.size();
+		int[] dist = new int[V];
+		Arrays.fill(dist, Integer.MAX_VALUE);
 
-	public List<List<Integer>> findBridges(int n, List<List<Integer>> connections) {
-		List<List<Integer>> adj = new ArrayList<List<Integer>>();
-		for (int i = 0; i < n; i++) {
-			adj.add(new ArrayList<Integer>());
-		}
-		for (List<Integer> edge : connections) {
-			adj.get(edge.get(0)).add(edge.get(1));
-			adj.get(edge.get(1)).add(edge.get(0));
-		}
-		boolean[] visited = new boolean[n];
-		int[] disc = new int[n];
-		int[] low = new int[n];
-		List<List<Integer>> bridges = new ArrayList<>();
-		for (int i = 0; i < n; i++) {
-			if (!visited[i]) {
-				dfsBridge(i, -1, adj, visited, disc, low, bridges);
-			}
-		}
-		return bridges;
-	}
-	private void dfsBridge(int u, int parent, List<List<Integer>> adj, boolean[] visited, int[] disc, int[] low,
-			List<List<Integer>> bridges) {
-		visited[u]=true;
-		disc[u] = low[u] = time++;
-		for(int v:adj.get(u)) {
-			if(v==parent) {
+		PriorityQueue<int[]> queue = new PriorityQueue<int[]>((a, b) -> a[1] - a[1]);
+		queue.add(new int[] { src, 0 });
+		dist[src] = 0;
+
+		while (!queue.isEmpty()) {
+			int[] pair = queue.poll();
+			int node = pair[0];
+			int dest = pair[1];
+
+			if (dest > dist[node]) {
 				continue;
 			}
-			if (!visited[v]) {
-				dfsBridge(v, u, adj, visited, disc, low, bridges);
-				low[u]=Math.min(low[v], low[u]);
-				if(low[v]>disc[u]) {
-					bridges.add(Arrays.asList(u,v));
+
+			for (int[] neg : adj.get(node)) {
+				int negNode = neg[0];
+				int negDist = neg[1];
+
+				if (dist[node] + negDist < dist[negNode]) {
+					dist[negNode] = dist[node] + negDist;
+					queue.add(new int[] { negNode, dist[negNode] });
 				}
-			}else {
-				low[u] = Math.min(low[u], disc[v]);
 			}
 		}
+		return dist;
+	}
+
+	public static ArrayList<Integer> boundryTraversal(TNode root) {
+		ArrayList<Integer> result = new ArrayList<Integer>();
+		if (root == null) {
+			return result;
+		}
+		if (!leaf(root)) {
+			result.add(root.data);
+		}
+		collectLeft(root.left, result);
+		collectLeaf(root, result);
+		collectRight(root.right, result);
+		return result;
+	}
+
+	private static void collectRight(TNode root, ArrayList<Integer> result) {
+		if (root == null || leaf(root)) {
+			return;
+		}
+		if (root.right != null) {
+			collectRight(root.right, result);
+		} else if (root.left != null) {
+			collectRight(root.left, result);
+		}
+		result.add(root.data);
+
+	}
+
+	private static void collectLeaf(TNode root, ArrayList<Integer> result) {
+		if (root == null) {
+			return;
+		}
+		if (leaf(root)) {
+			result.add(root.data);
+			return;
+		}
+		collectLeaf(root.left, result);
+		collectLeaf(root.right, result);
+
+	}
+
+	private static void collectLeft(TNode root, ArrayList<Integer> result) {
+		if (root == null || leaf(root)) {
+			return;
+		}
+		result.add(root.data);
+		if (root.left != null) {
+			collectLeft(root.left, result);
+		} else if (root.right != null) {
+			collectLeft(root.right, result);
+		}
+
+	}
+
+	private static boolean leaf(TNode root) {
+
+		return (root.left == null && root.right == null);
+	}
+	static int[] bellmanFord(int V, int[][] edges, int src) {
+		int[] dist = new int[V];
+		Arrays.fill(dist, Integer.MAX_VALUE);
+		dist[src]=0;
+		
+		for(int i=0;i<V-1;i++) {
+			for(int[] edge:edges) {
+				int u=edge[0];
+				int v=edge[1];
+				int w=edge[2];
+				
+				if(dist[u] !=Integer.MAX_VALUE && dist[u]+w< dist[v]) {
+					dist[v]=dist[u]+w;
+				}
+			}
+		}
+		    for(int[] edge : edges) {
+		        int u = edge[0];
+		        int v = edge[1];
+		        int wt = edge[2];
+
+		        if(dist[u] != Integer.MAX_VALUE && dist[u] + wt < dist[v]) {
+		            return new int[]{-1};  // Negative cycle detected
+		        }
+		    }
+		return dist;
+	}
+	 static int prexIndex=0;
+	 static TNode buildTree(int[] inorder, int[] preorder) {
+		 Map<Integer, Integer> mp = new HashMap<>();
+	        for (int i = 0; i < inorder.length; i++)
+	            mp.put(inorder[i], i);
+	        
+	        return buildRecursive(mp,preorder,0,inorder.length-1);
+		 
+	 }
+
+
+	private static TNode buildRecursive(Map<Integer, Integer> mp, int[] preorder, int start, int end) {
+		if(start>end) {
+			return null;
+		}
+		int rootData = preorder[prexIndex++];
+		TNode rootNode = new TNode(rootData);
+		int rootIndex = mp.get(rootData);
+		rootNode.left= buildRecursive(mp, preorder, start, rootIndex-1);
+		rootNode.right =buildRecursive(mp, preorder, rootIndex+1, end);
+		return rootNode;
+	}
+	public static TNode construct(List<Integer> pre) {
+		TNode root=null;
+		for(int key:pre) {
+			root=insertBST(root,key);
+		}
+		return root;
+	}
+
+	private static TNode insertBST(TNode root, int key) {
+		if(root==null) {
+			return new TNode(key);
+		}else if(root.data>key) {
+			root.left=insertBST(root.left, key);
+		}else {
+			root.right=insertBST(root.right, key);
+		}
+		return root;
+	}
+	 static ArrayList<Integer> dfs7(ArrayList<ArrayList<Integer>> adj) {
+		 int V = adj.size();
+		 boolean[] visited = new boolean[V];
+		 Stack<Integer> stack = new Stack<Integer>();
+		 for(int i=0;i<V;i++) {
+			 if(!visited[i]) {
+				 dfsTopo(i,adj,visited,stack);
+			 }
+		 }
+		 ArrayList<Integer> list = new ArrayList<Integer>();
+		 while(!stack.isEmpty()) {
+				list.add(stack.pop());
+			}
+		return list;
+		 
+	 }
+
+	private static void dfsTopo(int node, ArrayList<ArrayList<Integer>> adj, boolean[] visited, Stack<Integer> stack) {
+		visited[node]=true;
+		
+		for(int neg:adj.get(node)) {
+			if(!visited[neg]) {
+				dfsTopo(neg, adj, visited, stack);
+			}
+		}
+		stack.push(node);
+	}
+	public static ArrayList<Integer> topSortBFS(int V, int[][] edges){
+		ArrayList<ArrayList<Integer>> adj = new ArrayList<ArrayList<Integer>>();
+		ArrayList<Integer> ans = new ArrayList<Integer>();
+		for(int i=0;i<V;i++) {
+			adj.add(new ArrayList<Integer>());
+		}
+		for(int[] edge:edges) {
+			adj.get(edge[0]).add(edge[1]);
+		}
+		int[] inDegree= new int[V];
+		for (int[] edge : edges) {
+		    inDegree[edge[1]]++;
+		}
+		Queue<Integer> queue = new LinkedList<Integer>();
+		for(int i=0;i<V;i++) {
+			if(inDegree[i]==0) {
+				queue.add(i);
+			}
+		}
+		while(!queue.isEmpty()) {
+			int current = queue.poll();
+			ans.add(current);
+			for(int neg:adj.get(current)) {
+				if(--inDegree[neg]==0) {
+					queue.add(neg);
+				}
+			}
+		}
+		return ans;
 		
 	}
-	public static int percentageOfLetter(String s,char ch) {
-		int len = s.length();
-		int count=0;
-		for(int i=0;i<s.length();i++) {
-			if(s.charAt(i)==ch) {
-				count++;
+	public static String firstPlaindramic(String[] words) {
+		for(String word:words) {
+			if(isPalindrome(word)) {
+				return word;
+		  }
+		}
+		return "";
+	}
+
+	private static boolean isPalindrome(String word) {
+		int start=0,end=word.length()-1;
+		while(start<end) {
+			if(word.charAt(start) !=word.charAt(end)) {
+				return false;
 			}
 		}
-		return (count *100)/len;
+		return true;
 	}
-	public static int wordsWithGivePrefix(String[] words,String prefix) {
+
+	
+	public static int evenDigitSum(int num) {
 		int count=0;
-		for(String word:words) {
-			if(word.startsWith(prefix)) {
+		for(int i=1;i<=num;i++) {
+			if(sumDigits(i) % 2==0) {
 				count++;
 			}
 		}
 		return count;
 	}
-	public static int buyChoclates(int[] prices,int money) {
-		Arrays.sort(prices);
-		int total = prices[0]+prices[1];
+	private static int sumDigits(int i) {
+		int sum=0;
+		while(i >0) {
+			int r= i %10;
+			sum +=r;
+			i /=10;
+		}
+		return sum;
+	}
+	public static String[] sortPeople(int[] height,String[] names) {
+		Integer[] indices= new Integer[height.length];
+		for(int i=0;i<height.length;i++) {
+			indices[i]=i;
+		}
+		System.out.println(Arrays.toString(indices));
+		Arrays.sort(indices,(a,b)->height[b]-height[a]);
+		System.out.println(Arrays.toString(indices));
+		String[] result = new String[names.length];
+		for(int i=0;i<height.length;i++) {
+			result[i]=names[indices[i]];
+		}
+		return result;
+	}
+	public static String[] sortPeopleUsingMap(int[] height,String[] names) {
+		HashMap<String, Integer> map = new HashMap<>();
+		for(int i=0;i<height.length;i++) {
+			map.put(names[i],height[i]);
+		}
+		Arrays.sort(names, (a, b) -> map.get(b) - map.get(a));
 		
-		return (total>money?money :(money-total));
+		
+		return names;
+		
 	}
-	public static int maxScoreAfterSplit(String s) {
-		int oneCount=0;
-		for(int i=0;i<s.length();i++) {
-			if(s.charAt(i)=='1') {
-				oneCount++;
+	public static String[] sortPeopleUsingMap1(int[] height,String[] names) {
+		HashMap<Integer, String> map = new HashMap<>();
+		for(int i=0;i<height.length;i++) {
+			map.put(height[i],names[i]);
+		}
+		Arrays.sort(height);
+		String[] result = new String[names.length];
+		int idx=0;
+		for(int i=height.length-1;i>=0;i--) {
+			result[idx++] = map.get(height[i]);
+		}
+		
+		
+		return result;
+		
+	}
+	public static int distinctAvg(int[] nums) {
+		Arrays.sort(nums);
+		int start=0,end=nums.length-1;
+		HashSet<Integer> set = new HashSet<Integer>();
+		while(start<end) {
+			set.add(nums[start]+nums[end]);
+			start++;
+			end--;
+		}
+		return set.size();
+	}
+	public static boolean circularSentence(String sentence) {
+		if(sentence.charAt(0) != sentence.charAt(sentence.length()-1)) {
+			return false;
+		}
+		for(int i=0;i<sentence.length();i++) {
+			if(Character.isWhitespace(sentence.charAt(i))) {
+				if(i==0 || i == sentence.length() - 1) {
+					return false;
+				}
+				if(sentence.charAt(i-1) != sentence.charAt(i+1)) {
+					return false;
+				}
 			}
 		}
-		int zeroCount=0;
-		int maxScore=0;
-		for(int i=0;i<s.length()-1;i++) {
-			if(s.charAt(i)=='0') {
-			   zeroCount++;
+		return true;
+	}
+	
+	public static int maxValue(String[] strs) {
+		int max=Integer.MIN_VALUE;
+		for(String word:strs) {
+			if(chDigits(word)) {
+				max =Math.max(max, Integer.parseInt(word));
 			}else {
-				oneCount--;
+				max= Math.max(max, word.length());
 			}
-			maxScore=Math.max(maxScore, zeroCount+oneCount);
 		}
-		return maxScore;
+		return max;
 	}
-	public static double maxSubarray(int[] nums, int k) {
-		int maxSum = 0;
-		for (int i = 0; i <= nums.length - k; i++) {
-			int currentSum = 0;
-			for(int j=i;j<k+i;j++) {
-				currentSum += nums[j];
+
+	private static boolean chDigits(String word) {
+		int count=0;
+		for(int i=0;i<word.length();i++) {
+			if(Character.isDigit(word.charAt(i))) {
+				count++;
 			}
-			maxSum=Math.max(maxSum, currentSum);
+			
 		}
-		double res = maxSum / (double) k;
-		return res;
+		return count==word.length();
 	}
-	 public List<Integer> articulationPoints(int n, List<List<Integer>> adj) {
-		 boolean[] visited = new boolean[n];
-		  int[] low = new int[n];
-		  int[] tin = new int[n];
-		  boolean[] isArticulation = new boolean[n];
-		  for(int i=0;i<n;i++) {
-			  if(!visited[i]) {
-				  dfsArti(i,-1,visited,isArticulation,adj,low,tin);
+	public static int countSimiliarPair(String[] words) {
+		int count=0;
+		for(int i=0;i<words.length;i++) {
+			for(int j=i+1;j<words.length;j++) {
+				if(checkEquivalent(words[i],words[j])) {
+					count++;
+				}
+			}
+		}
+		return count;
+		}
+
+	private static boolean checkEquivalent(String string, String string2) {
+		HashSet<Character> set = new HashSet<Character>();
+		HashSet<Character> set1 = new HashSet<Character>();
+		for(int i=0;i<string.length();i++) {
+			set.add(string.charAt(i));
+		}
+		for(int i=0;i<string2.length();i++) {
+			set1.add(string2.charAt(i));
+		}
+		
+		return set.equals(set1);
+	}
+	public int  minCommonVal(int[] nums1,int[] nums2) {
+		HashSet<Integer> set = new HashSet<Integer>();
+		for(int num:nums1) {
+			set.add(num);
+		}
+		for(int num:nums2) {
+			if(set.contains(num)) {
+				return num;
+			}
+		}
+		return -1;
+	}
+	
+	public static int alternatDigitSum(int num) {
+		int sum=0;
+		String strNum=num+"";
+		sum += Character.getNumericValue(strNum.charAt(0));
+		for(int i=1;i<strNum.length();i++) {
+			if(i %2==0) {
+				sum += Character.getNumericValue(strNum.charAt(i));
+			}else {
+				sum -= Character.getNumericValue(strNum.charAt(i));
+			}
+		}
+		return sum;
+	}
+	public static int alternatDigitSum1(int num) {
+		int sum =0;
+		int sign=1;
+		
+		while(num>0) {
+			int digit = num %10;
+			sum +=sign*digit;
+			sign *=-1;
+			num /=10;
+		}
+		return sum;
+	}
+	public static int arrayConcat1(int[] nums) {
+		if (nums.length == 1) {
+			return nums[0];
+		}
+		int start=0,end=nums.length-1;
+		int concatSum=0;
+		while(start<end) {
+			 String strSum = nums[start]+""+nums[end];
+			 concatSum += Integer.parseInt(strSum);
+			 start++;
+			 end--;
+		}
+		return concatSum;
+	}
+	
+	public static int countVowel(String[] words) {
+		int count = 0;
+		String vowleString = "AEIOUaeiou";
+		for(String word:words) {
+			if(vowleString.indexOf(word.charAt(0))!=-1 &&(vowleString.indexOf(word.charAt(word.length()-1)) !=-1)){
+				count++;
+			}
+		}
+		return count;
+		
+	}
+	public static int delyedTime(int arrivalTime, int delayTime) {
+		int arrTime=0;
+		arrTime = arrivalTime+delayTime;
+		if(arrTime>=24) {
+			arrTime -=24;
+		}
+		return arrTime;
+	}
+	public static int sumOfMultiples(int n) {
+		int sum = 0;
+		
+		for(int i=1;i<=n;i++) {
+			if(i % 3 ==0 || i % 5 ==0 || i % 7==0) {
+				sum +=i;
+			}
+		}
+		return sum;
+		
+	}
+	public static int arrayConcat2(int[] nums) {
+		int sum = 0;
+		int i=0,j=nums.length-1;
+		while(i<j) {
+			sum += nums[i] *10 +nums[j];
+			i++;
+			j--;
+		}
+		return sum;
+	}
+	public static int isWinner(int[] player1, int[] player2) {
+		if(countScore(player1)>countScore(player2)) {
+			return 1;
+		} else if (countScore(player1) < countScore(player2)) {
+			return 2;
+		} else {
+			return 0;
+		}
+	}
+
+	private static int countScore(int[] player) {
+		int score=0;
+		for(int i=0;i<player.length;i++) {
+			if(i==0) {
+				score +=player[i];
+			}else if(i==1) {
+				if(player[i-1]==10) {
+					score += 2*player[i];
+				}else {
+					score +=player[i];
+				}
+			}else if(i>1) {
+				if(player[i-1]==10 || player[i-2]==10) {
+					score += 2*player[i];
+				}else {
+					score +=player[i];
+				}
+			}
+		}
+		return score;
+	}
+	public static int[] distictDiff(int[] nums) {
+		int start=1,end=nums.length-1;
+		System.out.println(end);
+		int[] result = new int[nums.length];
+		int idx=0;
+		while(idx<nums.length) {
+			result[idx++]=start-end;
+			start++;
+			end--;
+		}
+		return result;
+	}
+	public static int[] distictDiff1(int[] nums) {
+		int[] result = new int[nums.length];
+		for(int i=0;i<nums.length;i++) {
+			
+			HashSet<Integer> set = new HashSet<Integer>();
+			for(int j=0;j<=i;j++) {
+				set.add(nums[j]);
+			}
+			HashSet<Integer> set1 = new HashSet<Integer>();
+			for(int k=i+1;k<nums.length;k++) {
+				set1.add(nums[k]);
+			}
+			result[i]=set.size()-set1.size();
+		}
+		return result;
+	}
+	
+	public static int totalDistanceTravlled(int mainTank,int additonalTank) {
+		int totalDistance=0;
+		
+		while(mainTank>=5 && additonalTank>0) {
+			mainTank =(mainTank-5)+1;
+			totalDistance +=50;
+			additonalTank--;
+		}
+		return totalDistance +=mainTank*10;
+	}
+	  public static boolean isGood(int[] nums) {
+		  Arrays.sort(nums);
+		  int max= nums[nums.length-1];
+		  if(nums.length !=(max+1)) {
+			  return false;
+		  }
+		  HashMap<Integer, Integer> map = new HashMap<Integer, Integer>();
+		  for(int i=0;i<nums.length;i++) {
+			  if(map.containsKey(nums[i])) {
+				  map.put(nums[i], map.get(nums[i])+1);
+			  }else {
+				  map.put(nums[i], 1);
 			  }
 		  }
-		  List<Integer> result = new ArrayList<>();
-	        for (int i = 0; i < n; i++) {
-	            if (isArticulation[i]) result.add(i);
-	        }
+		  ArrayList<Integer> list = new ArrayList<Integer>(map.values());
+		  int count=0;
+		  for(int num:list) {
+			  if(num>=2) {
+				  count++;
+			  }
+		  }
+		  if(map.get(max)==2 && count==1) {
+			  return true;
+		  }
+		return false;
+	  }
+	  public static List<String> splitWordsbySeprator(List<String> words,String seprator){
+		   List<String> list = new ArrayList<String>();
+		   for(String word:words) {
+			   String[] wordArr =  word.split("["+seprator+"]");
+			   for(String word1:wordArr) {
+				    if(!word1.isEmpty())
+					  list.add(word1);
+				  }
+		   }
+		   return list;
+	  }
+	  
+	  public static int Accountbalance(int purchaseAmount) {
+		  int rem = purchaseAmount % 10;
+		  int balance =10-rem;
+		  if (purchaseAmount < 0) return 100;
+		    if (purchaseAmount > 100) return 0;
+		  if(rem >5) {
+			  purchaseAmount +=balance;
+		  }else {
+			  purchaseAmount -=rem;
+		  }
+		  
+		  return 100-purchaseAmount;
+	  }
+	  public static int maxSum(int[] nums) {
+		  int maxSum=-1;
+		  for(int i=0;i<nums.length;i++) {
+			  for(int j=i+1;j<nums.length;j++) {
+				  if(findMax(nums[i])==findMax(nums[j])) {
+					  maxSum =Math.max(maxSum, nums[i]+nums[j]);
+				  }
+			  }
+		  }
+		return maxSum;
+	  }
+	  
 
-	        return result;
-	 }
-	
-
-	 private void dfsArti(int node, int  parent, boolean[] visited, boolean[] isArticulation, List<List<Integer>> adj, int[] low,
-				int[] tin) {
-		visited[node]=true;
-		low[node] =tin[node]=time++;
-		int childCount=0;
+	private static int findMax(int num) {
+		int maxDigit=0;
+		while(num !=0) {
+			int r= num %10;
+			maxDigit = Math.max(maxDigit, r);
+			num /=10;
+		}
+		return maxDigit;
+	}
+	public static int maxEqualDigitSum(int[] nums) {
+		int ans=0;
+		HashMap<Integer, Integer> map = new HashMap<Integer, Integer>();
 		
-		for(int neg:adj.get(node)) {
-			 if(neg==parent) {
-				 continue;
-			 }
-			 if(!visited[neg]) {
-				 dfsArti(neg, node, visited, isArticulation, adj, low, tin);
-				 low[node] = Math.min(low[node], low[neg]);
-				 if(low[neg]>=tin[node] && parent !=-1) {
-					 isArticulation[node]=true;
-				 }
-				 childCount++;
-				 
-			 }else {
-				 low[node] = Math.min(low[node], tin[neg]);
-			 }
-			 if(parent ==-1 && childCount>1) {
-				 isArticulation[node]=true;
-			 }
+		for(int num:nums) {
+			int maxDisgit= findMax(num);
+			if(map.containsKey(maxDisgit)) {
+				ans = Math.max(ans, num+map.get(maxDisgit));
+				map.put(maxDisgit, Math.max(map.get(maxDisgit), num));
+			}else {
+				map.put(maxDisgit, num);
+			}
+		}
+		return ans;
+	} 
+
+	public static int minOprations(int[] nums,int k) {
+		HashSet<Integer> set = new HashSet<Integer>();
+		for(int i=1;i<=k;i++) {
+			set.add(i);
+		}
+		int count=0;
+		for(int i = nums.length - 1; i >= 0; i--) {
+			if(set.contains(nums[i])) {
+				set.remove(nums[i]);
+				if(set.isEmpty()) {
+					break;
+				}
+			}
+			count++;
+		}
+		return count;
+	}
+	public static int minOperationsCorrectCode(int[] nums, int k) {
+			HashSet<Integer> set = new HashSet<Integer>();
+			int count=0;
+			for(int i = nums.length - 1; i >= 0; i--) {
+				if(nums[i]<=k) {
+					set.add(nums[i]);
+				}
+				count++;
+				if(set.size()==k) {
+					 return count;
+				}
+			}
+			return count;
+	}
+	  static int findDist(TNode root, int a, int b) {
+		  TNode lcaNode = findLCA(root,a,b);
+		  int d1 = findDis(lcaNode,a,0);
+		  int d2 = findDis(lcaNode, b, 0);
+		  return d1+d2;
+		  
+		  
+	  }
+	private static int findDis(TNode root, int a, int level) {
+	   if(root==null) {
+		   return -1;
+	   }
+	   if(root.data ==a) {
+		   return level;
+	   }
+	   int left = findDis(root.left, a, level+1);
+	   if(left==-1) {
+		   return findDis(root.right, a, level+1);
+	   }
+		return left;
+	}
+
+	private static TNode findLCA(TNode root, int a, int b) {
+		if(root==null) {
+			return null;
+		}
+		if(root.data ==a || root.data ==b) {
+			return root;
+		}
+		TNode left = findLCA(root.left, a, b);
+		TNode right =findLCA(root.right, a, b);
+		if(left !=null && right !=null){
+			return root;
+		}
+		if(left ==null) {
+			return right;
+		}
+		if(right==null) {
+			return left;
+		}
+		return root;
+	}
+	public int kosaraju(int V, List<List<Integer>> adj) {
+		boolean[] visited = new boolean[V];
+		Stack<Integer> stack = new Stack<Integer>();
+		
+		for(int i=0;i<V;i++) {
+			if(!visited[i]) {
+				dfsK1(i,visited,stack,adj);
+			}
+		}
+		ArrayList<ArrayList<Integer>> revAdj = new ArrayList<ArrayList<Integer>>();
+		
+		for(int i=0;i<V;i++) {
+			revAdj.add(new ArrayList<Integer>());
+		}
+		for(int u=0;u<V;u++) {
+			for(int n:adj.get(u)) {
+				revAdj.get(n).add(u);
+			}
+		}
+		int count=0;
+		Arrays.fill(visited, false);
+		while(!stack.isEmpty()) {
+			int node = stack.pop();
+			if(!visited[node]) {
+				dfsK2(node,revAdj,visited);
+				count++;
+			}
+		}
+		return count;
+	}
+
+	private void dfsK2(int node, ArrayList<ArrayList<Integer>> revAdj, boolean[] visited) {
+      visited[node]=true;
+		
+		for(int neg:revAdj.get(node)) {
+			if(!visited[neg]) {
+				dfsK2(neg, revAdj, visited);
+			}
 		}
 		
 	}
-	 public void floydWarshall(int[][] dist, int n) {
-		 
-		 for(int k=0;k<n;k++) {
-			 
-			 for(int i=0;i<n;i++) {
-				 
-				 for(int j=0;j<n;j++) {
-					 if(dist[i][k] !=Integer.MAX_VALUE &&   dist[k][j] != Integer.MAX_VALUE) {
-						 dist[i][j]=Math.min(dist[i][j], dist[i][k]+dist[k][j]);
-					 }
-				 }
-			 }
-		 }
-	 }
+
+	private void dfsK1(int node, boolean[] visited, Stack<Integer> stack, List<List<Integer>> adj) {
+		visited[node]=true;
+		
+		for(int neg:adj.get(node)) {
+			if(!visited[neg]) {
+				dfsK1(neg, visited, stack, adj);
+			}
+		}
+		stack.push(node);
+		
+	}
+	public static int highestAltitude(int[] gain) {
+		int currentgain=0,maxGain=0;
+		for(int i=0;i<gain.length;i++) {
+			currentgain +=gain[i];
+			maxGain=Math.max(maxGain, currentgain);
+		}
+		return maxGain;
+	}
+	public static int[] valueDiff(int[] nums,int indexDiff,int valueDiff) {
+		for(int i=0;i<nums.length;i++) {
+			for(int j=i+1;j<nums.length-1;j++) {
+				if(Math.abs(i-j)>=indexDiff && Math.abs(nums[i]-nums[j])>=valueDiff) {
+					return new int[] {i,j};
+				}
+			}
+		}
+		return new int[] {-1,-1};
+	}
+	public static boolean wordPattern(String pattern,String s) {
+		String[] words = s.split(" ");
+		if(pattern.length() !=words.length) {
+			return false;
+		}
+		HashMap<Character, String> char_map= new  HashMap<Character, String>();
+		HashMap<String, Character> word_map = new HashMap<String, Character>();
+		
+		for(int i=0;i<words.length;i++) {
+			String word= words[i];
+			char ch = pattern.charAt(i);
+			
+			if(!char_map.containsKey(ch)) {
+				if(word_map.containsKey(word)) {
+					return false;
+				}else {
+					char_map.put(ch, word);
+					word_map.put(word, ch);
+				}
+			}else {
+				if(!char_map.get(ch).equals(word)) {
+					return false;
+				}
+			}
+		}
+		return true;
+	}
+	public static int[] leftSumRightSumDiff1(int[] nums) {
+		int sum=0;
+		for(int i=0;i<nums.length;i++) {
+			sum +=nums[i];
+		}
+		int leftSum=0;
+		int[] ans=new int[nums.length];
+		for(int i=0;i<nums.length;i++) {
+			int rightSum= sum-leftSum-nums[i];
+			ans[i]=Math.abs(leftSum-rightSum);
+			leftSum=leftSum+nums[i];
+		}
+		return ans;
+	}
+	public static List<ArrayList<Integer>> twoArrayDiff(int[] nums1,int[] nums2) {
+		return Arrays.asList(findDiff(nums1,nums2),findDiff(nums2,nums1));
+	}
+
+	private static ArrayList<Integer> findDiff(int[] nums1, int[] nums2) {
+		HashSet<Integer> set = new HashSet<Integer>();
+		for(int num:nums1) {
+			set.add(num);
+		}
+		ArrayList<Integer> ans = new ArrayList<Integer>();
+		for(int num:nums2) {
+			if(!set.contains(num)) {
+				ans.add(num);
+			}
+		}
+		return ans;
+	}
+	public static boolean contigous1S0S(String s) {
+		int currentOne=0,currentZero=0;
+		int maxOne=0,maxZero=0;
+		for(int i=0;i<s.length();i++) {
+			if(s.charAt(i)=='1') {
+				currentOne++;
+				currentZero =0;
+			}else {
+				currentOne=0;
+				currentZero++;
+			}
+			maxOne=Math.max(maxZero, currentZero);
+			maxZero =Math.max(maxOne, currentOne);
+		}
+		return maxOne>maxZero;
+	}
+	
+	public static int contigousChar(String s) {
+		int current=1,max=1;
+		for(int i=1;i<s.length();i++) {
+			if(s.charAt(i-1)== s.charAt(i)){
+				current++;
+			}else {
+				current=1;
+			}
+			max=Math.max(current, max);
+		}
+		return max;
+		
+	}
+	public static int maxBallons(String text) {
+		HashMap<Character, Integer> map = new HashMap<Character, Integer>();
+		map.put('b', 0);
+        map.put('a', 0);
+        map.put('l', 0);
+        map.put('o', 0);
+        map.put('n', 0);
+        for(int i=0;i<text.length();i++) {
+        	if(map.containsKey(text.charAt(i))) {
+        		map.put(text.charAt(i), map.get(text.charAt(i))+1);
+        	}
+        }
+        int min=map.get('b');
+        min =Math.min(min, map.get('a'));
+        min=Math.min(min, map.get('a'));
+        min=Math.min(min, map.get('l')/2);
+        min=Math.min(min, map.get('o')/2);
+        min=Math.min(min, map.get('n'));
+        return min;
+        
+	}
+	
+	public static int maxSumLeafPath(TNode root) {
+		int[] maxSum= {Integer.MIN_VALUE};
+		findMasxSumPath(root,0,maxSum);
+		return maxSum[0];
+	}
+	
+
+	private static void findMasxSumPath(TNode root, int currentSum, int[] maxSum) {
+		if(root==null) {
+			return;
+		}
+		currentSum +=root.data;
+		if(root.left ==null && root.right==null) {
+			maxSum[0]=Math.max(maxSum[0],currentSum);
+			return;
+		}
+		findMasxSumPath(root.left, currentSum, maxSum);
+		findMasxSumPath(root.right, currentSum, maxSum);
+	}
+	public static int maxPathSumLeaf2(TNode root) {
+		if(root==null) {
+			return 0;
+		}
+		Queue<NodeSumPair> queue = new LinkedList<NodeSumPair>();
+		queue.add(new NodeSumPair(root, root.data));
+		
+		int maxSum=Integer.MIN_VALUE;
+		while(!queue.isEmpty()) {
+			NodeSumPair pair = queue.poll();
+			TNode node =pair.node;
+			int currentSum =pair.sum;
+			if(node.left==null && node.right==null) {
+				maxSum=Math.max(maxSum, currentSum);
+			}
+			if(node.left!=null) {
+				queue.add(new NodeSumPair(node.left, currentSum+node.left.data));
+			}
+			if(node.right!=null) {
+				queue.add(new NodeSumPair(node.right, currentSum+node.right.data));
+			}
+		}
+		return maxSum;
+	}
+	  static boolean canFinish1(int n, int[][] prerequisites) {
+		  boolean[] visited = new boolean[n];
+		  boolean[] resStack = new boolean[n];
+		  
+		  ArrayList<ArrayList<Integer>> adj = new ArrayList<>();
+	        for (int i = 0; i < n; i++) {
+	            adj.add(new ArrayList<>());
+	        }
+	        for (int[] pre : prerequisites) {
+	            int dest = pre[0];
+	            int src = pre[1];
+	            adj.get(src).add(dest);
+	        }
+	        
+	        for(int i=0;i<n;i++) {
+	        	if(!visited[i]) {
+	        		if(dfsCanFinish(i,visited,adj,resStack)) {
+	        			return false;
+	        		}
+	        	}
+	        }
+	        return true;
+	        
+		  
+	  }
+
+	private static boolean dfsCanFinish(int node, boolean[] visited, ArrayList<ArrayList<Integer>> adj,
+			boolean[] recStack) {
+		visited[node]=true;
+		recStack[node]=true;
+		
+		for(int neg:adj.get(node)) {
+			if(!visited[neg]) {
+				if(dfsCanFinish(neg, visited, adj, recStack)) {
+					return true;
+				}
+			}else if(recStack[neg]) {
+				return true;
+			}
+		}
+		recStack[node]=false;
+		return false;
+	}
 
 	public static void main(String[] args) {
-	String s="foobar"; char ch='o';
-	System.out.println(percentageOfLetter(s, ch));
+       int mainTank=5;
+       int addtank=10;
+       System.out.println(totalDistanceTravlled(mainTank, addtank));
 	}
 
 }

@@ -4,8 +4,8 @@ import java.util.List;
 
 public class NodeSumPair {
 	
-	TNode node;
-	int sum;
+	public TNode node;
+	public int sum;
 	//List<Integer> path;
 	
 	public NodeSumPair(TNode node,int sum) { //List<Integer> path

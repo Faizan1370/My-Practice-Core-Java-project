@@ -58,7 +58,7 @@ public class FrogJump {
 		    }
 		    return dp[n - 1];
 	}
-	//pace Optimized (Best)
+	//space Optimized (Best)
 	public int frogJump3(int[] h) {
 	    int n = h.length;
 

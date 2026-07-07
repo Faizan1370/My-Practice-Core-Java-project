@@ -7,14 +7,18 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.PriorityQueue;
+import java.util.Queue;
 import java.util.Set;
 import java.util.Stack;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+
+import com.dsa.pract.TNode;
 
 public class LeetCodeRevision1 {
 
@@ -393,7 +397,7 @@ public class LeetCodeRevision1 {
 		String result = "";
 		for (int i = s.length() - 1; i >= 0; i--) {
 			result += s.charAt(i);
-		}
+		} 
 		return result;
 
 	}
@@ -558,6 +562,7 @@ public class LeetCodeRevision1 {
 		}
 		return nums;
 	}
+	
 
 	public static double avgSal(int[] salaries) {
 		int max = Arrays.stream(salaries).max().getAsInt();
@@ -909,7 +914,7 @@ public class LeetCodeRevision1 {
 		}
 		return true;
 	}
-
+	
 	public static void main(String[] args) {
 		String[] word1= {"abc","cas","","ada","as"};
 		System.out.println(firstPalindromic(word1));
